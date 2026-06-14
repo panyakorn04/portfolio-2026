@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Panyakorn Boonyong Portfolio
 
-## Getting Started
+Modern one-page portfolio for Panyakorn Boonyong, built with Next.js, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## Tech stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Kanit font via `next/font/google`
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Optional environment variable:
 
-## Learn More
+```bash
+cp .env.example .env.local
+```
 
-To learn more about Next.js, take a look at the following resources:
+```text
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Production check
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run lint
+npm run build
+```
 
-## Deploy on Vercel
+## Content to update before publishing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- GitHub: https://github.com/panyakorn04
+- LinkedIn: https://www.linkedin.com/in/eee-panyakorn-512b17304/
+- Add custom domain after deployment
+- Replace private project descriptions with approved screenshots or sanitized mockups if available
+- Add measurable metrics / impact once confirmed
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Important files
+
+```text
+src/app/[lang]/page.tsx           # Localized portfolio page content
+src/app/[lang]/layout.tsx         # Localized metadata and root layout
+src/app/(root)/page.tsx           # Redirect from / to default locale
+src/app/sitemap.ts                # Localized sitemap.xml output
+src/app/robots.ts                 # robots.txt output
+src/app/globals.css               # Global styles
+public/assets/profile.png         # Profile photo extracted from resume
+public/Panyakorn_Boonyong_Resume.pdf
+```
+
+## Deploying to Vercel
+
+1. Push this folder to a GitHub repository.
+2. Import the repository in Vercel.
+3. Keep the default build command:
+
+```bash
+npm run build
+```
+
+4. Keep the default output settings for Next.js.
+5. Add the final Vercel/custom domain URL back into the resume and portfolio contact links.

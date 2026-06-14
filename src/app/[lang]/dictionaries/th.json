@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "metaTitle": "Panyakorn Boonyong | Frontend / Full-stack Developer",
+    "metaDescription": "พอร์ตโฟลิโอของ Panyakorn Boonyong นักพัฒนา frontend และ full-stack จากกรุงเทพฯ ที่โฟกัส React, Next.js, TypeScript, AI integrations และ secure product experiences",
+    "openGraphTitle": "Panyakorn Boonyong | Frontend / Full-stack Developer",
+    "openGraphDescription": "React, Next.js, TypeScript, AI integrations, secure product flows และ production web applications"
+  },
+  "ui": {
+    "brandRole": "frontend/full-stack developer",
+    "languageLabel": "EN",
+    "menuLabel": "เมนู",
+    "closeMenuLabel": "ปิด",
+    "contactCta": "ติดต่อผม",
+    "sessionLabel": "session://portfolio",
+    "profilePreviewLabel": "/ตัวอย่างโปรไฟล์",
+    "statsLabel": "/สถิติ",
+    "linksLabel": "/ลิงก์",
+    "stackLabel": "สแตก",
+    "currentRoleLabel": "บทบาทปัจจุบัน",
+    "channelsLabel": "ช่องทางติดต่อ",
+    "availabilityLabel": "สถานะ",
+    "profileImageAlt": "รูปโปรไฟล์ของ Panyakorn Boonyong",
+    "commands": {
+      "boot": "boot",
+      "whoami": "whoami",
+      "role": "role",
+      "focus": "focus",
+      "status": "status",
+      "about": "cat about.md",
+      "work": "ls projects/",
+      "skills": "cat stack.json",
+      "experience": "history --career",
+      "contact": "open contact/"
+    }
+  },
+  "hero": {
+    "badge": "Frontend / Full-stack Developer จากกรุงเทพฯ",
+    "heroTitle": "สร้างเว็บโปรดักต์ที่สวย ใช้งานจริง และต่อยอดได้ด้วย React, Next.js และ AI workflows",
+    "heroText": "ผมคือ Panyakorn Boonyong นักพัฒนาเว็บสาย frontend ที่มีประสบการณ์มากกว่า 5 ปีในการสร้างเว็บแอปพลิเคชันสำหรับใช้งานจริง ครอบคลุมระบบแนว financial และ exchange, authentication, KYC, wallet flow และฟีเจอร์ที่เชื่อมต่อ AI เข้ากับโปรดักต์",
+    "heroKicker": "พอร์ตโฟลิโอ 2026",
+    "heroNote": "เปิดรับทีมที่ต้องการคนทำ frontend, full-stack และ AI-enabled product",
+    "viewWork": "ดูผลงานเด่น",
+    "downloadResume": "ดาวน์โหลด Resume",
+    "contactMe": "ติดต่อผม",
+    "focusedTitle": "โฟกัสหลักตอนนี้",
+    "focusedText": "Frontend architecture สำหรับงาน production, การเชื่อมต่อ AI เข้ากับโปรดักต์, secure user flows และ reusable UI systems"
+  },
+  "sections": {
+    "aboutEyebrow": "เกี่ยวกับ",
+    "aboutTitle": "งาน frontend ที่เข้าใจทั้ง product, security และบริบทของ AI",
+    "aboutText": "ผมทำงานได้ตั้งแต่การทำความเข้าใจ requirement, เชื่อมต่อ API, วาง frontend architecture ไปจนถึงดูแลระบบหลังขึ้น production เหมาะกับทีมที่ต้องการคนดูแล web flow ที่ซับซ้อนแบบ end-to-end ตั้งแต่ typed data fetching, state management, reusable UI system ไปจนถึงการปรับแต่งประสบการณ์ผู้ใช้ให้ใช้งานลื่นไหล",
+    "principles": [
+      "สร้าง interface ที่พร้อมใช้งานจริงทั้งบน desktop และ mobile",
+      "สร้าง user journey ที่ปลอดภัย เช่น auth, KYC, wallet และ transaction flows",
+      "แปลง API ให้เป็น data layer และ UI pattern ที่ typed ชัดเจนและนำกลับมาใช้ซ้ำได้",
+      "ใช้ AI tools อย่างเหมาะสมเพื่อ automate workflow และช่วยให้ส่งมอบงานได้เร็วขึ้น"
+    ],
+    "workEyebrow": "ผลงานที่เลือกมา",
+    "workTitle": "ประสบการณ์จากโปรเจกต์จริง นำเสนอในรูปแบบที่ปลอดภัยต่อ portfolio",
+    "workText": "ส่วนนี้ไม่เปิดเผยชื่อโปรเจกต์จริง แต่ยังคงสื่อสารขอบเขตงาน บทบาท และความลึกด้านเทคนิคของงานที่ส่งมอบได้ชัดเจน",
+    "featuredWork": [
+      {
+        "eyebrow": "แพลตฟอร์มการเงิน",
+        "title": "เว็บแพลตฟอร์มแนว Exchange",
+        "description": "พัฒนา frontend modules สำหรับ market pages, trading/convert journeys, dashboard, wallet, deposit, withdrawal, fiat/OTC flows และ transaction history",
+        "bullets": [
+          "จัดการ routing ที่ขึ้นกับ authentication พร้อม access/refresh-token handling และ protected pages",
+          "พัฒนา flow ด้าน KYC, email verification, 2FA checks, OTP requests, withdrawal pre-checks และ confirmation modals",
+          "วางโครงสร้างหลายภาษา เช่น ไทย/อังกฤษ ด้วย Next.js App Router และ i18n routing patterns"
+        ],
+        "stack": ["Next.js", "React", "TypeScript", "Axios", "i18n", "KYC"]
+      },
+      {
+        "eyebrow": "AI Product",
+        "title": "Web console สำหรับ AI-enabled application",
+        "description": "พัฒนา feature modules เช่น chatbot configuration, knowledge management, workflow management, meetings, billing-related screens และส่วนงานของทีม",
+        "bullets": [
+          "สร้าง typed data layers ด้วย React Query, query-key factories, mutation hooks และ SDK clients",
+          "เชื่อม Auth0 authentication และ real-time updates ผ่าน SSE/WebSocket",
+          "พัฒนา shared UI components ใน pnpm + Turborepo monorepo พร้อม TypeScript boundaries"
+        ],
+        "stack": ["React Query", "Auth0", "SSE", "WebSocket", "Turborepo", "LLM"]
+      },
+      {
+        "eyebrow": "Commerce",
+        "title": "Storefront สองภาษาและ automation flows",
+        "description": "พัฒนา commerce และ reseller features เช่น product catalog, cart, checkout/payment, customer accounts, flash sales, commission logic และ CMS-driven content",
+        "bullets": [
+          "สร้าง user journeys สำหรับ account, checkout, payment และ reseller/commission",
+          "สร้าง mobile deep-link previews, store fallback และ Open Graph sharing infrastructure",
+          "Self-host n8n ด้วย Docker เพื่อเชื่อมผลลัพธ์จาก LLM เข้ากับ workflow ขั้นถัดไป"
+        ],
+        "stack": ["Next.js", "CMS", "n8n", "Docker", "Open Graph", "Payments"]
+      }
+    ],
+    "skillsEyebrow": "ความสามารถ",
+    "skillsTitle": "ระบบ frontend สมัยใหม่ พร้อม workflow ที่ใช้ AI อย่างมีเหตุผล",
+    "skillsText": "แม้เครื่องมือจะหลากหลาย แต่แกนหลักของงานยังเหมือนเดิม คือ architecture ที่ชัด ส่งมอบได้จริง และดูแลต่อหลัง launch ได้ง่าย",
+    "skills": [
+      { "group": "Frontend", "list": "React.js, Next.js, TypeScript, JavaScript, HTML5, CSS3 และ responsive UI" },
+      { "group": "State / Data", "list": "React Query, Redux, RTK Query, Zustand, Context API, Axios และ REST APIs" },
+      { "group": "UI Systems", "list": "Tailwind CSS, Ant Design, Material UI, Radix UI, Bootstrap และ Styled-components" },
+      { "group": "AI / LLM", "list": "Claude API, OpenAI API, prompt design, n8n workflow automation และ AI-assisted development" },
+      { "group": "Backend / CMS", "list": "Node.js, Golang, PHP / WordPress, Directus และ JSON APIs" },
+      { "group": "Tools", "list": "Git, Docker, pnpm, Turborepo, Vitest, Biome, Postman, Swagger, JIRA และ Confluence" }
+    ],
+    "experienceEyebrow": "ประสบการณ์",
+    "roleTitle": "Web Developer",
+    "company": "บริษัทด้าน EdTech / Education Streaming",
+    "timeline": "มี.ค. 2021 – ปัจจุบัน · กรุงเทพฯ · เติบโตจากตำแหน่ง Junior Web Developer",
+    "experienceBullets": [
+      "พัฒนาและดูแล production web applications ด้วย React.js, Next.js, TypeScript, RESTful APIs และ responsive UI patterns สำหรับ desktop และ mobile",
+      "สร้างฟีเจอร์ตั้งแต่ API integration, state management, validation, error handling ไปจนถึง reusable UI components ด้วย Redux, Zustand, React Query, Tailwind CSS, Material UI และ Ant Design",
+      "เชื่อมต่อ LLM APIs และ AI-assisted workflows เช่น Claude/OpenAI API, prompt/data-flow design, n8n automation และเครื่องมือ AI-assisted development"
+    ],
+    "contactEyebrow": "ติดต่อ",
+    "contactTitle": "มาสร้างเว็บโปรดักต์ที่มีประโยชน์ ปลอดภัย และใช้งานดีร่วมกันครับ",
+    "contactText": "เปิดรับโอกาสด้าน frontend, full-stack, AI integration และการพัฒนาเว็บที่เน้นคุณค่าของโปรดักต์",
+    "nextTitle": "สิ่งที่ควรต่อยอด",
+    "roadmap": [
+      "เพิ่ม custom domain หลังจาก deploy ขึ้น Vercel",
+      "แทนที่ placeholder ด้วย screenshot ที่อนุมัติแล้ว หรือ mockup ที่ไม่เปิดเผยข้อมูลลับ",
+      "เพิ่มตัวเลข impact เช่น performance, conversion หรือความเร็วในการส่งมอบงาน"
+    ]
+  },
+  "contactLabels": {
+    "email": "อีเมล",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "line": "LINE",
+    "resume": "เรซูเม่"
+  },
+  "socialLinks": {
+    "github": "GitHub",
+    "linkedin": "LinkedIn"
+  },
+  "navItems": [
+    { "id": "about", "label": "เกี่ยวกับ" },
+    { "id": "work", "label": "ผลงาน" },
+    { "id": "skills", "label": "ทักษะ" },
+    { "id": "experience", "label": "ประสบการณ์" },
+    { "id": "contact", "label": "ติดต่อ" }
+  ],
+  "stats": [
+    { "value": "5+", "label": "ปีในการสร้างเว็บ production" },
+    { "value": "React", "label": "Next.js, TypeScript และ state/data architecture" },
+    { "value": "AI", "label": "LLM APIs, n8n automation และ AI workflows" }
+  ]
+}

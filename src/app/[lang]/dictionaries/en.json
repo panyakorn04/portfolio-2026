@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "metaTitle": "Panyakorn Boonyong | Frontend / Full-stack Developer",
+    "metaDescription": "Portfolio of Panyakorn Boonyong, a Bangkok-based frontend and full-stack developer focused on React, Next.js, TypeScript, AI integrations, and secure product experiences.",
+    "openGraphTitle": "Panyakorn Boonyong | Frontend / Full-stack Developer",
+    "openGraphDescription": "React, Next.js, TypeScript, AI integrations, secure product flows, and production web applications."
+  },
+  "ui": {
+    "brandRole": "frontend/full-stack developer",
+    "languageLabel": "TH",
+    "menuLabel": "Menu",
+    "closeMenuLabel": "Close",
+    "contactCta": "Contact me",
+    "sessionLabel": "session://portfolio",
+    "profilePreviewLabel": "/profile/preview",
+    "statsLabel": "/stats",
+    "linksLabel": "/links",
+    "stackLabel": "stack",
+    "currentRoleLabel": "current_role",
+    "channelsLabel": "channels",
+    "availabilityLabel": "availability",
+    "profileImageAlt": "Panyakorn Boonyong profile photo",
+    "commands": {
+      "boot": "boot",
+      "whoami": "whoami",
+      "role": "role",
+      "focus": "focus",
+      "status": "status",
+      "about": "cat about.md",
+      "work": "ls projects/",
+      "skills": "cat stack.json",
+      "experience": "history --career",
+      "contact": "open contact/"
+    }
+  },
+  "hero": {
+    "badge": "Bangkok-based Frontend / Full-stack Developer",
+    "heroTitle": "Building polished web products with React, Next.js, and AI workflows.",
+    "heroText": "I’m Panyakorn Boonyong, a frontend-focused web developer with 5+ years of experience building production applications, financial and exchange-style flows, authentication, KYC, wallet experiences, and AI-integrated product features.",
+    "heroKicker": "Portfolio 2026",
+    "heroNote": "Available for frontend, full-stack, and AI-enabled product teams.",
+    "viewWork": "View featured work",
+    "downloadResume": "Download resume",
+    "contactMe": "Contact me",
+    "focusedTitle": "Currently focused on",
+    "focusedText": "Production frontend architecture, AI product integrations, secure user flows, and reusable UI systems."
+  },
+  "sections": {
+    "aboutEyebrow": "About",
+    "aboutTitle": "Frontend craft with product, security, and AI context.",
+    "aboutText": "I work across product requirements, API integration, frontend architecture, and production support. My strongest fit is a team that needs someone who can own complex web flows end-to-end: from typed data fetching and state management to reusable UI systems and user-facing polish.",
+    "principles": [
+      "Ship production-ready interfaces that work across desktop and mobile.",
+      "Build secure user journeys around auth, KYC, wallet, and transaction flows.",
+      "Turn APIs into typed, reusable frontend data layers and UI patterns.",
+      "Use AI tools pragmatically to automate workflows and accelerate product delivery."
+    ],
+    "workEyebrow": "Selected work",
+    "workTitle": "Private project experience, written as portfolio-safe case studies.",
+    "workText": "These highlights avoid confidential project names while still showing the scope, responsibilities, and technical depth behind the shipped work.",
+    "featuredWork": [
+      {
+        "eyebrow": "Financial platform",
+        "title": "Exchange-style web experience",
+        "description": "Frontend modules for market pages, trading and convert journeys, dashboard, wallet, deposit, withdrawal, fiat and OTC flows, and transaction history.",
+        "bullets": [
+          "Authentication-aware routing with access and refresh-token handling plus protected pages.",
+          "KYC, email verification, 2FA checks, OTP requests, withdrawal pre-checks, and confirmation modals.",
+          "Thai and English structure using Next.js App Router and i18n routing patterns."
+        ],
+        "stack": ["Next.js", "React", "TypeScript", "Axios", "i18n", "KYC"]
+      },
+      {
+        "eyebrow": "AI product",
+        "title": "AI-enabled web application console",
+        "description": "Feature modules for chatbot configuration, knowledge management, workflow management, meetings, billing-related screens, and team-owned product areas.",
+        "bullets": [
+          "Typed data layers with React Query, query-key factories, mutation hooks, and SDK clients.",
+          "Auth0 authentication and real-time updates through SSE and WebSocket integrations.",
+          "Shared UI components inside a pnpm and Turborepo monorepo with strict TypeScript boundaries."
+        ],
+        "stack": ["React Query", "Auth0", "SSE", "WebSocket", "Turborepo", "LLM"]
+      },
+      {
+        "eyebrow": "Commerce",
+        "title": "Bilingual storefront and automation flows",
+        "description": "Commerce and reseller features covering product catalog, cart, checkout and payment, customer accounts, flash sales, commission logic, and CMS-driven content.",
+        "bullets": [
+          "Built account, checkout, payment, and reseller or commission user journeys.",
+          "Created mobile deep-link previews, store fallback, and Open Graph sharing infrastructure.",
+          "Self-hosted n8n with Docker to connect LLM outputs into downstream workflow steps."
+        ],
+        "stack": ["Next.js", "CMS", "n8n", "Docker", "Open Graph", "Payments"]
+      }
+    ],
+    "skillsEyebrow": "Capabilities",
+    "skillsTitle": "Modern frontend systems with pragmatic AI workflows.",
+    "skillsText": "The stack is broad, but the through-line is consistent: clear architecture, reliable delivery, and interfaces that stay maintainable after launch.",
+    "skills": [
+      { "group": "Frontend", "list": "React.js, Next.js, TypeScript, JavaScript, HTML5, CSS3, responsive UI" },
+      { "group": "State / Data", "list": "React Query, Redux, RTK Query, Zustand, Context API, Axios, REST APIs" },
+      { "group": "UI Systems", "list": "Tailwind CSS, Ant Design, Material UI, Radix UI, Bootstrap, Styled-components" },
+      { "group": "AI / LLM", "list": "Claude API, OpenAI API, prompt design, n8n workflow automation, AI-assisted development" },
+      { "group": "Backend / CMS", "list": "Node.js, Golang, PHP / WordPress, Directus, JSON APIs" },
+      { "group": "Tools", "list": "Git, Docker, pnpm, Turborepo, Vitest, Biome, Postman, Swagger, JIRA, Confluence" }
+    ],
+    "experienceEyebrow": "Experience",
+    "roleTitle": "Web Developer",
+    "company": "EdTech / Education Streaming Company",
+    "timeline": "Mar 2021 – Present · Bangkok, Thailand · Promoted from Junior Web Developer",
+    "experienceBullets": [
+      "Develop and maintain production web applications with React.js, Next.js, TypeScript, RESTful APIs, and responsive UI patterns across desktop and mobile experiences.",
+      "Build features from API integration through state management, validation, error handling, and reusable UI components using Redux, Zustand, React Query, Tailwind CSS, Material UI, and Ant Design.",
+      "Integrate LLM APIs and AI-assisted workflows including Claude and OpenAI API usage, prompt and data-flow design, n8n automation, and AI-assisted development tools."
+    ],
+    "contactEyebrow": "Contact",
+    "contactTitle": "Let’s build useful, secure, and polished web products.",
+    "contactText": "Open to frontend, full-stack, AI integration, and product-focused web development opportunities.",
+    "nextTitle": "Next improvements",
+    "roadmap": [
+      "Add a custom domain after Vercel deployment.",
+      "Replace confidential placeholders with approved screenshots or sanitized mockups.",
+      "Add measurable impact metrics such as performance, conversion, or delivery speed."
+    ]
+  },
+  "contactLabels": {
+    "email": "Email",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "line": "LINE",
+    "resume": "Resume"
+  },
+  "socialLinks": {
+    "github": "GitHub",
+    "linkedin": "LinkedIn"
+  },
+  "navItems": [
+    { "id": "about", "label": "About" },
+    { "id": "work", "label": "Work" },
+    { "id": "skills", "label": "Skills" },
+    { "id": "experience", "label": "Experience" },
+    { "id": "contact", "label": "Contact" }
+  ],
+  "stats": [
+    { "value": "5+", "label": "Years building production web apps" },
+    { "value": "React", "label": "Next.js, TypeScript, state and data architecture" },
+    { "value": "AI", "label": "LLM APIs, n8n automation, AI workflows" }
+  ]
+}
