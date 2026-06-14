@@ -263,6 +263,24 @@ img {
   transform: translateY(0);
 }
 
+@media (max-width: 639px) {
+  .terminal-grid {
+    display: none;
+  }
+
+  .terminal-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 960px;
+  }
+
+  .terminal-window,
+  .terminal-panel,
+  .terminal-menu-drawer {
+    background: var(--color-panel);
+    box-shadow: none;
+  }
+}
+
 .terminal-mobile-nav {
   position: relative;
 }

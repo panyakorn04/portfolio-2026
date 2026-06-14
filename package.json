@@ -2,6 +2,9 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
+  "overrides": {
+    "postcss": "^8.5.15"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -21,6 +24,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "lighthouse": "^13.4.0",
     "react-doctor": "^0.5.5",
     "tailwindcss": "^4",
     "typescript": "^5"

@@ -174,10 +174,12 @@ export function PortfolioShell({
                                 {/* Using a native img here avoids shipping next/image client runtime for this static hero asset. */}
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
-                                    src="/assets/profile.png"
+                                    src="/assets/profile.jpg"
+                                    srcSet="/assets/profile-320.jpg 320w, /assets/profile.jpg 600w"
+                                    sizes="(max-width: 639px) 320px, (max-width: 1023px) 90vw, 384px"
                                     alt={ui.profileImageAlt}
-                                    loading="eager"
-                                    fetchPriority="high"
+                                    decoding="async"
+                                    loading="lazy"
                                     className="absolute inset-0 h-full w-full object-cover object-center"
                                 />
                                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,8,6,0.08),rgba(4,8,6,0.64))]" />
