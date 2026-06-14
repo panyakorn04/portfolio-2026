@@ -263,6 +263,43 @@ img {
   transform: translateY(0);
 }
 
+.terminal-mobile-nav {
+  position: relative;
+}
+
+.terminal-mobile-nav-closed,
+.terminal-mobile-nav-open {
+  display: inline-block;
+}
+
+.terminal-mobile-nav-closed {
+  display: inline-block;
+}
+
+.terminal-mobile-nav-open {
+  display: none;
+}
+
+.terminal-mobile-nav[open] .terminal-mobile-nav-closed {
+  display: none;
+}
+
+.terminal-mobile-nav[open] .terminal-mobile-nav-open {
+  display: inline-block;
+}
+
+.terminal-mobile-nav .terminal-menu-drawer {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+.terminal-mobile-nav[open] .terminal-menu-drawer {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
 @media (min-width: 640px) {
   .section-copy {
     font-size: 0.84rem;

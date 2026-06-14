@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { type Locale, type PortfolioDictionary } from "../_data/portfolio";
 import { contacts, socialLinks } from "../_data/site";
 import Navbar from "./navbar";
@@ -173,13 +171,14 @@ export function PortfolioShell({
                                 {ui.profilePreviewLabel}
                             </p>
                             <div className="relative mt-3 aspect-[4/5] overflow-hidden rounded-sm border border-[var(--color-line)] bg-[var(--color-panel)]">
-                                <Image
+                                {/* Using a native img here avoids shipping next/image client runtime for this static hero asset. */}
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
                                     src="/assets/profile.png"
                                     alt={ui.profileImageAlt}
-                                    fill
-                                    priority
-                                    sizes="(min-width: 1024px) 24rem, 90vw"
-                                    className="object-cover object-center"
+                                    loading="eager"
+                                    fetchPriority="high"
+                                    className="absolute inset-0 h-full w-full object-cover object-center"
                                 />
                                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,8,6,0.08),rgba(4,8,6,0.64))]" />
                             </div>
