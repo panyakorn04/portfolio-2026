@@ -1,6 +1,11 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 
 type MobileNavProps = {
+  activeSectionId: string | null;
   alternateLocale: Locale;
   locale: Locale;
   navItems: PortfolioDictionary["navItems"];
@@ -11,36 +16,115 @@ type MobileNavProps = {
 };
 
 export default function MobileNav({
+  activeSectionId,
   alternateLocale,
   locale,
   navItems,
   ui,
 }: MobileNavProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const actionButtonClass =
+    "inline-flex items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-panel)] px-[0.92rem] py-[0.68rem] font-mono text-[0.66rem] uppercase tracking-[0.04em] tabular-nums text-[var(--color-text)] sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]";
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  function closeMenu() {
+    setIsOpen(false);
+  }
+
+  function toggleMenu() {
+    setIsOpen((current) => !current);
+  }
+
   return (
-    <div className="flex items-center gap-2">
-      <a href={`/${alternateLocale}#top`} className="terminal-button">
+    <div className="flex items-center gap-1.5 sm:gap-2">
+      <a
+        href={`/${alternateLocale}#top`}
+        className={`${actionButtonClass} px-[0.78rem] sm:px-[0.9rem]`}
+      >
         {ui.languageLabel}
       </a>
       <a
         href="mailto:panyakorn40@gmail.com"
-        className="terminal-button hidden sm:inline-flex"
+        className={`${actionButtonClass} hidden sm:inline-flex`}
       >
         {ui.contactCta}
       </a>
 
-      <details className="terminal-mobile-nav md:hidden">
-        <summary
+      <div className="relative md:hidden">
+        {/* Hamburger toggle button */}
+        <button
+          type="button"
           aria-controls="mobile-menu"
-          className="terminal-button list-none [&::-webkit-details-marker]:hidden"
+          aria-label={isOpen ? ui.closeMenuLabel : ui.menuLabel}
+          aria-expanded={isOpen}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-(--color-line-strong) bg-(--color-panel) p-0 text-foreground transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)"
+          onClick={toggleMenu}
         >
-          <span className="terminal-mobile-nav-closed">{ui.menuLabel}</span>
-          <span className="terminal-mobile-nav-open">{ui.closeMenuLabel}</span>
-        </summary>
+          <span className="sr-only">{ui.menuLabel}</span>
+          <span className="sr-only">{ui.closeMenuLabel}</span>
+          <span
+            aria-hidden="true"
+            className="relative inline-flex h-[0.64rem] w-[0.82rem] items-center justify-center"
+          >
+            <span
+              className={`absolute h-[1.5px] w-full rounded-full bg-current transition-all duration-200 motion-reduce:transition-none ${
+                isOpen ? "top-[calc(50%-0.75px)] rotate-45" : "top-0"
+              }`}
+            />
+            <span
+              className={`absolute top-[calc(50%-0.75px)] h-[1.5px] w-full rounded-full bg-current transition-all duration-200 motion-reduce:transition-none ${
+                isOpen ? "opacity-0" : ""
+              }`}
+            />
+            <span
+              className={`absolute h-[1.5px] w-full rounded-full bg-current transition-all duration-200 motion-reduce:transition-none ${
+                isOpen ? "top-[calc(50%-0.75px)] -rotate-45" : "bottom-0"
+              }`}
+            />
+          </span>
+        </button>
 
-        <div id="mobile-menu" className="terminal-menu-drawer is-open">
-          <div className="mb-3 flex items-center justify-between border-b border-[var(--color-line)] pb-2.5">
-            <p className="terminal-label">{ui.menuLabel}</p>
-            <span className="text-[0.58rem] uppercase text-[var(--color-soft)]">
+        {/* Backdrop */}
+        <button
+          type="button"
+          aria-label={ui.closeMenuLabel}
+          className={`fixed inset-0 z-20 cursor-default border-0 bg-[rgba(5,11,8,0.72)] transition-opacity duration-180 ease-in-out motion-reduce:transition-none ${
+            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+          onClick={closeMenu}
+        />
+
+        {/* Drawer — slides in from the left */}
+        <div
+          id="mobile-menu"
+          className={`absolute right-0 top-full z-30 mt-3 min-w-50 rounded-[1.35rem] border border-(--color-line-strong) bg-(--color-panel) py-[0.85rem] px-[0.9rem] shadow-[0_16px_48px_rgba(0,0,0,0.32)] transition-all duration-220 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+            isOpen
+              ? "opacity-100 pointer-events-auto translate-x-0"
+              : "opacity-0 pointer-events-none -translate-x-4"
+          }`}
+        >
+          <div className="mb-3 flex items-center justify-between border-b border-(--color-line) pb-2.5">
+            <p className="font-mono text-[0.58rem] uppercase tracking-[0.06em] tabular-nums text-(--color-soft)">
+              {ui.menuLabel}
+            </p>
+            <span className="text-[0.58rem] uppercase text-(--color-soft)">
               session://nav
             </span>
           </div>
@@ -50,27 +134,33 @@ export default function MobileNav({
               <a
                 key={item.id}
                 href={`/${locale}#${item.id}`}
-                className="terminal-menu-link"
+                aria-current={activeSectionId === item.id ? "location" : undefined}
+                className={`flex flex-col rounded-[1.15rem] border py-[0.85rem] px-[0.9rem] font-mono tabular-nums transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent) ${
+                  activeSectionId === item.id
+                    ? "border-(--color-line-strong) bg-linear-to-b from-[rgba(111,247,166,0.14)] to-[rgba(111,247,166,0.05)]"
+                    : "border-(--color-line) bg-[rgba(10,20,16,0.65)]"
+                }`}
+                onClick={closeMenu}
               >
-                <span className="text-[0.58rem] uppercase text-[var(--color-soft)]">
+                <span className="text-[0.58rem] uppercase text-(--color-soft)">
                   0{index + 1}
                 </span>
-                <span className="mt-1 text-[0.74rem] text-[var(--color-text)]">
-                  {item.label}
-                </span>
+                <span className="mt-1 text-[0.74rem] text-foreground">{item.label}</span>
               </a>
             ))}
-            <a href="mailto:panyakorn40@gmail.com" className="terminal-menu-link">
-              <span className="text-[0.58rem] uppercase text-[var(--color-soft)]">
+            <a
+              href="mailto:panyakorn40@gmail.com"
+              className="flex flex-col rounded-[1.15rem] border border-(--color-line) bg-[rgba(10,20,16,0.65)] py-[0.85rem] px-[0.9rem] font-mono tabular-nums transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)"
+              onClick={closeMenu}
+            >
+              <span className="text-[0.58rem] uppercase text-(--color-soft)">
                 0{navItems.length + 1}
               </span>
-              <span className="mt-1 text-[0.74rem] text-[var(--color-text)]">
-                {ui.contactCta}
-              </span>
+              <span className="mt-1 text-[0.74rem] text-foreground">{ui.contactCta}</span>
             </a>
           </div>
         </div>
-      </details>
+      </div>
     </div>
   );
 }

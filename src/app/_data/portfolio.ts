@@ -33,6 +33,7 @@ export type PortfolioDictionary = {
       work: string;
       skills: string;
       experience: string;
+      chat: string;
       contact: string;
     };
   };
@@ -72,11 +73,48 @@ export type PortfolioDictionary = {
     company: string;
     timeline: string;
     experienceBullets: string[];
+    chatEyebrow: string;
+    chatTitle: string;
+    chatText: string;
     contactEyebrow: string;
     contactTitle: string;
     contactText: string;
     nextTitle: string;
     roadmap: string[];
+  };
+  chat: {
+    launcherLabel: string;
+    openLabel: string;
+    closeLabel: string;
+    windowTitle: string;
+    statusLabel: string;
+    statusValue: string;
+    responseLabel: string;
+    responseValue: string;
+    draftLabel: string;
+    draftValue: string;
+    introLabel: string;
+    introTitle: string;
+    introText: string;
+    quickPromptsLabel: string;
+    quickPrompts: string[];
+    inputPlaceholder: string;
+    sendLabel: string;
+    assistantName: string;
+    userName: string;
+    emptyState: string;
+    apiNote: string;
+    starterConversation: Array<{
+      role: "assistant" | "user";
+      text: string;
+    }>;
+    mockReplies: {
+      intro: string;
+      work: string;
+      skills: string;
+      contact: string;
+      default: string;
+    };
   };
   contactLabels: {
     email: string;

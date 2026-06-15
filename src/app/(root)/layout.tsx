@@ -1,7 +1,7 @@
 import "../globals.css";
 
-import { defaultLocale } from "../_data/portfolio";
 import { kanit } from "../_data/fonts";
+import { defaultLocale } from "../_data/portfolio";
 
 export default function RedirectRootLayout({
   children,

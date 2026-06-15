@@ -48,10 +48,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function RootLayout({
-  children,
-  params,
-}: LayoutProps<"/[lang]">) {
+export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
   const { lang } = await params;
 
   if (!hasLocale(lang)) {
@@ -59,10 +56,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html
-      lang={lang}
-      className={`${kanit.variable} h-full scroll-smooth antialiased`}
-    >
+    <html lang={lang} className={`${kanit.variable} h-full scroll-smooth antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

@@ -13,8 +13,8 @@ Modern bilingual portfolio for Panyakorn Boonyong, built with Next.js, TypeScrip
 ## Local development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Open:
@@ -36,8 +36,8 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ## Production check
 
 ```bash
-npm run lint
-npm run build
+pnpm lint
+pnpm build
 ```
 
 ## CI/CD
@@ -59,9 +59,9 @@ CI runs on:
 It executes:
 
 ```bash
-npm ci
-npm run lint
-npm run build
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
 ```
 
 ### CD behavior for Hostinger
@@ -85,8 +85,8 @@ The deployment script runs on Hostinger:
 cd "$HOSTINGER_PROJECT_PATH"
 git fetch origin main
 git reset --hard origin/main
-npm ci
-npm run build
+pnpm install --frozen-lockfile
+pnpm build
 # then runs HOSTINGER_RESTART_COMMAND, or falls back to pm2 if available
 ```
 
@@ -120,7 +120,7 @@ public/Panyakorn_Boonyong_Resume.pdf
 3. Keep the default build command:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 4. Keep the default output settings for Next.js.
@@ -135,8 +135,8 @@ Type: Node.js App
 Source: Import GitHub Repository
 Branch: main
 Node.js version: 22.x or 24.x
-Install command: npm ci
-Build command: npm run build
-Start command: npm run start
+Install command: pnpm install --frozen-lockfile
+Build command: pnpm build
+Start command: pnpm start
 Output directory: .next
 ```

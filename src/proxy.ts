@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
-import { defaultLocale, hasLocale, locales, type Locale } from "./app/_data/portfolio";
+import { defaultLocale, hasLocale, type Locale, locales } from "./app/_data/portfolio";
 
 function detectLocale(request: NextRequest): Locale {
   const header = request.headers.get("accept-language");

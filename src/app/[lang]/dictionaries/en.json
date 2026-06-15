@@ -30,6 +30,7 @@
       "work": "ls projects/",
       "skills": "cat stack.json",
       "experience": "history --career",
+      "chat": "pnpm agent:demo",
       "contact": "open contact/"
     }
   },
@@ -97,12 +98,30 @@
     "skillsTitle": "Modern frontend systems with pragmatic AI workflows.",
     "skillsText": "The stack is broad, but the through-line is consistent: clear architecture, reliable delivery, and interfaces that stay maintainable after launch.",
     "skills": [
-      { "group": "Frontend", "list": "React.js, Next.js, TypeScript, JavaScript, HTML5, CSS3, responsive UI" },
-      { "group": "State / Data", "list": "React Query, Redux, RTK Query, Zustand, Context API, Axios, REST APIs" },
-      { "group": "UI Systems", "list": "Tailwind CSS, Ant Design, Material UI, Radix UI, Bootstrap, Styled-components" },
-      { "group": "AI / LLM", "list": "Claude API, OpenAI API, prompt design, n8n workflow automation, AI-assisted development" },
-      { "group": "Backend / CMS", "list": "Node.js, Golang, PHP / WordPress, Directus, JSON APIs" },
-      { "group": "Tools", "list": "Git, Docker, pnpm, Turborepo, Vitest, Biome, Postman, Swagger, JIRA, Confluence" }
+      {
+        "group": "Frontend",
+        "list": "React.js, Next.js, TypeScript, JavaScript, HTML5, CSS3, responsive UI"
+      },
+      {
+        "group": "State / Data",
+        "list": "React Query, Redux, RTK Query, Zustand, Context API, Axios, REST APIs"
+      },
+      {
+        "group": "UI Systems",
+        "list": "Tailwind CSS, Ant Design, Material UI, Radix UI, Bootstrap, Styled-components"
+      },
+      {
+        "group": "AI / LLM",
+        "list": "Claude API, OpenAI API, prompt design, n8n workflow automation, AI-assisted development"
+      },
+      {
+        "group": "Backend / CMS",
+        "list": "Node.js, Golang, PHP / WordPress, Directus, JSON APIs"
+      },
+      {
+        "group": "Tools",
+        "list": "Git, Docker, pnpm, Turborepo, Vitest, Biome, Postman, Swagger, JIRA, Confluence"
+      }
     ],
     "experienceEyebrow": "Experience",
     "roleTitle": "Web Developer",
@@ -113,6 +132,9 @@
       "Build features from API integration through state management, validation, error handling, and reusable UI components using Redux, Zustand, React Query, Tailwind CSS, Material UI, and Ant Design.",
       "Integrate LLM APIs and AI-assisted workflows including Claude and OpenAI API usage, prompt and data-flow design, n8n automation, and AI-assisted development tools."
     ],
+    "chatEyebrow": "Agent preview",
+    "chatTitle": "A chat workspace is already staged for the AI agent layer.",
+    "chatText": "This demo UI is intentionally local-first: the conversation flow, prompt composer, and quick actions are in place now, so the next step is wiring your chosen AI API without redesigning the experience.",
     "contactEyebrow": "Contact",
     "contactTitle": "Let’s build useful, secure, and polished web products.",
     "contactText": "Open to frontend, full-stack, AI integration, and product-focused web development opportunities.",
@@ -122,6 +144,62 @@
       "Replace confidential placeholders with approved screenshots or sanitized mockups.",
       "Add measurable impact metrics such as performance, conversion, or delivery speed."
     ]
+  },
+  "chat": {
+    "launcherLabel": "agent widget",
+    "openLabel": "Open chat",
+    "closeLabel": "Close",
+    "windowTitle": "agent://portfolio-chat",
+    "statusLabel": "agent_status",
+    "statusValue": "UI ready",
+    "responseLabel": "response_mode",
+    "responseValue": "local mock",
+    "draftLabel": "next_step",
+    "draftValue": "connect API",
+    "introLabel": "preview",
+    "introTitle": "Built to swap in a real model later.",
+    "introText": "This widget is framed as Panyakorn's AI presence: a portfolio guide that speaks in first person about experience, projects, stack, and collaboration style. The responses are still mocked for now, but the conversation shape is ready for a real model.",
+    "quickPromptsLabel": "quick_prompts",
+    "quickPrompts": [
+      "Summarize my frontend experience for a recruiter.",
+      "Draft a short intro message for a potential client.",
+      "Turn my portfolio into a concise project pitch."
+    ],
+    "inputPlaceholder": "Type a prompt to simulate the future portfolio agent...",
+    "sendLabel": "Send prompt",
+    "assistantName": "panyakorn.ai",
+    "userName": "visitor",
+    "emptyState": "Hi, I'm Panyakorn's AI portfolio guide. You can ask me about his frontend experience, AI integrations, product thinking, or the kind of team he wants to build with.",
+    "apiNote": "This is still a mocked reply, but if I answered as Panyakorn's AI assistant, I'd say:",
+    "starterConversation": [
+      {
+        "role": "assistant",
+        "text": "Hi, I'm Panyakorn's AI portfolio guide. I can walk you through his frontend background, product work, and AI integration experience."
+      },
+      {
+        "role": "user",
+        "text": "What kind of work is he strongest at?"
+      },
+      {
+        "role": "assistant",
+        "text": "He’s strongest in React, Next.js, and TypeScript projects where the product has real complexity: auth, KYC, wallet flows, dashboards, data-heavy UI, and AI-enabled features that need to feel polished in production."
+      },
+      {
+        "role": "user",
+        "text": "Would he fit a team building an AI product?"
+      },
+      {
+        "role": "assistant",
+        "text": "Yes. He already works across frontend architecture, API integration, workflow automation, and AI-assisted product features, so he can help both with the user-facing experience and with integrating the model layer into a real app."
+      }
+    ],
+    "mockReplies": {
+      "intro": "I focus on frontend and full-stack product work, especially React, Next.js, TypeScript, secure user flows, and AI-enabled features. Most of my recent work has involved shipping real production interfaces rather than just prototypes.",
+      "work": "A good snapshot of my work would be exchange-style product flows, AI application consoles, and bilingual commerce experiences. I usually contribute across UI architecture, API integration, state handling, and the final product polish.",
+      "skills": "My strongest stack is React, Next.js, TypeScript, Tailwind, and frontend data patterns like React Query. I also work comfortably with AI APIs, workflow automation, auth flows, and reusable design systems.",
+      "contact": "If you'd like to work together, the best next step is to send a short message about your product, team, or role. I’m most useful in teams that need someone who can turn complex product requirements into clear, production-ready web experiences.",
+      "default": "Ask me about experience, featured projects, tech stack, or how I usually work with product teams."
+    }
   },
   "contactLabels": {
     "email": "Email",
