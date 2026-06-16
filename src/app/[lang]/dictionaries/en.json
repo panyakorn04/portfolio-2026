@@ -15,6 +15,7 @@
     "profilePreviewLabel": "/profile/preview",
     "statsLabel": "/stats",
     "linksLabel": "/links",
+    "legalLabel": "/legal",
     "stackLabel": "stack",
     "currentRoleLabel": "current_role",
     "channelsLabel": "channels",
@@ -144,6 +145,102 @@
       "Replace confidential placeholders with approved screenshots or sanitized mockups.",
       "Add measurable impact metrics such as performance, conversion, or delivery speed."
     ]
+  },
+  "legal": {
+    "shared": {
+      "effectiveLabel": "Effective",
+      "updatedLabel": "Last updated",
+      "contactLabel": "Contact",
+      "intro": "These pages describe the terms and privacy practices for this portfolio website and its contact flows.",
+      "backToHome": "Back to portfolio"
+    },
+    "directory": {
+      "eyebrow": "Legal",
+      "title": "Official Terms and Privacy links, ready to submit.",
+      "text": "Use these permanent URLs for platform setup, app review forms, and public legal references.",
+      "termsLabel": "Terms of Service URL",
+      "termsHelp": "Link to your app or website's official Terms of Service",
+      "privacyLabel": "Privacy Policy URL",
+      "privacyHelp": "Link to your app or website's official privacy policy",
+      "validationMessage": "Please fill out the required field"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Terms of Service for Panyakorn Boonyong's portfolio website.",
+      "intro": "By accessing this website, you agree to use it lawfully and only for evaluating portfolio work, contacting the owner, or reviewing public information about services and experience.",
+      "sections": [
+        {
+          "heading": "Use of the website",
+          "body": [
+            "You may browse the website, review project summaries, and use the listed contact channels for legitimate business or professional communication.",
+            "You must not misuse the website, attempt unauthorized access, interfere with availability, or use automated scraping in a way that harms the service."
+          ]
+        },
+        {
+          "heading": "Content and intellectual property",
+          "body": [
+            "All portfolio content, writing, layouts, visuals, and code samples remain the property of Panyakorn Boonyong unless another owner is clearly stated.",
+            "Case studies may be summarized or sanitized to protect confidential employer or client information."
+          ]
+        },
+        {
+          "heading": "No guarantee",
+          "body": [
+            "The website is provided on an as-is basis. While reasonable effort is made to keep information accurate and current, no guarantee is made that all content is complete, error-free, or continuously available."
+          ]
+        },
+        {
+          "heading": "External links",
+          "body": [
+            "This website may link to third-party services such as GitHub, LinkedIn, LINE, or hosted documents. Those services are governed by their own terms and privacy policies."
+          ]
+        },
+        {
+          "heading": "Contact and updates",
+          "body": [
+            "These terms may be updated from time to time as the website evolves. Continued use of the website after updates means you accept the revised terms."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Privacy Policy for Panyakorn Boonyong's portfolio website.",
+      "intro": "This website collects only the information needed to operate the portfolio, respond to inquiries, and understand basic site usage.",
+      "sections": [
+        {
+          "heading": "Information collected",
+          "body": [
+            "If you contact the owner by email, LinkedIn, LINE, or another listed channel, the information you provide in that message may be received and stored by the relevant communication platform.",
+            "Basic technical data such as browser, device, and page access logs may be collected by the hosting provider for security, analytics, and reliability."
+          ]
+        },
+        {
+          "heading": "How information is used",
+          "body": [
+            "Information is used to respond to messages, discuss work opportunities, maintain website security, and improve the portfolio experience."
+          ]
+        },
+        {
+          "heading": "Sharing",
+          "body": [
+            "Personal information is not sold. Information may be processed by infrastructure providers such as hosting, analytics, email, or messaging platforms when needed to operate the website or respond to you."
+          ]
+        },
+        {
+          "heading": "Retention and security",
+          "body": [
+            "Reasonable steps are taken to protect information, but no online system can guarantee absolute security. Messages and operational logs may be retained for as long as reasonably necessary for communication, record-keeping, or legal compliance."
+          ]
+        },
+        {
+          "heading": "Your choices",
+          "body": [
+            "You can choose not to submit personal information by avoiding contact forms or direct outreach. If you want previously shared information removed where feasible, you can request that through the listed contact channels."
+          ]
+        }
+      ]
+    }
   },
   "chat": {
     "launcherLabel": "agent widget",

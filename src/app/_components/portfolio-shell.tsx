@@ -1,5 +1,7 @@
+import Link from "next/link";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 import { contacts, socialLinks } from "../_data/site";
+import { getAbsoluteSiteUrl, getLocalizedSitePath } from "../_data/site-url";
 import ChatDemo from "./chat-demo";
 import HeroAmbientCanvas from "./hero-ambient-canvas";
 import MotionReveal from "./motion-reveal";
@@ -112,6 +114,9 @@ export function PortfolioShell({
   const sections = dictionary.sections;
   const ui = dictionary.ui;
   const commands = ui.commands;
+  const legal = dictionary.legal.directory;
+  const termsUrl = getAbsoluteSiteUrl(getLocalizedSitePath(locale, "/terms"));
+  const privacyUrl = getAbsoluteSiteUrl(getLocalizedSitePath(locale, "/privacy"));
 
   return (
     <main
@@ -184,12 +189,12 @@ export function PortfolioShell({
                       <a href="#work" className={`${ctaPrimaryClass} w-full sm:w-auto`}>
                         {hero.viewWork}
                       </a>
-                      <a
+                      <Link
                         href="/Panyakorn_Boonyong_Resume.pdf"
                         className={`${ctaSecondaryClass} w-full sm:w-auto`}
                       >
                         {hero.downloadResume}
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -392,7 +397,7 @@ export function PortfolioShell({
           title={sections.contactTitle}
           text={sections.contactText}
         >
-          <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:gap-6">
+          <div className="grid gap-5 xl:grid-cols-[1.05fr_1fr_0.9fr] xl:gap-6">
             <MotionReveal className="rounded-[1.45rem]">
               <div className={terminalPanelClass}>
                 <p className={terminalLabelClass}>{ui.channelsLabel}</p>
@@ -415,6 +420,61 @@ export function PortfolioShell({
                       </span>
                     </a>
                   ))}
+                </div>
+              </div>
+            </MotionReveal>
+
+            <MotionReveal className="rounded-[1.45rem]">
+              <div className={terminalPanelClass}>
+                <p className={terminalLabelClass}>{ui.legalLabel}</p>
+                <div className="mt-3 space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--color-text)]">
+                      {legal.title}
+                    </p>
+                    <p className={`${terminalCopyClass} mt-2 text-pretty`}>
+                      {legal.text}
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3">
+                    {[
+                      {
+                        label: legal.termsLabel,
+                        help: legal.termsHelp,
+                        href: termsUrl,
+                      },
+                      {
+                        label: legal.privacyLabel,
+                        help: legal.privacyHelp,
+                        href: privacyUrl,
+                      },
+                    ].map((item) => (
+                      <Link
+                        key={item.label}
+                        href={getLocalizedSitePath(
+                          locale,
+                          item.label === legal.termsLabel ? "/terms" : "/privacy",
+                        )}
+                        className="rounded-[1.15rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.65)] px-[0.9rem] py-[0.85rem]"
+                      >
+                        <p className="text-xs uppercase text-[var(--color-soft)]">
+                          {item.label}{" "}
+                          <span className="text-[var(--color-accent)]">*</span>
+                        </p>
+                        <p className={`${terminalCopyClass} mt-2 text-pretty`}>
+                          {item.help}
+                        </p>
+                        <p className="mt-3 break-all font-mono text-[0.72rem] leading-6 text-[var(--color-accent)]">
+                          {item.href}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+
+                  <p className="font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-soft)]">
+                    {legal.validationMessage}
+                  </p>
                 </div>
               </div>
             </MotionReveal>

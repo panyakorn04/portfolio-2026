@@ -17,3 +17,13 @@ export function getSiteUrl() {
 export function getMetadataBase() {
   return new URL(getSiteUrl());
 }
+
+export function getLocalizedSitePath(lang: string, pathname = "") {
+  const normalizedPathname = pathname.startsWith("/") ? pathname : `/${pathname}`;
+
+  return `/${lang}${pathname ? normalizedPathname : ""}`;
+}
+
+export function getAbsoluteSiteUrl(pathname: string) {
+  return `${getSiteUrl()}${pathname}`;
+}

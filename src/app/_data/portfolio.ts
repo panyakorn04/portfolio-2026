@@ -18,6 +18,7 @@ export type PortfolioDictionary = {
     profilePreviewLabel: string;
     statsLabel: string;
     linksLabel: string;
+    legalLabel: string;
     stackLabel: string;
     currentRoleLabel: string;
     channelsLabel: string;
@@ -81,6 +82,43 @@ export type PortfolioDictionary = {
     contactText: string;
     nextTitle: string;
     roadmap: string[];
+  };
+  legal: {
+    shared: {
+      effectiveLabel: string;
+      updatedLabel: string;
+      contactLabel: string;
+      intro: string;
+      backToHome: string;
+    };
+    directory: {
+      eyebrow: string;
+      title: string;
+      text: string;
+      termsLabel: string;
+      termsHelp: string;
+      privacyLabel: string;
+      privacyHelp: string;
+      validationMessage: string;
+    };
+    terms: {
+      title: string;
+      description: string;
+      intro: string;
+      sections: Array<{
+        heading: string;
+        body: string[];
+      }>;
+    };
+    privacy: {
+      title: string;
+      description: string;
+      intro: string;
+      sections: Array<{
+        heading: string;
+        body: string[];
+      }>;
+    };
   };
   chat: {
     launcherLabel: string;
