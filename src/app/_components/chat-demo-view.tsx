@@ -12,6 +12,7 @@ type ChatDemoViewProps = {
   chatLogRef: RefObject<HTMLDivElement | null>;
   copy: ChatCopy;
   draft: string;
+  isClosing: boolean;
   isOpen: boolean;
   isWaiting: boolean;
   messages: ChatMessage[];
@@ -26,9 +27,9 @@ type ChatDemoViewProps = {
 const widgetShellClass =
   "fixed bottom-4 right-4 z-40 grid justify-items-end gap-[0.85rem] max-sm:bottom-3 max-sm:right-3";
 const backdropClass =
-  "fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(111,247,166,0.08),transparent_26%),rgba(5,11,8,0.24)] transition-opacity duration-200 ease-out motion-reduce:transition-none";
+  "fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(111,247,166,0.08),transparent_26%),rgba(5,11,8,0.24)] motion-reduce:transition-none";
 const flyoutClass =
-  "w-[min(calc(100vw-2rem),36rem)] max-h-[min(84svh,52rem)] origin-bottom-right overflow-hidden rounded-[1.6rem] border border-[rgba(111,247,166,0.12)] bg-[linear-gradient(180deg,rgba(8,16,12,0.98),rgba(4,10,7,0.98))] shadow-[0_28px_80px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(111,247,166,0.08)] backdrop-blur-[14px] transition-[opacity,transform] duration-[220ms,280ms] ease-[ease,cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none max-sm:w-[calc(100vw-2.75rem)] max-sm:max-h-[calc(100svh-5.5rem)]";
+  "w-[min(calc(100vw-2rem),36rem)] max-h-[min(84svh,52rem)] origin-bottom-right overflow-hidden rounded-[1.6rem] border border-[rgba(111,247,166,0.12)] bg-[linear-gradient(180deg,rgba(8,16,12,0.98),rgba(4,10,7,0.98))] shadow-[0_28px_80px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(111,247,166,0.08)] backdrop-blur-[14px] motion-reduce:transition-none max-sm:w-[calc(100vw-2.75rem)] max-sm:max-h-[calc(100svh-5.5rem)]";
 const windowBarClass =
   "flex items-center justify-between gap-4 border-b border-[var(--color-line)] bg-[linear-gradient(180deg,rgba(12,24,18,0.96),rgba(8,15,12,0.96))] px-4 py-[0.82rem] font-mono text-[0.6rem] uppercase tracking-[0.04em] tabular-nums sm:text-[0.64rem]";
 const windowDotClass = "inline-block h-[0.65rem] w-[0.65rem] rounded-full opacity-[0.88]";
@@ -59,6 +60,7 @@ export default function ChatDemoView({
   chatLogRef,
   copy,
   draft,
+  isClosing,
   isOpen,
   isWaiting,
   messages,
@@ -69,19 +71,22 @@ export default function ChatDemoView({
   onToggle,
   textareaRef,
 }: ChatDemoViewProps) {
+  const show = isOpen || isClosing;
+  const stateClass = isClosing ? "is-closing" : isOpen ? "is-open" : "";
+
   return (
     <div className={widgetShellClass}>
       <button
         type="button"
         aria-label={copy.closeLabel}
-        className={`${backdropClass} ${isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`${backdropClass} t-backdrop ${show ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         onClick={onClose}
       />
 
       <section
         id="portfolio-chat-widget"
         aria-hidden={!isOpen}
-        className={`${flyoutClass} ${isOpen ? "pointer-events-auto translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-[18px] scale-[0.975] opacity-0"}`}
+        className={`${flyoutClass} t-modal ${stateClass}`}
       >
         <div className={windowBarClass}>
           <div className="flex items-center gap-2.5">

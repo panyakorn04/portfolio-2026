@@ -1,7 +1,14 @@
 "use client";
 
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
-import { startTransition, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import type { PortfolioDictionary } from "../_data/portfolio";
 
@@ -14,11 +21,14 @@ export type ChatMessage = {
 };
 
 const assistantReplyDelayMs = 420;
+const closeDurMs = 150;
 
 export function useChatDemo(copy: ChatCopy) {
   const [draft, setDraft] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatLogRef = useRef<HTMLDivElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -29,6 +39,23 @@ export function useChatDemo(copy: ChatCopy) {
       text: message.text,
     })),
   );
+  const clearCloseTimer = useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }, []);
+
+  const startClose = useCallback(() => {
+    clearCloseTimer();
+    setIsOpen(false);
+    setIsClosing(true);
+    closeTimerRef.current = setTimeout(() => {
+      setIsClosing(false);
+      closeTimerRef.current = null;
+    }, closeDurMs);
+  }, [clearCloseTimer]);
+
   useLayoutEffect(() => {
     if (!isOpen) {
       return;
@@ -74,7 +101,7 @@ export function useChatDemo(copy: ChatCopy) {
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setIsOpen(false);
+        startClose();
       }
     }
 
@@ -83,14 +110,27 @@ export function useChatDemo(copy: ChatCopy) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, startClose]);
+
+  useEffect(() => {
+    return () => {
+      clearCloseTimer();
+    };
+  }, [clearCloseTimer]);
 
   function closeChat() {
-    setIsOpen(false);
+    if (!isOpen && !isClosing) return;
+    startClose();
   }
 
   function toggleChat() {
-    setIsOpen((current) => !current);
+    if (isOpen) {
+      startClose();
+    } else {
+      clearCloseTimer();
+      setIsClosing(false);
+      setIsOpen(true);
+    }
   }
 
   function handleDraftChange(nextDraft: string) {
@@ -161,6 +201,7 @@ export function useChatDemo(copy: ChatCopy) {
     handleDraftChange,
     handleDraftKeyDown,
     handleSubmit,
+    isClosing,
     isOpen,
     isWaiting,
     messages,

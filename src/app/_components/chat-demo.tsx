@@ -15,6 +15,7 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
     handleDraftChange,
     handleDraftKeyDown,
     handleSubmit,
+    isClosing,
     isOpen,
     isWaiting,
     messages,
@@ -28,6 +29,7 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
       chatEndRef={chatEndRef}
       copy={copy}
       draft={draft}
+      isClosing={isClosing}
       isOpen={isOpen}
       isWaiting={isWaiting}
       messages={messages}
