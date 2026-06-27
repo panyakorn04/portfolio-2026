@@ -1,7 +1,9 @@
 const LOCAL_SITE_URL = "http://localhost:3000";
 
 function normalizeSiteUrl(value: string) {
-  return value.endsWith("/") ? value.slice(0, -1) : value;
+  const withScheme = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+
+  return withScheme.endsWith("/") ? withScheme.slice(0, -1) : withScheme;
 }
 
 export function getSiteUrl() {
