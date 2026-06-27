@@ -62,7 +62,17 @@ export async function POST(request: Request) {
     });
   }
 
-  const user = await getUserByEmail(email);
+  let user: Awaited<ReturnType<typeof getUserByEmail>>;
+
+  try {
+    user = await getUserByEmail(email);
+  } catch (error) {
+    console.error("[admin-session] failed to load user", error);
+
+    return jsonError("Unable to sign in right now.", {
+      status: 503,
+    });
+  }
 
   if (!user || !staffRoles.includes(user.role as (typeof staffRoles)[number])) {
     return jsonError("Admin credentials are invalid.", {
@@ -79,10 +89,18 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   const rawSessionToken = createRawSessionToken();
 
-  await createAuthSession({
-    userId: user.id,
-    rawSessionToken,
-  });
+  try {
+    await createAuthSession({
+      userId: user.id,
+      rawSessionToken,
+    });
+  } catch (error) {
+    console.error("[admin-session] failed to create session", error);
+
+    return jsonError("Unable to sign in right now.", {
+      status: 503,
+    });
+  }
 
   cookieStore.set(adminSessionCookieName, rawSessionToken, {
     httpOnly: true,
