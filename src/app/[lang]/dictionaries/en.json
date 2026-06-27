@@ -305,6 +305,26 @@
     "line": "LINE",
     "resume": "Resume"
   },
+  "contactForm": {
+    "panelLabel": "contact://intake",
+    "title": "Send a project note directly from the site.",
+    "description": "This form now posts into the portfolio backend, stores the inquiry in PostgreSQL, and can optionally forward it to a webhook for follow-up workflows.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@company.com",
+    "companyLabel": "Company",
+    "companyPlaceholder": "Company or team",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "What would you like to build?",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Share the product, role, timeline, or problem you want help with.",
+    "storageNote": "Stored via PostgreSQL + Prisma",
+    "submitLabel": "Send inquiry",
+    "submittingLabel": "Sending...",
+    "submitSuccess": "Thanks, your message has been saved and sent successfully.",
+    "submitError": "The message could not be sent yet. Please check the form or try again shortly."
+  },
   "socialLinks": {
     "github": "GitHub",
     "linkedin": "LinkedIn"

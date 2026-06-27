@@ -3,6 +3,7 @@ import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 import { contacts, socialLinks } from "../_data/site";
 import { getAbsoluteSiteUrl, getLocalizedSitePath } from "../_data/site-url";
 import ChatDemo from "./chat-demo";
+import ContactForm from "./contact-form";
 import HeroAmbientCanvas from "./hero-ambient-canvas";
 import MotionReveal from "./motion-reveal";
 import Navbar from "./navbar";
@@ -397,103 +398,109 @@ export function PortfolioShell({
           title={sections.contactTitle}
           text={sections.contactText}
         >
-          <div className="grid gap-5 xl:grid-cols-[1.05fr_1fr_0.9fr] xl:gap-6">
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)] xl:gap-6">
             <MotionReveal className="rounded-[1.45rem]">
-              <div className={terminalPanelClass}>
-                <p className={terminalLabelClass}>{ui.channelsLabel}</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  {contacts.map((contact) => (
-                    <a
-                      key={contact.key}
-                      href={contact.href}
-                      target={contact.href.startsWith("http") ? "_blank" : undefined}
-                      rel={contact.href.startsWith("http") ? "noreferrer" : undefined}
-                      className={terminalContactClass}
-                    >
-                      <span className="text-xs uppercase text-[var(--color-soft)]">
-                        {dictionary.contactLabels[contact.key]}
-                      </span>
-                      <span
-                        className={`${terminalCopyClass} mt-2 text-[var(--color-text)]`}
-                      >
-                        {contact.value}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              </div>
+              <ContactForm locale={locale} copy={dictionary.contactForm} />
             </MotionReveal>
 
-            <MotionReveal className="rounded-[1.45rem]">
-              <div className={terminalPanelClass}>
-                <p className={terminalLabelClass}>{ui.legalLabel}</p>
-                <div className="mt-3 space-y-4">
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--color-text)]">
-                      {legal.title}
-                    </p>
-                    <p className={`${terminalCopyClass} mt-2 text-pretty`}>
-                      {legal.text}
-                    </p>
-                  </div>
-
-                  <div className="grid gap-3">
-                    {[
-                      {
-                        label: legal.termsLabel,
-                        help: legal.termsHelp,
-                        href: termsUrl,
-                      },
-                      {
-                        label: legal.privacyLabel,
-                        help: legal.privacyHelp,
-                        href: privacyUrl,
-                      },
-                    ].map((item) => (
-                      <Link
-                        key={item.label}
-                        href={getLocalizedSitePath(
-                          locale,
-                          item.label === legal.termsLabel ? "/terms" : "/privacy",
-                        )}
-                        className="rounded-[1.15rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.65)] px-[0.9rem] py-[0.85rem]"
+            <div className="space-y-5">
+              <MotionReveal className="rounded-[1.45rem]">
+                <div className={terminalPanelClass}>
+                  <p className={terminalLabelClass}>{ui.channelsLabel}</p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                    {contacts.map((contact) => (
+                      <a
+                        key={contact.key}
+                        href={contact.href}
+                        target={contact.href.startsWith("http") ? "_blank" : undefined}
+                        rel={contact.href.startsWith("http") ? "noreferrer" : undefined}
+                        className={terminalContactClass}
                       >
-                        <p className="text-xs uppercase text-[var(--color-soft)]">
-                          {item.label}{" "}
-                          <span className="text-[var(--color-accent)]">*</span>
-                        </p>
-                        <p className={`${terminalCopyClass} mt-2 text-pretty`}>
-                          {item.help}
-                        </p>
-                        <p className="mt-3 break-all font-mono text-[0.72rem] leading-6 text-[var(--color-accent)]">
-                          {item.href}
-                        </p>
-                      </Link>
+                        <span className="text-xs uppercase text-[var(--color-soft)]">
+                          {dictionary.contactLabels[contact.key]}
+                        </span>
+                        <span
+                          className={`${terminalCopyClass} mt-2 text-[var(--color-text)]`}
+                        >
+                          {contact.value}
+                        </span>
+                      </a>
                     ))}
                   </div>
+                </div>
+              </MotionReveal>
 
-                  <p className="font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-soft)]">
-                    {legal.validationMessage}
-                  </p>
-                </div>
-              </div>
-            </MotionReveal>
+              <MotionReveal className="rounded-[1.45rem]">
+                <div className={terminalPanelClass}>
+                  <p className={terminalLabelClass}>{ui.legalLabel}</p>
+                  <div className="mt-3 space-y-4">
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--color-text)]">
+                        {legal.title}
+                      </p>
+                      <p className={`${terminalCopyClass} mt-2 text-pretty`}>
+                        {legal.text}
+                      </p>
+                    </div>
 
-            <MotionReveal className="rounded-[1.45rem]">
-              <div className={terminalPanelClass}>
-                <p className={terminalLabelClass}>{sections.nextTitle}</p>
-                <div className="mt-3">
-                  <LocalizedBullets items={sections.roadmap} />
+                    <div className="grid gap-3">
+                      {[
+                        {
+                          label: legal.termsLabel,
+                          help: legal.termsHelp,
+                          href: termsUrl,
+                        },
+                        {
+                          label: legal.privacyLabel,
+                          help: legal.privacyHelp,
+                          href: privacyUrl,
+                        },
+                      ].map((item) => (
+                        <Link
+                          key={item.label}
+                          href={getLocalizedSitePath(
+                            locale,
+                            item.label === legal.termsLabel ? "/terms" : "/privacy",
+                          )}
+                          className="rounded-[1.15rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.65)] px-[0.9rem] py-[0.85rem]"
+                        >
+                          <p className="text-xs uppercase text-[var(--color-soft)]">
+                            {item.label}{" "}
+                            <span className="text-[var(--color-accent)]">*</span>
+                          </p>
+                          <p className={`${terminalCopyClass} mt-2 text-pretty`}>
+                            {item.help}
+                          </p>
+                          <p className="mt-3 break-all font-mono text-[0.72rem] leading-6 text-[var(--color-accent)]">
+                            {item.href}
+                          </p>
+                        </Link>
+                      ))}
+                    </div>
+
+                    <p className="font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-soft)]">
+                      {legal.validationMessage}
+                    </p>
+                  </div>
                 </div>
-                <div className="mt-5 border-t border-[var(--color-line)] pt-3">
-                  <PromptLine
-                    command={ui.availabilityLabel}
-                    value={hero.heroNote}
-                    tone="muted"
-                  />
+              </MotionReveal>
+
+              <MotionReveal className="rounded-[1.45rem]">
+                <div className={terminalPanelClass}>
+                  <p className={terminalLabelClass}>{sections.nextTitle}</p>
+                  <div className="mt-3">
+                    <LocalizedBullets items={sections.roadmap} />
+                  </div>
+                  <div className="mt-5 border-t border-[var(--color-line)] pt-3">
+                    <PromptLine
+                      command={ui.availabilityLabel}
+                      value={hero.heroNote}
+                      tone="muted"
+                    />
+                  </div>
                 </div>
-              </div>
-            </MotionReveal>
+              </MotionReveal>
+            </div>
           </div>
         </SectionBlock>
       </div>

@@ -38,7 +38,7 @@ jobs:
             git reset --hard origin/main
 
             pnpm install --frozen-lockfile
-            pnpm build
+            pnpm deploy:prepare
 
             if [ -n "${{ secrets.HOSTINGER_RESTART_COMMAND }}" ]; then
               ${{ secrets.HOSTINGER_RESTART_COMMAND }}

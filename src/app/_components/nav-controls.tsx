@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+
+import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 import { useActiveSection } from "../_hooks/use-active-section";
 import MobileNav from "./mobile-nav";
@@ -23,6 +26,7 @@ export default function NavControls({
 }: NavControlsProps) {
   const activeSectionId = useActiveSection(navItems.map((item) => item.id));
   const activeItem = navItems.find((item) => item.id === activeSectionId);
+  const articleLabel = articleDirectoryCopy[locale].navLabel;
 
   return (
     <>
@@ -45,6 +49,12 @@ export default function NavControls({
             </a>
           ))}
         </div>
+        <Link
+          href={`/${locale}/articles`}
+          className="rounded-full border border-[var(--color-line)] bg-[rgba(8,16,12,0.72)] px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] text-[var(--color-soft)] transition-colors hover:border-[rgba(111,247,166,0.18)] hover:text-[var(--color-accent)]"
+        >
+          {articleLabel}
+        </Link>
       </div>
 
       <MobileNav

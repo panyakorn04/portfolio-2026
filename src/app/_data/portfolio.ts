@@ -161,6 +161,26 @@ export type PortfolioDictionary = {
     line: string;
     resume: string;
   };
+  contactForm: {
+    panelLabel: string;
+    title: string;
+    description: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    companyLabel: string;
+    companyPlaceholder: string;
+    subjectLabel: string;
+    subjectPlaceholder: string;
+    messageLabel: string;
+    messagePlaceholder: string;
+    storageNote: string;
+    submitLabel: string;
+    submittingLabel: string;
+    submitSuccess: string;
+    submitError: string;
+  };
   socialLinks: {
     github: string;
     linkedin: string;

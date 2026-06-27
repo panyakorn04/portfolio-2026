@@ -305,6 +305,26 @@
     "line": "LINE",
     "resume": "เรซูเม่"
   },
+  "contactForm": {
+    "panelLabel": "contact://intake",
+    "title": "ส่งข้อความเกี่ยวกับโปรเจกต์ได้จากหน้าเว็บนี้ทันที",
+    "description": "ฟอร์มนี้จะส่งข้อมูลเข้า backend ของพอร์ต บันทึกลง PostgreSQL และสามารถ forward ต่อไปยัง webhook สำหรับ workflow ถัดไปได้",
+    "nameLabel": "ชื่อ",
+    "namePlaceholder": "ชื่อของคุณ",
+    "emailLabel": "อีเมล",
+    "emailPlaceholder": "you@company.com",
+    "companyLabel": "บริษัท",
+    "companyPlaceholder": "ชื่อบริษัทหรือทีม",
+    "subjectLabel": "หัวข้อ",
+    "subjectPlaceholder": "อยากคุยเรื่องงานหรือโปรเจกต์แบบไหน",
+    "messageLabel": "ข้อความ",
+    "messagePlaceholder": "เล่าภาพรวมของโปรดักต์ บทบาท ระยะเวลา หรือปัญหาที่อยากให้ช่วยได้เลย",
+    "storageNote": "บันทึกผ่าน PostgreSQL + Prisma",
+    "submitLabel": "ส่งข้อความ",
+    "submittingLabel": "กำลังส่ง...",
+    "submitSuccess": "บันทึกและส่งข้อความเรียบร้อยแล้ว ขอบคุณครับ",
+    "submitError": "ยังส่งข้อความไม่ได้ในตอนนี้ กรุณาตรวจสอบข้อมูลหรือลองใหม่อีกครั้ง"
+  },
   "socialLinks": {
     "github": "GitHub",
     "linkedin": "LinkedIn"

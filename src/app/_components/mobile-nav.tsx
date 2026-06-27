@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 
 type MobileNavProps = {
@@ -23,6 +25,7 @@ export default function MobileNav({
   ui,
 }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const articleLabel = articleDirectoryCopy[locale].navLabel;
   const actionButtonClass =
     "inline-flex items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-panel)] px-[0.92rem] py-[0.68rem] font-mono text-[0.66rem] uppercase tracking-[0.04em] tabular-nums text-[var(--color-text)] sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]";
 
@@ -148,13 +151,23 @@ export default function MobileNav({
                 <span className="mt-1 text-[0.74rem] text-foreground">{item.label}</span>
               </a>
             ))}
+            <Link
+              href={`/${locale}/articles`}
+              className="flex flex-col rounded-[1.15rem] border border-(--color-line) bg-[rgba(10,20,16,0.65)] py-[0.85rem] px-[0.9rem] font-mono tabular-nums transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)"
+              onClick={closeMenu}
+            >
+              <span className="text-[0.58rem] uppercase text-(--color-soft)">
+                0{navItems.length + 1}
+              </span>
+              <span className="mt-1 text-[0.74rem] text-foreground">{articleLabel}</span>
+            </Link>
             <a
               href="mailto:panyakorn40@gmail.com"
               className="flex flex-col rounded-[1.15rem] border border-(--color-line) bg-[rgba(10,20,16,0.65)] py-[0.85rem] px-[0.9rem] font-mono tabular-nums transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)"
               onClick={closeMenu}
             >
               <span className="text-[0.58rem] uppercase text-(--color-soft)">
-                0{navItems.length + 1}
+                0{navItems.length + 2}
               </span>
               <span className="mt-1 text-[0.74rem] text-foreground">{ui.contactCta}</span>
             </a>

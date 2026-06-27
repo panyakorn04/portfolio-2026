@@ -9,10 +9,11 @@ function detectLocale(request: NextRequest): Locale {
     return defaultLocale;
   }
 
-  const languages = header
-    .split(",")
-    .map((value) => value.split(";")[0]?.trim().toLowerCase())
-    .filter(Boolean);
+  const languages = header.split(",").flatMap((value) => {
+    const normalized = value.split(";")[0]?.trim().toLowerCase();
+
+    return normalized ? [normalized] : [];
+  });
 
   for (const language of languages) {
     const baseLanguage = language.split("-")[0];
@@ -42,5 +43,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|icon.svg|assets|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|favicon.ico|icon.svg|assets|.*\\..*).*)"],
 };

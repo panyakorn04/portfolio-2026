@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ContactInquiry {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  company      String?
+  subject      String
+  message      String   @db.Text
+  locale       String   @default("en")
+  deliveryMode String   @default("database")
+  status       String   @default("new")
+  internalNote String?  @db.Text
+  handledAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  activities   ContactInquiryActivity[]
+
+  @@index([email, createdAt])
+  @@index([locale, createdAt])
+  @@index([status, createdAt])
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  passwordHash String
+  role         String        @default("admin")
+  sessions     AuthSession[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model AuthSession {
+  id               String   @id @default(cuid())
+  sessionTokenHash String   @unique
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+  lastSeenAt       DateTime @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model ContactInquiryActivity {
+  id               String         @id @default(cuid())
+  inquiryId        String
+  inquiry          ContactInquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  actorType        String
+  actorLabel       String
+  eventType        String
+  statusFrom       String?
+  statusTo         String?
+  internalNoteFrom String?        @db.Text
+  internalNoteTo   String?        @db.Text
+  createdAt        DateTime       @default(now())
+
+  @@index([inquiryId, createdAt])
+}
