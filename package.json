@@ -7,6 +7,7 @@
     "postcss": "^8.5.15"
   },
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
