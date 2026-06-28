@@ -5,7 +5,7 @@ import { contacts, socialLinks } from "../_data/site";
 import { getAbsoluteSiteUrl, getLocalizedSitePath } from "../_data/site-url";
 import ChatDemo from "./chat-demo";
 import ContactForm from "./contact-form";
-import HeroAmbientCanvas from "./hero-ambient-canvas";
+import HeroAmbientCanvas from "./hero-ambient-canvas-loader";
 import MotionReveal from "./motion-reveal";
 import Navbar from "./navbar";
 

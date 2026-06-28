@@ -56,8 +56,10 @@ export function useChatDemo(copy: ChatCopy) {
     }, closeDurMs);
   }, [clearCloseTimer]);
 
+  const messageCount = messages.length;
+
   useLayoutEffect(() => {
-    if (!isOpen) {
+    if (!isOpen || messageCount === 0) {
       return;
     }
 
@@ -70,7 +72,7 @@ export function useChatDemo(copy: ChatCopy) {
     return () => {
       window.cancelAnimationFrame(animationFrame);
     };
-  });
+  }, [isOpen, messageCount]);
 
   useEffect(() => {
     const chatLog = chatLogRef.current;
