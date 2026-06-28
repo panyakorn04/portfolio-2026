@@ -1,13 +1,14 @@
 import type { MetadataRoute } from "next";
 
-import { getArticleSlugs } from "./_data/articles";
+import { getPublishedArticleSlugs } from "@/server/db/articles";
+
 import { locales } from "./_data/portfolio";
 import { getSiteUrl } from "./_data/site-url";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
   const lastModified = new Date();
-  const articleSlugs = getArticleSlugs();
+  const articleSlugs = await getPublishedArticleSlugs();
 
   return locales.flatMap((locale) => {
     const localePriority = locale === "en" ? 1 : 0.9;

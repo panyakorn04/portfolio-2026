@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { articleDirectoryCopy, getArticles } from "../../_data/articles";
+import { listArticles } from "@/server/articles/service";
+
+import { articleDirectoryCopy } from "../../_data/articles";
 import { hasLocale } from "../../_data/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../_data/site-url";
 
@@ -59,7 +61,7 @@ export default async function ArticlesPage({ params }: PageProps<"/[lang]/articl
   }
 
   const copy = articleDirectoryCopy[lang];
-  const articles = getArticles(lang);
+  const articles = await listArticles(lang);
   const [featuredArticle, ...restArticles] = articles;
 
   return (

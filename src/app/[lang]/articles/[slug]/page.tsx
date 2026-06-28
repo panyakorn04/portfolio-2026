@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import {
-  articleDirectoryCopy,
-  getArticleBySlug,
-  getArticleSlugs,
-} from "../../../_data/articles";
+import { findArticle } from "@/server/articles/service";
+import { getPublishedArticleSlugs } from "@/server/db/articles";
+
+import { articleDirectoryCopy } from "../../../_data/articles";
 import { hasLocale } from "../../../_data/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../_data/site-url";
 
@@ -20,8 +19,9 @@ const bodyClass = "text-[0.96rem] leading-[1.9] text-[var(--color-muted)] sm:tex
 const labelClass =
   "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
 
-export function generateStaticParams() {
-  return getArticleSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await getPublishedArticleSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -33,7 +33,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const article = getArticleBySlug(lang, slug);
+  const article = await findArticle(lang, slug);
 
   if (!article) {
     return {};
@@ -73,7 +73,7 @@ export default async function ArticleDetailPage({
   }
 
   const copy = articleDirectoryCopy[lang];
-  const article = getArticleBySlug(lang, slug);
+  const article = await findArticle(lang, slug);
 
   if (!article) {
     notFound();

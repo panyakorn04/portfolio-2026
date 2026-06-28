@@ -50,6 +50,33 @@ model AuthSession {
   @@index([userId, expiresAt])
 }
 
+model Article {
+  id           String               @id @default(cuid())
+  slug         String               @unique
+  category     String
+  status       String               @default("draft")
+  publishedAt  DateTime?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  translations ArticleTranslation[]
+
+  @@index([status, publishedAt])
+}
+
+model ArticleTranslation {
+  id          String  @id @default(cuid())
+  articleId   String
+  article     Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  locale      String
+  title       String
+  summary     String  @db.Text
+  lead        String  @db.Text
+  readingTime String
+  sections    Json
+
+  @@unique([articleId, locale])
+}
+
 model ContactInquiryActivity {
   id               String         @id @default(cuid())
   inquiryId        String

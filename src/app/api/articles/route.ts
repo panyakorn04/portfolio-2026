@@ -1,7 +1,7 @@
 import { listArticles, parseArticleLocale } from "@/server/articles/service";
 import { jsonError, jsonOk } from "@/server/http/response";
 
-export function GET(request: Request) {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const localeResult = parseArticleLocale(searchParams.get("lang"));
   const limitParam = searchParams.get("limit");
@@ -27,8 +27,10 @@ export function GET(request: Request) {
     });
   }
 
-  const items = listArticles(localeResult.locale, parsedLimit);
-  const total = listArticles(localeResult.locale).length;
+  const items = await listArticles(localeResult.locale, parsedLimit);
+  const total = parsedLimit
+    ? (await listArticles(localeResult.locale)).length
+    : items.length;
 
   return jsonOk({
     locale: localeResult.locale,

@@ -4,8 +4,9 @@ import { notFound, redirect } from "next/navigation";
 import { adminSessionCookieName } from "@/server/auth/session";
 import { getAuthSessionByRawToken, staffRoles } from "@/server/auth/users";
 
-import AdminContactInquiries from "../../_components/admin-contact-inquiries";
+import AdminWorkspace from "../../_components/admin-workspace";
 import { adminDirectoryCopy } from "../../_data/admin";
+import { adminArticlesCopy } from "../../_data/admin-articles";
 import { hasLocale } from "../../_data/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../_data/site-url";
 
@@ -62,5 +63,11 @@ export default async function AdminPage({ params }: PageProps<"/[lang]/admin">) 
     redirect(`/${lang}/admin/login`);
   }
 
-  return <AdminContactInquiries locale={lang} copy={adminDirectoryCopy[lang]} />;
+  return (
+    <AdminWorkspace
+      locale={lang}
+      contactCopy={adminDirectoryCopy[lang]}
+      articlesCopy={adminArticlesCopy[lang]}
+    />
+  );
 }
