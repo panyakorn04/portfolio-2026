@@ -118,10 +118,12 @@ export function PortfolioShell({
   locale,
   dictionary,
   articles,
+  appVersion,
 }: {
   locale: Locale;
   dictionary: PortfolioDictionary;
   articles: PortfolioArticleSummary[];
+  appVersion: string;
 }) {
   const hero = dictionary.hero;
   const sections = dictionary.sections;
@@ -560,6 +562,15 @@ export function PortfolioShell({
             </div>
           </div>
         </SectionBlock>
+
+        <footer className="mt-12 flex flex-col items-center gap-1 border-t border-[var(--color-line)] pt-6 pb-2 text-center">
+          <p className="font-mono text-[0.66rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]">
+            © {new Date().getFullYear()} Panyakorn Boonyong
+          </p>
+          <p className="font-mono text-[0.62rem] tabular-nums text-[var(--color-soft)] opacity-70">
+            v{appVersion}
+          </p>
+        </footer>
       </div>
 
       <ChatDemo copy={dictionary.chat} />
