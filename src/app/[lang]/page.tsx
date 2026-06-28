@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 
 import { listArticles } from "@/server/articles/service";
 
@@ -13,6 +14,8 @@ export default async function LocalizedHomePage({ params }: PageProps<"/[lang]">
   if (!hasLocale(lang)) {
     notFound();
   }
+
+  await connection();
 
   const [dictionary, articles] = await Promise.all([
     getDictionary(lang),
