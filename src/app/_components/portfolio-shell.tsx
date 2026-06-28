@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 import { contacts, socialLinks } from "../_data/site";
 import { getAbsoluteSiteUrl, getLocalizedSitePath } from "../_data/site-url";
@@ -104,16 +105,28 @@ function LocalizedBullets({ items }: { items: string[] }) {
   );
 }
 
+export type PortfolioArticleSummary = {
+  slug: string;
+  category: string;
+  title: string;
+  summary: string;
+  publishedAt: string;
+  readingTime: string;
+};
+
 export function PortfolioShell({
   locale,
   dictionary,
+  articles,
 }: {
   locale: Locale;
   dictionary: PortfolioDictionary;
+  articles: PortfolioArticleSummary[];
 }) {
   const hero = dictionary.hero;
   const sections = dictionary.sections;
   const ui = dictionary.ui;
+  const articleCopy = articleDirectoryCopy[locale];
   const commands = ui.commands;
   const legal = dictionary.legal.directory;
   const termsUrl = getAbsoluteSiteUrl(getLocalizedSitePath(locale, "/terms"));
@@ -390,6 +403,50 @@ export function PortfolioShell({
             </MotionReveal>
           </div>
         </SectionBlock>
+
+        {articles.length > 0 ? (
+          <SectionBlock
+            id="articles"
+            command="cat ./articles"
+            eyebrow={articleCopy.eyebrow}
+            title={articleCopy.title}
+            text={articleCopy.description}
+          >
+            <div className="space-y-5">
+              <div className="grid gap-4 lg:grid-cols-2">
+                {articles.map((article) => (
+                  <MotionReveal key={article.slug} className="rounded-[1.45rem]">
+                    <Link
+                      href={getLocalizedSitePath(locale, `/articles/${article.slug}`)}
+                      className={`${terminalPanelClass} block transition-colors duration-150 hover:border-[var(--color-line-strong)]`}
+                    >
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full border border-[var(--color-line)] px-2.5 py-1 font-mono text-[0.6rem] uppercase text-[var(--color-accent)]">
+                          {article.category}
+                        </span>
+                        <span className="rounded-full border border-[var(--color-line)] px-2.5 py-1 font-mono text-[0.6rem] uppercase text-[var(--color-soft)]">
+                          {article.readingTime}
+                        </span>
+                      </div>
+                      <h3 className="mt-4 text-lg font-semibold leading-snug text-[var(--color-text)] sm:text-[1.18rem]">
+                        {article.title}
+                      </h3>
+                      <p className={`${terminalCopyClass} mt-3 text-pretty`}>
+                        {article.summary}
+                      </p>
+                    </Link>
+                  </MotionReveal>
+                ))}
+              </div>
+              <Link
+                href={getLocalizedSitePath(locale, "/articles")}
+                className={ctaSecondaryClass}
+              >
+                {articleCopy.listLabel}
+              </Link>
+            </div>
+          </SectionBlock>
+        ) : null}
 
         <SectionBlock
           id="contact"
