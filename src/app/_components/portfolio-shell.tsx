@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
@@ -252,11 +253,9 @@ export function PortfolioShell({
                                     {ui.profilePreviewLabel}
                                 </p>
                                 <div className="relative mt-3 aspect-[4/5] overflow-hidden rounded-[1.35rem] border border-[var(--color-line)] bg-[var(--color-panel)] shadow-[inset_0_1px_0_rgba(111,247,166,0.05)]">
-                                    {/* Using a native img here avoids shipping next/image client runtime for this static hero asset. */}
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
+                                    <Image
                                         src="/assets/profile.jpg?v=adb65e04"
-                                        srcSet="/assets/profile-320.jpg?v=995dd4de 320w, /assets/profile.jpg?v=adb65e04 600w"
+                                        fill
                                         sizes="(max-width: 639px) 320px, (max-width: 1023px) 90vw, 384px"
                                         alt={ui.profileImageAlt}
                                         decoding="async"
