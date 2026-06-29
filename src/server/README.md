@@ -1,40 +1,44 @@
 # Server Architecture
 
-This repository keeps the backend inside the same Next.js app for now, but the server code is split by responsibility so it can grow without forcing an immediate repo split.
+This frontend repository keeps a few legacy Next.js route handlers and Prisma-backed utilities for local development/history, but production traffic for `/api/*` is handled by the separate Go backend repository: `panyakorn04/portfolio-backend-2026`.
 
-## Layout
+## Production boundary
+
+```text
+Browser/frontend pages
+→ NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+→ Go backend container (`backend:8888`)
+→ PostgreSQL / Redis
+```
+
+The frontend container should not receive `DATABASE_URL`, `POSTGRES_*`, or `REDIS_URL`.
+
+## Frontend API env
+
+```text
+NEXT_PUBLIC_SITE_URL=https://panyakorn.com
+NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+FRONTEND_API_BASE_URL=http://backend:8888
+```
+
+- `NEXT_PUBLIC_API_URL` is used by browser-side requests such as the contact form.
+- `FRONTEND_API_BASE_URL` is used by server-rendered pages and sitemap generation to call the backend over the Docker network.
+
+## Legacy local modules
+
+The folders below remain in the repo because some admin/local utilities and type definitions still reference them. They are not the production source of truth for API behavior.
 
 ```text
 src/server/
-  ai/         # AI prompts, provider selection, orchestration stubs
-  articles/   # Read-side content services for article APIs
-  auth/       # Access guards and token/session parsing
-  contact/    # Contact submission business logic
-  db/         # Prisma client and repository access
-  env/        # Shared environment loading and access helpers
+  ai/         # AI prompt/provider stubs
+  articles/   # Frontend read-side adapter that now calls the backend API
+  auth/       # Legacy Next.js auth helpers
+  contact/    # Legacy Next.js contact helpers
+  db/         # Legacy Prisma repository access
+  env/        # Shared environment loading helpers
   http/       # Shared API response helpers
-  jobs/       # Queue/enqueue abstractions and async workflow entrypoints
-  webhooks/   # Outbound/inbound webhook helpers
+  jobs/       # Legacy async workflow stubs
+  webhooks/   # Legacy webhook helpers
 ```
 
-## Current Route Mapping
-
-```text
-/api/articles                  -> src/server/articles
-/api/contact                   -> src/server/contact + src/server/db + src/server/webhooks
-/api/admin/session             -> src/server/auth + PostgreSQL-backed user/session login
-/api/admin/contact-inquiries   -> src/server/auth + src/server/db
-/api/admin/contact-inquiries/* -> src/server/auth + src/server/db
-/api/jobs/contact-follow-up    -> src/server/auth + src/server/jobs
-/api/ai/contact-summary        -> src/server/auth + src/server/ai + src/server/db
-```
-
-## Growth Path
-
-- `auth`: current baseline now uses database-backed users and sessions; next step is identity provider integration, password reset, MFA, and richer RBAC.
-- `admin`: add RBAC, audit logging, and internal UI surfaces against the same server modules.
-- `jobs`: replace the in-process `enqueueJob` stub with a real queue such as BullMQ, SQS, or Cloud Tasks.
-- `webhooks`: add inbound signature validation and retry-safe event processing.
-- `ai`: connect provider clients, vector storage, and async task execution without changing route shape.
-
-When traffic, security boundaries, or background processing needs outgrow the monolith, these folders become the extraction boundaries for separate services.
+For database migrations, admin user creation, contact persistence, article CRUD, and Redis/Postgres configuration, use the backend repository.

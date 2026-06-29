@@ -30,45 +30,32 @@ cp .env.example .env.local
 ```
 
 ```text
-DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/portfolio?schema=public
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
-CONTACT_WEBHOOK_URL=
-CONTACT_WEBHOOK_SECRET=
+NEXT_PUBLIC_SITE_URL=https://panyakorn.com
+NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+FRONTEND_API_BASE_URL=https://api.panyakorn.com
 ```
 
-Generate Prisma Client after installing dependencies:
+For production on the VPS, `FRONTEND_API_BASE_URL` is set to `http://backend:8888` so server-rendered pages call the backend over the Docker network.
+
+Do not set `DATABASE_URL`, `POSTGRES_*`, or `REDIS_URL` on the frontend service. Database credentials belong to the Go backend repository: `panyakorn04/portfolio-backend-2026`.
+
+Generate Prisma Client after installing dependencies because a few legacy local/admin utilities still import Prisma types:
 
 ```bash
 pnpm prisma:generate
 ```
 
-Verified local database workflow for this repo:
+## Backend API integration
 
-```bash
-pnpm db:start
-pnpm db:status
-# copy the TCP DATABASE_URL printed by Prisma Dev into .env.local
-pnpm db:sync
-```
+Production frontend data is served by the separate Go backend at `https://api.panyakorn.com`. Caddy also routes `/api/*` on `panyakorn.com` to the backend.
 
-Production database workflow for this repo:
-
-```bash
-pnpm prisma:generate
-pnpm db:migrate:deploy
-```
-
-## Starter backend
-
-This repo now includes a small backend-for-frontend layer using Next.js Route Handlers and Prisma 7.
-
-Available endpoints:
+Available public backend endpoints used by the frontend:
 
 ```text
-GET  /api/health
-GET  /api/articles?lang=en&limit=2
-GET  /api/articles/[slug]?lang=th
-POST /api/contact
+GET  https://api.panyakorn.com/api/health
+GET  https://api.panyakorn.com/api/articles?lang=en&limit=2
+GET  https://api.panyakorn.com/api/articles/[slug]?lang=th
+POST https://api.panyakorn.com/api/contact
 ```
 
 Example contact payload:
@@ -84,10 +71,7 @@ Example contact payload:
 }
 ```
 
-`POST /api/contact` validates the payload and:
-
-- stores the inquiry in PostgreSQL via Prisma
-- forwards the submission to your webhook when `CONTACT_WEBHOOK_URL` is set
+`POST /api/contact` is handled by the backend API. The frontend form posts to `NEXT_PUBLIC_API_URL`, and the backend is responsible for validation, database persistence, and optional webhook delivery.
 
 Additional in-repo server endpoints:
 
@@ -125,30 +109,13 @@ Admin workflow in this repo currently supports:
 - saving internal follow-up notes
 - generating an AI summary for the selected inquiry
 
-Admin auth bootstrap:
-
-```text
-pnpm auth:create-admin --email admin@example.com --password your-password --name "Admin"
-pnpm auth:create-user --email editor@example.com --password your-password --name "Editor" --role editor
-```
-
-The browser admin UI now uses database-backed sessions. `ADMIN_API_TOKEN` can still remain for scripts and automation.
-
-Local database commands:
-
-```bash
-pnpm db:start   # starts Prisma Dev Postgres locally
-pnpm db:status  # prints DATABASE_URL and server status
-pnpm db:sync    # pushes the schema to the configured database
-pnpm db:migrate:deploy # applies committed Prisma migrations, intended for production/staging
-pnpm db:stop    # stops the Prisma Dev server
-```
+Admin/auth/contact storage is handled by the backend API in production. Backend user bootstrap and database migrations should be run from `panyakorn04/portfolio-backend-2026`, not from this frontend repo.
 
 Production preparation commands:
 
 ```bash
-pnpm env:check      # verifies required env vars exist
-pnpm deploy:prepare # prisma generate + migrate deploy + production build
+pnpm env:check      # verifies frontend env vars exist
+pnpm deploy:prepare # prisma generate + production build, no database migration
 ```
 
 ## Contact form flow
@@ -159,16 +126,17 @@ Runtime flow:
 
 ```text
 Visitor submits form
-→ Next.js Route Handler validates request
-→ Prisma saves inquiry to PostgreSQL
-→ Optional webhook forwards the same payload
+→ Browser posts to NEXT_PUBLIC_API_URL/api/contact
+→ Go backend validates request
+→ Go backend saves inquiry to PostgreSQL
+→ Optional backend webhook forwards the same payload
 → UI shows success or error state
 ```
 
 Notes:
 
-- The local setup above was verified in this repo with `prisma dev` plus `prisma db push`.
-- Local bootstrap is still `db:sync`, while production/staging should use committed migrations via `db:migrate:deploy`.
+- Frontend containers must not receive database credentials.
+- Database migrations and admin bootstrap belong to the backend repository.
 
 ## Production check
 
@@ -182,8 +150,8 @@ pnpm build
 This repository includes GitHub Actions workflows:
 
 ```text
-.github/workflows/ci.yml                  # Runs lint + production build
-.github/workflows/deploy-hostinger.yml    # Deploys to Hostinger over SSH after CI passes
+.github/workflows/ci.yml          # Runs lint + production build
+.github/workflows/deploy-vps.yml  # Builds Docker image tar and deploys frontend to the VPS
 ```
 
 ### CI behavior
@@ -201,33 +169,26 @@ pnpm lint
 pnpm build
 ```
 
-### CD behavior for Hostinger
+### CD behavior for VPS
 
-The deploy workflow runs when the `CI` workflow on `main` succeeds. It can also be triggered manually from GitHub Actions using **Run workflow**.
+The deploy workflow runs on every push to `main` and can also be triggered manually from GitHub Actions using **Run workflow**. It builds a Docker image tar, uploads it to the VPS, loads it with Docker, and restarts the `frontend` service in `/opt/apps/docker-compose.yml`.
 
-Add these GitHub repository secrets before enabling deployment:
+GitHub repository secrets used by deployment:
 
 | Secret | Example | Required |
 |---|---|---|
-| `HOSTINGER_HOST` | `123.123.123.123` or `your-server.hostinger.com` | Yes |
-| `HOSTINGER_USERNAME` | `u123456789` | Yes |
-| `HOSTINGER_SSH_KEY` | Private SSH key with access to Hostinger | Yes |
-| `HOSTINGER_PORT` | `65002` or `22` | Optional |
-| `HOSTINGER_PROJECT_PATH` | `/home/u123456789/domains/example.com/portfolio` | Yes |
-| `HOSTINGER_RESTART_COMMAND` | `pm2 reload portfolio` | Optional |
+| `VPS_HOST` | `76.13.185.117` | Yes |
+| `VPS_USER` | `deploy` | Yes |
+| `VPS_SSH_KEY` | Private SSH key with access to the VPS | Yes |
+| `FRONTEND_IMAGE` | `ghcr.io/panyakorn04/portfolio-2026:latest` | Yes |
 
-The deployment script runs on Hostinger:
+The VPS frontend service should receive only frontend env vars:
 
-```bash
-cd "$HOSTINGER_PROJECT_PATH"
-git fetch origin main
-git reset --hard origin/main
-pnpm install --frozen-lockfile
-pnpm deploy:prepare
-# then runs HOSTINGER_RESTART_COMMAND, or falls back to pm2 if available
+```text
+NEXT_PUBLIC_SITE_URL=https://panyakorn.com
+NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+FRONTEND_API_BASE_URL=http://backend:8888
 ```
-
-> If you use Hostinger's built-in **Node.js App → Import Git Repository** deployment, you may not need `deploy-hostinger.yml`. In that setup, keep `ci.yml` for quality checks and let Hostinger auto-deploy from `main`.
 
 ## Content to update before publishing
 
@@ -250,87 +211,35 @@ public/assets/profile.png         # Profile photo extracted from resume
 public/Panyakorn_Boonyong_Resume.pdf
 ```
 
-## Deploying to Vercel
+## Deploying elsewhere
 
-1. Push this folder to a GitHub repository.
-2. Import the repository in Vercel.
-3. Keep the default build command:
+The current production target is the VPS at `76.13.185.117` behind Caddy. If you deploy this frontend elsewhere, keep the build command:
 
 ```bash
 pnpm deploy:prepare
 ```
 
-4. Keep the default output settings for Next.js.
-5. Add production environment variables:
+Required production env vars:
 
 ```text
-DATABASE_URL=postgresql://...
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
-CONTACT_WEBHOOK_URL=
-CONTACT_WEBHOOK_SECRET=
-ADMIN_API_TOKEN=
-INTERNAL_API_TOKEN=
-AI_PROVIDER=stub
-AI_API_KEY=
+NEXT_PUBLIC_SITE_URL=https://panyakorn.com
+NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+FRONTEND_API_BASE_URL=https://api.panyakorn.com
 ```
 
-6. After the first successful deploy, create the first admin user:
+Do not configure frontend database env vars.
 
-```bash
-pnpm auth:create-admin --email admin@example.com --password your-password --name "Admin"
-```
+## Backend split
 
-7. Add the final Vercel/custom domain URL back into the resume and portfolio contact links.
+The backend is already split to `panyakorn04/portfolio-backend-2026`. Use that repository for:
 
-## Deploying to Hostinger
-
-Recommended Hostinger settings for this Next.js app:
-
-```text
-Type: Node.js App
-Source: Import GitHub Repository
-Branch: main
-Node.js version: 22.x or 24.x
-Install command: pnpm install --frozen-lockfile
-Build command: pnpm deploy:prepare
-Start command: pnpm start
-Output directory: .next
-```
-
-After the first deploy on Hostinger, create the first admin user on the server:
-
-```bash
-cd "$HOSTINGER_PROJECT_PATH"
-pnpm auth:create-admin --email admin@example.com --password your-password --name "Admin"
-```
-
-## When To Split The Backend
-
-Keeping the backend inside this Next.js app is a good fit right now for portfolio content, article APIs, and the contact workflow.
-
-Consider splitting to a dedicated backend service when you need several of these at once:
-
-- Auth with sessions, roles, refresh-token rotation, or third-party identity flows
-- Admin tools with audit logs, permission boundaries, and internal-only APIs
-- Queues, workers, cron jobs, or long-running background processing
-- Webhook ingestion that needs retries, signatures, dead-letter handling, or high throughput
-- AI pipelines that orchestrate jobs, embeddings, vector storage, tool execution, or async post-processing
-
-If the project reaches that stage, a practical next step is:
-
-- Keep the Next.js app as frontend + BFF
-- Move heavy domain logic to a separate service
-- Let Prisma and PostgreSQL stay as shared infrastructure, or split databases later when boundaries are clear
+- database migrations
+- admin user creation
+- contact persistence
+- article CRUD
+- Redis/Postgres configuration
+- backend API deployment
 
 ## In-Repo Expansion Baseline
 
-The repo now includes a server baseline under [src/server/README.md](/Users/panyakornboonyong/portfolio/src/server/README.md) so auth, admin, jobs, webhooks, and AI flows can grow without splitting the repo yet.
-
-Suggested env vars for these capabilities:
-
-```text
-ADMIN_API_TOKEN=...
-INTERNAL_API_TOKEN=...
-AI_PROVIDER=stub
-AI_API_KEY=
-```
+The repo keeps a server baseline under `src/server/README.md` for legacy/local utilities and type references. Production API behavior lives in the backend repo.

@@ -20,7 +20,7 @@
     "db:stop": "prisma dev stop portfolio",
     "db:sync": "prisma db push",
     "db:migrate:deploy": "prisma migrate deploy",
-    "deploy:prepare": "pnpm env:check && pnpm prisma:generate && pnpm db:migrate:deploy && pnpm build",
+    "deploy:prepare": "pnpm env:check && pnpm prisma:generate && pnpm build",
     "db:seed:articles": "node scripts/seed-articles.mjs",
     "auth:create-admin": "node scripts/create-admin-user.mjs --role admin",
     "auth:create-user": "node scripts/create-admin-user.mjs",
