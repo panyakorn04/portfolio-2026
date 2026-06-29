@@ -8,6 +8,8 @@ import { articleDirectoryCopy } from "../../_data/articles";
 import { hasLocale } from "../../_data/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../_data/site-url";
 
+export const dynamic = "force-dynamic";
+
 const pageShellClass =
   "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";
 const panelClass =

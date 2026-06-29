@@ -5,10 +5,22 @@ import { getPublishedArticleSlugs } from "@/server/db/articles";
 import { locales } from "./_data/portfolio";
 import { getSiteUrl } from "./_data/site-url";
 
+async function getArticleSlugsForSitemap() {
+  try {
+    return await getPublishedArticleSlugs();
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Skipping article sitemap entries:", error);
+    }
+
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
   const lastModified = new Date();
-  const articleSlugs = await getPublishedArticleSlugs();
+  const articleSlugs = await getArticleSlugsForSitemap();
 
   return locales.flatMap((locale) => {
     const localePriority = locale === "en" ? 1 : 0.9;
