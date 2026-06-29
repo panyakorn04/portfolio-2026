@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { findArticle } from "@/server/articles/service";
+import { findArticle } from "@/app/_data/articles-api";
 
 import { articleDirectoryCopy } from "../../../_data/articles";
 import { hasLocale } from "../../../_data/portfolio";

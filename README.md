@@ -39,11 +39,6 @@ For production on the VPS, `FRONTEND_API_BASE_URL` is set to `http://backend:888
 
 Do not set `DATABASE_URL`, `POSTGRES_*`, or `REDIS_URL` on the frontend service. Database credentials belong to the Go backend repository: `panyakorn04/portfolio-backend-2026`.
 
-Generate Prisma Client after installing dependencies because a few legacy local/admin utilities still import Prisma types:
-
-```bash
-pnpm prisma:generate
-```
 
 ## Backend API integration
 
@@ -73,54 +68,18 @@ Example contact payload:
 
 `POST /api/contact` is handled by the backend API. The frontend form posts to `NEXT_PUBLIC_API_URL`, and the backend is responsible for validation, database persistence, and optional webhook delivery.
 
-Additional in-repo server endpoints:
-
-```text
-GET  /api/admin/contact-inquiries      # protected by admin session or ADMIN_API_TOKEN
-PATCH /api/admin/contact-inquiries/[id] # update status + internal note
-GET  /api/admin/session                # check admin session
-POST /api/admin/session               # login with admin email + password
-DELETE /api/admin/session             # logout and clear session cookie
-GET  /api/admin/sessions              # list current user's sessions
-DELETE /api/admin/sessions            # logout everywhere
-DELETE /api/admin/sessions/[id]       # revoke one session
-GET  /api/admin/users                 # admin only: list users
-PATCH /api/admin/users/[id]           # admin only: update role
-POST /api/jobs/contact-follow-up       # protected by INTERNAL_API_TOKEN
-POST /api/ai/contact-summary           # protected by admin session or ADMIN_API_TOKEN
-```
-
-Admin UI route:
-
-```text
-/en/admin
-/th/admin
-/en/admin/login
-/th/admin/login
-```
-
-Admin workflow in this repo currently supports:
-
-- signing in with a real admin user from PostgreSQL
-- managing user roles (`admin`, `editor`, `viewer`)
-- listing active sessions, revoking one session, and logging out everywhere
-- browsing recent contact inquiries
-- changing inquiry status (`new`, `in_progress`, `handled`)
-- saving internal follow-up notes
-- generating an AI summary for the selected inquiry
-
-Admin/auth/contact storage is handled by the backend API in production. Backend user bootstrap and database migrations should be run from `panyakorn04/portfolio-backend-2026`, not from this frontend repo.
+All backend/API implementation files live in `panyakorn04/portfolio-backend-2026`; this repo contains only the frontend and the API client used by server-rendered pages.
 
 Production preparation commands:
 
 ```bash
 pnpm env:check      # verifies frontend env vars exist
-pnpm deploy:prepare # prisma generate + production build, no database migration
+pnpm deploy:prepare # env check + production build
 ```
 
 ## Contact form flow
 
-The portfolio contact section now includes a live form wired to `POST /api/contact`.
+The portfolio contact section includes a live form wired to `POST https://api.panyakorn.com/api/contact`.
 
 Runtime flow:
 
@@ -207,7 +166,7 @@ src/app/(root)/page.tsx           # Redirect from / to default locale
 src/app/sitemap.ts                # Localized sitemap.xml output
 src/app/robots.ts                 # robots.txt output
 src/app/globals.css               # Global styles
-public/assets/profile.png         # Profile photo extracted from resume
+public/assets/profile.jpg         # Profile photo
 public/Panyakorn_Boonyong_Resume.pdf
 ```
 
@@ -239,7 +198,3 @@ The backend is already split to `panyakorn04/portfolio-backend-2026`. Use that r
 - article CRUD
 - Redis/Postgres configuration
 - backend API deployment
-
-## In-Repo Expansion Baseline
-
-The repo keeps a server baseline under `src/server/README.md` for legacy/local utilities and type references. Production API behavior lives in the backend repo.

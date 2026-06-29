@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
-import { listArticles } from "@/server/articles/service";
+import { listArticles } from "@/app/_data/articles-api";
 
 import packageJson from "../../../package.json";
 import { PortfolioShell } from "../_components/portfolio-shell";

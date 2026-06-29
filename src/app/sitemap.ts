@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { getArticleSlugs } from "@/server/articles/service";
+import { getArticleSlugs } from "@/app/_data/articles-api";
 
 import { locales } from "./_data/portfolio";
 import { getSiteUrl } from "./_data/site-url";

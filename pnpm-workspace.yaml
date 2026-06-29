@@ -1,9 +1,5 @@
 minimumReleaseAge: 0
 onlyBuiltDependencies:
-  - '@prisma/engines'
-  - prisma
   - sharp
 allowBuilds:
-  '@prisma/engines': true
-  prisma: true
   sharp: true

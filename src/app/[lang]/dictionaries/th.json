@@ -319,7 +319,7 @@
     "subjectPlaceholder": "อยากคุยเรื่องงานหรือโปรเจกต์แบบไหน",
     "messageLabel": "ข้อความ",
     "messagePlaceholder": "เล่าภาพรวมของโปรดักต์ บทบาท ระยะเวลา หรือปัญหาที่อยากให้ช่วยได้เลย",
-    "storageNote": "บันทึกผ่าน PostgreSQL + Prisma",
+    "storageNote": "บันทึกผ่าน portfolio backend API",
     "submitLabel": "ส่งข้อความ",
     "submittingLabel": "กำลังส่ง...",
     "submitSuccess": "บันทึกและส่งข้อความเรียบร้อยแล้ว ขอบคุณครับ",

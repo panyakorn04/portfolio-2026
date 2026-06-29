@@ -319,7 +319,7 @@
     "subjectPlaceholder": "What would you like to build?",
     "messageLabel": "Message",
     "messagePlaceholder": "Share the product, role, timeline, or problem you want help with.",
-    "storageNote": "Stored via PostgreSQL + Prisma",
+    "storageNote": "Stored through the portfolio backend API",
     "submitLabel": "Send inquiry",
     "submittingLabel": "Sending...",
     "submitSuccess": "Thanks, your message has been saved and sent successfully.",

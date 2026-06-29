@@ -19,49 +19,17 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-function validatePostgresUrl(key, rawValue) {
-  const value = rawValue?.trim();
-
-  if (!value) {
-    return;
-  }
-
-  let parsed;
-  try {
-    parsed = new URL(value);
-  } catch {
-    console.error(
-      `${key} is not a valid URL. Make sure the value is wrapped in quotes in .env so the "&" between query parameters is not split.`,
-    );
-    process.exit(1);
-  }
-
-  if (!/^postgres(ql)?:$/.test(parsed.protocol)) {
-    console.error(`${key} must use the postgres:// or postgresql:// scheme (got "${parsed.protocol}").`);
-    process.exit(1);
-  }
-
-  if (!parsed.hostname || !parsed.hostname.includes(".")) {
-    console.error(
-      `${key} has a suspicious host "${parsed.hostname}". Expected a fully-qualified host such as aws-0-region.pooler.supabase.com. The value in .env is likely truncated.`,
-    );
-    process.exit(1);
+for (const key of ["DATABASE_URL", "DIRECT_URL", "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "REDIS_URL"]) {
+  if (process.env[key]?.trim()) {
+    console.warn(`${key} is set but ignored by the frontend. Keep backend/database env in panyakorn04/portfolio-backend-2026.`);
   }
 }
-
-validatePostgresUrl("DIRECT_URL", process.env.DIRECT_URL);
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 if (siteUrl?.includes("localhost")) {
   console.warn(
     "NEXT_PUBLIC_SITE_URL still points to localhost. Update it before deploying production.",
-  );
-}
-
-if (process.env.CONTACT_WEBHOOK_SECRET && !process.env.CONTACT_WEBHOOK_URL) {
-  console.warn(
-    "CONTACT_WEBHOOK_SECRET is set without CONTACT_WEBHOOK_URL. Webhook forwarding will stay disabled.",
   );
 }
 

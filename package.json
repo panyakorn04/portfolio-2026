@@ -7,7 +7,6 @@
     "postcss": "^8.5.15"
   },
   "scripts": {
-    "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -15,22 +14,9 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "doctor": "pnpm dlx react-doctor@latest",
-    "db:start": "prisma dev -d -n portfolio",
-    "db:status": "prisma dev ls",
-    "db:stop": "prisma dev stop portfolio",
-    "db:sync": "prisma db push",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "deploy:prepare": "pnpm env:check && pnpm prisma:generate && pnpm build",
-    "db:seed:articles": "node scripts/seed-articles.mjs",
-    "auth:create-admin": "node scripts/create-admin-user.mjs --role admin",
-    "auth:create-user": "node scripts/create-admin-user.mjs",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "deploy:prepare": "pnpm env:check && pnpm build"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.8.0",
-    "@prisma/client": "^7.8.0",
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -45,7 +31,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.184.1",
-    "prisma": "^7.8.0",
     "react-doctor": "^0.5.5",
     "tailwindcss": "^4",
     "typescript": "^5"
