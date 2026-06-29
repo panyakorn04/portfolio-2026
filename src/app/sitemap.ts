@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 
-import { getPublishedArticleSlugs } from "@/server/db/articles";
+import { getArticleSlugs } from "@/server/articles/service";
 
 import { locales } from "./_data/portfolio";
 import { getSiteUrl } from "./_data/site-url";
 
 async function getArticleSlugsForSitemap() {
   try {
-    return await getPublishedArticleSlugs();
+    return await getArticleSlugs();
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {
       console.warn("Skipping article sitemap entries:", error);

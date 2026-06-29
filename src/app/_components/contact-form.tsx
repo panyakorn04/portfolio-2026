@@ -49,6 +49,10 @@ type ApiSuccessResponse = {
   };
 };
 
+const apiBaseUrl = (
+  process.env.NEXT_PUBLIC_API_URL ?? "https://api.panyakorn.com"
+).replace(/\/+$/, "");
+
 export default function ContactForm({ locale, copy }: ContactFormProps) {
   const [form, setForm] = useState<FormState>(initialFormState);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -80,7 +84,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
 
     startTransition(async () => {
       try {
-        const response = await fetch("/api/contact", {
+        const response = await fetch(`${apiBaseUrl}/api/contact`, {
           method: "POST",
           headers: {
             "content-type": "application/json",

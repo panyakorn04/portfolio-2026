@@ -1,17 +1,160 @@
 import { hasLocale } from "@/app/_data/portfolio";
-import {
-  type ArticleInput,
-  type ArticleLocale,
-  type ArticleRecord,
-  type ArticleSection,
-  type ArticleStatus,
-  articleLocales,
-  articleStatuses,
-  buildArticleSlug,
-  getPublishedArticleBySlug,
-  listPublishedArticles,
-} from "@/server/db/articles";
 import type { ApiErrorDetail } from "@/server/http/response";
+
+export const articleStatuses = ["draft", "published"] as const;
+export type ArticleStatus = (typeof articleStatuses)[number];
+
+export const articleLocales = ["en", "th"] as const;
+export type ArticleLocale = (typeof articleLocales)[number];
+
+export type ArticleSection = {
+  heading: string;
+  paragraphs: string[];
+};
+
+export type ArticleListItem = {
+  slug: string;
+  category: string;
+  title: string;
+  summary: string;
+  lead: string;
+  publishedAt: string;
+  readingTime: string;
+};
+
+export type ArticleDetail = ArticleListItem & {
+  sections: ArticleSection[];
+};
+
+export type ArticleTranslationInput = {
+  locale: ArticleLocale;
+  title: string;
+  summary: string;
+  lead: string;
+  readingTime: string;
+  sections: ArticleSection[];
+};
+
+export type ArticleInput = {
+  slug: string;
+  category: string;
+  status: ArticleStatus;
+  publishedAt: Date | null;
+  translations: ArticleTranslationInput[];
+};
+
+type ApiSuccess<T> = {
+  ok: true;
+  data: T;
+};
+
+type RawArticleListResponse = {
+  items?: unknown;
+};
+
+function getApiBaseUrl() {
+  return (
+    process.env.FRONTEND_API_BASE_URL?.trim() ||
+    process.env.NEXT_PUBLIC_API_URL?.trim() ||
+    "https://api.panyakorn.com"
+  ).replace(/\/+$/, "");
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function parseListItem(value: unknown): ArticleListItem | null {
+  if (!isObject(value)) {
+    return null;
+  }
+
+  const { slug, category, title, summary, lead, publishedAt, readingTime } = value;
+
+  if (
+    !isNonEmptyString(slug) ||
+    !isNonEmptyString(category) ||
+    !isNonEmptyString(title) ||
+    !isNonEmptyString(summary) ||
+    !isNonEmptyString(lead) ||
+    !isNonEmptyString(readingTime)
+  ) {
+    return null;
+  }
+
+  return {
+    slug: slug.trim(),
+    category: category.trim(),
+    title: title.trim(),
+    summary: summary.trim(),
+    lead: lead.trim(),
+    publishedAt: typeof publishedAt === "string" ? publishedAt : "",
+    readingTime: readingTime.trim(),
+  };
+}
+
+function parseSection(value: unknown): ArticleSection | null {
+  if (
+    !isObject(value) ||
+    !isNonEmptyString(value.heading) ||
+    !Array.isArray(value.paragraphs)
+  ) {
+    return null;
+  }
+
+  const paragraphs = value.paragraphs
+    .filter(isNonEmptyString)
+    .map((paragraph) => paragraph.trim());
+
+  if (paragraphs.length === 0) {
+    return null;
+  }
+
+  return {
+    heading: value.heading.trim(),
+    paragraphs,
+  };
+}
+
+function parseArticleDetail(value: unknown): ArticleDetail | null {
+  const item = parseListItem(value);
+  if (!item || !isObject(value) || !Array.isArray(value.sections)) {
+    return null;
+  }
+
+  return {
+    ...item,
+    sections: value.sections
+      .map(parseSection)
+      .filter((section): section is ArticleSection => section !== null),
+  };
+}
+
+async function fetchApi<T>(path: string) {
+  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+    cache: "no-store",
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Portfolio API request failed: ${response.status}`);
+  }
+
+  const payload = (await response.json()) as ApiSuccess<T>;
+
+  if (!payload.ok) {
+    throw new Error("Portfolio API returned an error response.");
+  }
+
+  return payload.data;
+}
 
 export function parseArticleLocale(value: string | null) {
   const locale = value ?? "en";
@@ -32,73 +175,53 @@ export function parseArticleLocale(value: string | null) {
   };
 }
 
-function pickTranslation(article: ArticleRecord, locale: ArticleLocale) {
-  return (
-    article.translations.find((translation) => translation.locale === locale) ??
-    article.translations.find((translation) => translation.locale === "en") ??
-    article.translations[0] ??
-    null
-  );
-}
-
-function toListItem(article: ArticleRecord, locale: ArticleLocale) {
-  const translation = pickTranslation(article, locale);
-
-  if (!translation) {
-    return null;
-  }
-
-  return {
-    slug: article.slug,
-    category: article.category,
-    title: translation.title,
-    summary: translation.summary,
-    lead: translation.lead,
-    publishedAt: article.publishedAt
-      ? article.publishedAt.toISOString().slice(0, 10)
-      : "",
-    readingTime: translation.readingTime,
-  };
-}
-
-function toDetail(article: ArticleRecord, locale: ArticleLocale) {
-  const translation = pickTranslation(article, locale);
-
-  if (!translation) {
-    return null;
-  }
-
-  return {
-    slug: article.slug,
-    category: article.category,
-    title: translation.title,
-    summary: translation.summary,
-    lead: translation.lead,
-    readingTime: translation.readingTime,
-    publishedAt: article.publishedAt
-      ? article.publishedAt.toISOString().slice(0, 10)
-      : "",
-    sections: translation.sections as ArticleSection[],
-  };
-}
-
 export async function listArticles(locale: ArticleLocale, limit?: number | null) {
-  const articles = await listPublishedArticles(limit);
+  const searchParams = new URLSearchParams({ lang: locale });
+  if (typeof limit === "number") {
+    searchParams.set("limit", String(limit));
+  }
 
-  return articles
-    .map((article) => toListItem(article, locale))
-    .filter((item): item is NonNullable<typeof item> => item !== null);
+  const data = await fetchApi<RawArticleListResponse>(
+    `/api/articles?${searchParams.toString()}`,
+  );
+  const items = Array.isArray(data?.items) ? data.items : [];
+
+  return items
+    .map(parseListItem)
+    .filter((item): item is ArticleListItem => item !== null);
 }
 
 export async function findArticle(locale: ArticleLocale, slug: string) {
-  const article = await getPublishedArticleBySlug(slug);
+  const searchParams = new URLSearchParams({ lang: locale });
+  const data = await fetchApi<unknown>(
+    `/api/articles/${encodeURIComponent(slug)}?${searchParams.toString()}`,
+  );
 
-  if (!article) {
-    return null;
-  }
-
-  return toDetail(article, locale);
+  return parseArticleDetail(data);
 }
+
+export async function getArticleSlugs(locale: ArticleLocale = "en") {
+  const articles = await listArticles(locale);
+  return articles.map((article) => article.slug);
+}
+
+export function buildArticleSlug(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 80);
+}
+
+export type ArticlePayload = {
+  slug?: unknown;
+  category?: unknown;
+  status?: unknown;
+  translations?: unknown;
+};
 
 type RawTranslation = {
   locale?: unknown;
@@ -108,17 +231,6 @@ type RawTranslation = {
   readingTime?: unknown;
   sections?: unknown;
 };
-
-export type ArticlePayload = {
-  slug?: unknown;
-  category?: unknown;
-  status?: unknown;
-  translations?: unknown;
-};
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
 
 function validateSections(
   sections: unknown,
@@ -218,7 +330,7 @@ export function validateArticlePayload(payload: ArticlePayload): {
     if (!raw) {
       details.push({
         field: `translations.${locale}`,
-        message: `Translation for "${locale}" is required.`,
+        message: `Add the ${locale.toUpperCase()} translation.`,
       });
       continue;
     }
@@ -229,21 +341,18 @@ export function validateArticlePayload(payload: ArticlePayload): {
         message: "Title is required.",
       });
     }
-
     if (!isNonEmptyString(raw.summary)) {
       details.push({
         field: `translations.${locale}.summary`,
         message: "Summary is required.",
       });
     }
-
     if (!isNonEmptyString(raw.lead)) {
       details.push({
         field: `translations.${locale}.lead`,
         message: "Lead is required.",
       });
     }
-
     if (!isNonEmptyString(raw.readingTime)) {
       details.push({
         field: `translations.${locale}.readingTime`,
@@ -251,24 +360,14 @@ export function validateArticlePayload(payload: ArticlePayload): {
       });
     }
 
-    const sections = validateSections(raw.sections, locale, details);
-
-    if (
-      isNonEmptyString(raw.title) &&
-      isNonEmptyString(raw.summary) &&
-      isNonEmptyString(raw.lead) &&
-      isNonEmptyString(raw.readingTime) &&
-      sections.length > 0
-    ) {
-      translations.push({
-        locale,
-        title: raw.title.trim(),
-        summary: raw.summary.trim(),
-        lead: raw.lead.trim(),
-        readingTime: raw.readingTime.trim(),
-        sections,
-      });
-    }
+    translations.push({
+      locale,
+      title: isNonEmptyString(raw.title) ? raw.title.trim() : "",
+      summary: isNonEmptyString(raw.summary) ? raw.summary.trim() : "",
+      lead: isNonEmptyString(raw.lead) ? raw.lead.trim() : "",
+      readingTime: isNonEmptyString(raw.readingTime) ? raw.readingTime.trim() : "",
+      sections: validateSections(raw.sections, locale, details),
+    });
   }
 
   if (details.length > 0) {
@@ -280,7 +379,7 @@ export function validateArticlePayload(payload: ArticlePayload): {
     details: [],
     input: {
       slug,
-      category: (payload.category as string).trim(),
+      category: String(payload.category).trim(),
       status: status as ArticleStatus,
       publishedAt: status === "published" ? new Date() : null,
       translations,

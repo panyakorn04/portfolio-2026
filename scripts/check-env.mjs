@@ -8,7 +8,7 @@ if (existsSync(".env.local")) {
   process.loadEnvFile?.(".env.local");
 }
 
-const requiredEnv = ["DATABASE_URL", "NEXT_PUBLIC_SITE_URL"];
+const requiredEnv = ["NEXT_PUBLIC_SITE_URL", "NEXT_PUBLIC_API_URL"];
 const missing = requiredEnv.filter((key) => {
   const value = process.env[key];
   return !value || value.trim().length === 0;
@@ -49,7 +49,6 @@ function validatePostgresUrl(key, rawValue) {
   }
 }
 
-validatePostgresUrl("DATABASE_URL", process.env.DATABASE_URL);
 validatePostgresUrl("DIRECT_URL", process.env.DIRECT_URL);
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;

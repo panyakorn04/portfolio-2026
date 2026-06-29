@@ -13,7 +13,11 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 FROM base AS builder
 ARG NEXT_PUBLIC_SITE_URL=https://panyakorn.com
+ARG NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+ARG FRONTEND_API_BASE_URL=http://backend:8888
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV FRONTEND_API_BASE_URL=$FRONTEND_API_BASE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -26,6 +30,9 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
+ENV NEXT_PUBLIC_SITE_URL=https://panyakorn.com
+ENV NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+ENV FRONTEND_API_BASE_URL=http://backend:8888
 
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 
