@@ -65,15 +65,25 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Upload image tar to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: portfolio-2026-frontend.tar
-          target: /tmp/portfolio-frontend-upload
-          timeout: 120s
-          command_timeout: 30m
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          trap 'rm -f ~/.ssh/deploy_key' EXIT
+          tar -cf - portfolio-2026-frontend.tar | ssh \
+            -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o ConnectTimeout=120 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=20 \
+            "$VPS_USER@$VPS_HOST" \
+            'set -euo pipefail; rm -rf /tmp/portfolio-frontend-upload; mkdir -p /tmp/portfolio-frontend-upload; tar -xf - -C /tmp/portfolio-frontend-upload'
 
       - name: Deploy frontend service
         uses: appleboy/ssh-action@v1.0.3
