@@ -1,10 +1,49 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 
 import AdminLogin from "../../../_components/admin-login";
 import { adminDirectoryCopy } from "../../../_data/admin";
 import { hasLocale } from "../../../_data/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../_data/site-url";
+
+function getApiBaseUrl() {
+  return (
+    process.env.FRONTEND_API_BASE_URL?.trim() ||
+    process.env.NEXT_PUBLIC_API_URL?.trim() ||
+    "https://api.panyakorn.com"
+  ).replace(/\/+$/, "");
+}
+
+async function isAuthenticated() {
+  const cookieHeader = (await cookies()).toString();
+
+  if (!cookieHeader) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/api/admin/session`, {
+      cache: "no-store",
+      headers: {
+        cookie: cookieHeader,
+      },
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const payload = (await response.json()) as {
+      ok?: boolean;
+      data?: { user?: unknown | null };
+    };
+
+    return Boolean(payload.ok && payload.data?.user);
+  } catch {
+    return false;
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -51,6 +90,10 @@ export default async function AdminLoginPage({
 
   if (!hasLocale(lang)) {
     notFound();
+  }
+
+  if (await isAuthenticated()) {
+    redirect(`/${lang}/admin`);
   }
 
   return <AdminLogin locale={lang} copy={adminDirectoryCopy[lang]} />;
