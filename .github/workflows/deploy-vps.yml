@@ -72,6 +72,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           source: portfolio-2026-frontend.tar
           target: /tmp/portfolio-frontend-upload
+          timeout: 120s
+          command_timeout: 30m
 
       - name: Deploy frontend service
         uses: appleboy/ssh-action@v1.0.3
