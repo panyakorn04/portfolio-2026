@@ -24,7 +24,7 @@ export default function AdminLogin({
   const panelClass =
     "rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-5 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-6";
   const titleClass =
-    '[font-family:var(--font-kanit),"Segoe_UI",sans-serif] text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance';
+    '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance';
   const bodyClass =
     "text-[0.88rem] leading-[1.85] text-[var(--color-muted)] sm:text-[0.92rem]";
   const labelClass =

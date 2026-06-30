@@ -11,7 +11,7 @@ const labelClass =
 const bodyClass =
   "text-[0.88rem] leading-[1.8] text-[var(--color-muted)] sm:text-[0.92rem]";
 const titleClass =
-  '[font-family:var(--font-kanit),"Segoe_UI",sans-serif] text-[clamp(1.9rem,4vw,3.4rem)] font-semibold leading-[1.02] text-balance';
+  '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(1.9rem,4vw,3.4rem)] font-semibold leading-[1.02] text-balance';
 
 type LegalPageProps = {
   locale: Locale;

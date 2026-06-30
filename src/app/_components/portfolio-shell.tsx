@@ -35,9 +35,9 @@ const ctaSecondaryClass =
 const terminalContactClass =
   "flex min-h-[6.25rem] flex-col justify-between rounded-[1.15rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.65)] px-[0.9rem] py-[0.85rem] font-mono tabular-nums sm:px-[0.9rem] sm:py-[0.8rem]";
 const sectionTitleClass =
-  '[font-family:var(--font-kanit),"Segoe_UI",sans-serif] text-[clamp(1.5rem,3.5vw,2.8rem)] font-semibold leading-[1.02] tracking-[-0.04em]';
+  '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(1.5rem,3.5vw,2.8rem)] font-semibold leading-[1.02] tracking-[-0.04em]';
 const heroTitleClass =
-  '[font-family:var(--font-kanit),"Segoe_UI",sans-serif] text-[clamp(1.95rem,4.4vw,4.2rem)] font-semibold leading-[0.98] tracking-[-0.04em]';
+  '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(1.95rem,4.4vw,4.2rem)] font-semibold leading-[0.98] tracking-[-0.04em]';
 
 function PromptLine({
   command,

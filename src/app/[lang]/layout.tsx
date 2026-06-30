@@ -3,7 +3,7 @@ import "../globals.css";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { kanit } from "../_data/fonts";
+import { geistMono, geistSans, notoSansThai } from "../_data/fonts";
 import { hasLocale, locales } from "../_data/portfolio";
 import { getMetadataBase } from "../_data/site-url";
 import { getDictionary } from "./dictionaries";
@@ -56,7 +56,10 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   }
 
   return (
-    <html lang={lang} className={`${kanit.variable} h-full scroll-smooth antialiased`}>
+    <html
+      lang={lang}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoSansThai.variable} h-full scroll-smooth antialiased`}
+    >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

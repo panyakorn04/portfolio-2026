@@ -148,7 +148,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
       </div>
 
       <div className="mt-4 max-w-2xl">
-        <h3 className='[font-family:var(--font-kanit),"Segoe_UI",sans-serif] text-[1.6rem] font-semibold leading-[1.05] tracking-[-0.03em] text-[var(--color-text)]'>
+        <h3 className='[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[1.6rem] font-semibold leading-[1.05] tracking-[-0.03em] text-[var(--color-text)]'>
           {copy.title}
         </h3>
         <p className="mt-3 text-[0.88rem] leading-[1.85] text-[var(--color-muted)]">
