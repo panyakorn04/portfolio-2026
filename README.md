@@ -51,6 +51,7 @@ GET  https://api.panyakorn.com/api/health
 GET  https://api.panyakorn.com/api/articles?lang=en&limit=2
 GET  https://api.panyakorn.com/api/articles/[slug]?lang=th
 POST https://api.panyakorn.com/api/contact
+POST https://api.panyakorn.com/api/portfolio/assistant/chat
 ```
 
 Example contact payload:
@@ -69,6 +70,16 @@ Example contact payload:
 `POST /api/contact` is handled by the backend API. The frontend form posts to `NEXT_PUBLIC_API_URL`, and the backend is responsible for validation, database persistence, and optional webhook delivery.
 
 All backend/API implementation files live in `panyakorn04/portfolio-backend-2026`; this repo contains only the frontend and the API client used by server-rendered pages.
+
+## Portfolio assistant
+
+The floating portfolio chat now calls the backend assistant endpoint instead of using only local mock replies:
+
+```text
+Browser → NEXT_PUBLIC_API_URL/api/portfolio/assistant/chat → backend → portfolio-site skill profile → Ollama
+```
+
+The backend injects only the public-safe `portfolio-site` skills from `panyakorn04/custom-ai-skills`, so this assistant should answer visitor questions about Panyakorn's profile, services, stack, contact, and collaboration while avoiding private VPS/admin/deployment details. If the backend request fails, the UI falls back to the existing local mock replies.
 
 Production preparation commands:
 

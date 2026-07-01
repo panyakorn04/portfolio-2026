@@ -20,8 +20,27 @@ export type ChatMessage = {
   text: string;
 };
 
-const assistantReplyDelayMs = 420;
+type PortfolioAssistantResponse = {
+  ok: boolean;
+  data?: {
+    message?: {
+      role: "assistant" | "user" | "system";
+      content: string;
+    };
+  };
+  error?: {
+    message?: string;
+  };
+};
+
 const closeDurMs = 150;
+const apiBaseUrl = (
+  process.env.NEXT_PUBLIC_API_URL ?? "https://api.panyakorn.com"
+).replace(/\/+$/, "");
+
+function apiUrl(path: string) {
+  return `${apiBaseUrl}${path}`;
+}
 
 export function useChatDemo(copy: ChatCopy) {
   const [draft, setDraft] = useState("");
@@ -32,6 +51,7 @@ export function useChatDemo(copy: ChatCopy) {
   const chatLogRef = useRef<HTMLDivElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const messagesRef = useRef<ChatMessage[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>(
     copy.starterConversation.map((message, index) => ({
       id: `starter-${index}`,
@@ -45,6 +65,10 @@ export function useChatDemo(copy: ChatCopy) {
       closeTimerRef.current = null;
     }
   }, []);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   const startClose = useCallback(() => {
     clearCloseTimer();
@@ -145,15 +169,33 @@ export function useChatDemo(copy: ChatCopy) {
     }
 
     event.preventDefault();
-    submitPrompt(draft);
+    void submitPrompt(draft);
   }
 
-  function queueAssistantReply(prompt: string) {
+  async function queueAssistantReply(nextMessages: ChatMessage[]) {
     setIsWaiting(true);
 
-    window.setTimeout(() => {
-      const normalizedPrompt = prompt.toLowerCase();
-      const nextReply = selectMockReply(normalizedPrompt, copy);
+    try {
+      const response = await fetch(apiUrl("/api/portfolio/assistant/chat"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: nextMessages
+            .filter((message) => message.text.trim() !== "")
+            .map((message) => ({
+              role: message.role,
+              content: message.text,
+            }))
+            .slice(-10),
+        }),
+      });
+
+      const result = (await response.json()) as PortfolioAssistantResponse;
+      if (!response.ok || !result.ok || !result.data?.message?.content) {
+        throw new Error(
+          result.error?.message ?? `Assistant request failed (${response.status})`,
+        );
+      }
 
       startTransition(() => {
         setMessages((current) => [
@@ -161,38 +203,53 @@ export function useChatDemo(copy: ChatCopy) {
           {
             id: `assistant-${crypto.randomUUID()}`,
             role: "assistant",
-            text: nextReply,
+            text: result.data?.message?.content ?? copy.mockReplies.default,
           },
         ]);
-        setIsWaiting(false);
       });
-    }, assistantReplyDelayMs);
+    } catch {
+      const prompt = nextMessages[nextMessages.length - 1]?.text.toLowerCase() ?? "";
+      const fallbackReply = selectMockReply(prompt, copy);
+
+      startTransition(() => {
+        setMessages((current) => [
+          ...current,
+          {
+            id: `assistant-${crypto.randomUUID()}`,
+            role: "assistant",
+            text: `${copy.apiNote} ${fallbackReply}`,
+          },
+        ]);
+      });
+    } finally {
+      setIsWaiting(false);
+    }
   }
 
-  function submitPrompt(prompt: string) {
+  async function submitPrompt(prompt: string) {
     const normalizedPrompt = prompt.trim();
 
     if (!normalizedPrompt || isWaiting) {
       return;
     }
 
+    const userMessage: ChatMessage = {
+      id: `user-${crypto.randomUUID()}`,
+      role: "user",
+      text: normalizedPrompt,
+    };
+    const nextMessages = [...messagesRef.current, userMessage];
+
     startTransition(() => {
-      setMessages((current) => [
-        ...current,
-        {
-          id: `user-${crypto.randomUUID()}`,
-          role: "user",
-          text: normalizedPrompt,
-        },
-      ]);
+      setMessages(nextMessages);
       setDraft("");
     });
 
-    queueAssistantReply(normalizedPrompt);
+    await queueAssistantReply(nextMessages);
   }
 
   function handleSubmit() {
-    submitPrompt(draft);
+    void submitPrompt(draft);
   }
 
   return {
@@ -253,5 +310,5 @@ function selectMockReply(prompt: string, copy: ChatCopy) {
     return copy.mockReplies.contact;
   }
 
-  return `${copy.apiNote} ${copy.mockReplies.default}`;
+  return copy.mockReplies.default;
 }
