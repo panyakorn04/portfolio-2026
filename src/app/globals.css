@@ -161,8 +161,10 @@
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
 
-    --font-sans: var(--font-geist-sans), var(--font-noto-thai), "Segoe UI", sans-serif;
-    --font-display: var(--font-geist-sans), var(--font-noto-thai), Inter, sans-serif;
+    --font-sans:
+        var(--font-geist-sans), var(--font-noto-thai), "Segoe UI", sans-serif;
+    --font-display:
+        var(--font-geist-sans), var(--font-noto-thai), Inter, sans-serif;
     --font-mono:
         var(--font-geist-mono), "IBM Plex Mono", "SFMono-Regular", "Menlo",
         "Monaco", "Cascadia Mono", "Segoe UI Mono", monospace;
@@ -191,6 +193,7 @@ html {
 body {
     font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -250,48 +253,52 @@ img {
 
 /* ── transitions-dev: universal tokens ── */
 :root {
-  --modal-open-dur: 250ms;
-  --modal-close-dur: 150ms;
-  --modal-scale: 0.96;
-  --modal-scale-close: 0.96;
-  --modal-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --backdrop-dur: 250ms;
-  --backdrop-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --modal-open-dur: 250ms;
+    --modal-close-dur: 150ms;
+    --modal-scale: 0.96;
+    --modal-scale-close: 0.96;
+    --modal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --backdrop-dur: 250ms;
+    --backdrop-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .t-backdrop {
-  transition: opacity var(--backdrop-dur) var(--backdrop-ease);
-  will-change: opacity;
+    transition: opacity var(--backdrop-dur) var(--backdrop-ease);
+    will-change: opacity;
 }
 
 .t-modal {
-  transform-origin: bottom right;
-  transform: scale(var(--modal-scale));
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    transform var(--modal-open-dur) var(--modal-ease),
-    opacity   var(--modal-open-dur) var(--modal-ease);
-  will-change: transform, opacity;
+    transform-origin: bottom right;
+    transform: scale(var(--modal-scale));
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform var(--modal-open-dur) var(--modal-ease),
+        opacity var(--modal-open-dur) var(--modal-ease);
+    will-change: transform, opacity;
 }
 .t-modal.is-open {
-  transform: scale(1);
-  opacity: 1;
-  pointer-events: auto;
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: auto;
 }
 .t-modal.is-closing {
-  transform: scale(var(--modal-scale-close));
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    transform var(--modal-close-dur) var(--modal-ease),
-    opacity   var(--modal-close-dur) var(--modal-ease);
+    transform: scale(var(--modal-scale-close));
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform var(--modal-close-dur) var(--modal-ease),
+        opacity var(--modal-close-dur) var(--modal-ease);
 }
 
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto;
     }
-    .t-modal { transition: none !important; }
-    .t-backdrop { transition: none !important; }
+    .t-modal {
+        transition: none !important;
+    }
+    .t-backdrop {
+        transition: none !important;
+    }
 }

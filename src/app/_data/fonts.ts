@@ -1,19 +1,15 @@
-import { Geist, Geist_Mono, Noto_Sans_Thai } from "next/font/google";
+import { Kanit, Space_Grotesk } from "next/font/google";
 
-export const geistSans = Geist({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist-sans",
+export const kanit = Kanit({
+    subsets: ["latin", "thai"],
+    weight: ["400", "600"],
+    display: "swap",
+    variable: "--font-kanit",
 });
 
-export const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist-mono",
-});
-
-export const notoSansThai = Noto_Sans_Thai({
-  subsets: ["latin", "thai"],
-  display: "swap",
-  variable: "--font-noto-thai",
+export const spaceGrotesk = Space_Grotesk({
+    subsets: ["latin"],
+    weight: ["300", "400", "500", "600", "700"],
+    display: "swap",
+    variable: "--font-space",
 });
