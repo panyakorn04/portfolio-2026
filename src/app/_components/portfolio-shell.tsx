@@ -30,10 +30,20 @@ type SectionBlockProps = {
   kicker: string;
   title: string;
   text?: string;
+  index: number;
+  total: number;
   children: React.ReactNode;
 };
 
-function SectionBlock({ id, kicker, title, text, children }: SectionBlockProps) {
+function SectionBlock({
+  id,
+  kicker,
+  title,
+  text,
+  index,
+  total,
+  children,
+}: SectionBlockProps) {
   return (
     <section id={id} className="scroll-mt-28 py-8 sm:py-10">
       <MotionReveal className="rounded-[var(--radius-lg)]">
@@ -41,8 +51,8 @@ function SectionBlock({ id, kicker, title, text, children }: SectionBlockProps) 
           <div className="border-b border-[var(--color-line)] bg-[rgba(255,255,255,0.025)] px-5 py-5 sm:px-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className={eyebrowClass}>{kicker}</p>
-              <span className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-dim)] px-3 py-1 font-mono text-[0.6rem] uppercase tracking-[0.08em] text-[var(--color-accent)]">
-                live panel
+              <span className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-dim)] px-3 py-1 font-mono text-[0.6rem] uppercase tabular-nums tracking-[0.08em] text-[var(--color-accent)]">
+                {String(index).padStart(2, "0")} / {String(total).padStart(2, "0")}
               </span>
             </div>
             <h2 className="mt-4 max-w-3xl text-balance [font-family:var(--font-display),sans-serif] text-[clamp(1.7rem,4vw,3.15rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-[var(--color-text)]">
@@ -113,6 +123,9 @@ export function PortfolioShell({
   const primarySkills = sections.skills
     .flatMap((item) => item.list.split(", "))
     .slice(0, 9);
+  const hasArticles = articles.length > 0;
+  const sectionTotal = hasArticles ? 6 : 5;
+  const contactIndex = hasArticles ? 6 : 5;
 
   return (
     <main
@@ -270,6 +283,8 @@ export function PortfolioShell({
             kicker={commands.about}
             title={sections.aboutTitle}
             text={sections.aboutText}
+            index={1}
+            total={sectionTotal}
           >
             <div className="grid gap-3 md:grid-cols-2">
               {sections.principles.map((item, index) => (
@@ -286,41 +301,34 @@ export function PortfolioShell({
             kicker={commands.work}
             title={sections.workTitle}
             text={sections.workText}
+            index={2}
+            total={sectionTotal}
           >
-            <div className="grid gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               {sections.featuredWork.map((project, index) => (
                 <article
                   key={project.title}
-                  className={`${compactPanelClass} overflow-hidden transition-all duration-300 hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)]`}
+                  className={`${compactPanelClass} flex h-full flex-col p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)]`}
                 >
-                  <div className="grid gap-5 p-5 lg:grid-cols-[10rem_minmax(0,1fr)] lg:p-6">
-                    <div>
-                      <p className={eyebrowClass}>case_0{index + 1}</p>
-                      <p className="mt-2 text-sm font-medium uppercase tracking-[0.08em] text-[var(--color-accent)]">
-                        {project.eyebrow}
-                      </p>
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-balance text-xl font-semibold tracking-[-0.035em] sm:text-2xl">
-                        {project.title}
-                      </h3>
-                      <p className={`${copyClass} mt-3 max-w-3xl text-pretty`}>
-                        {project.description}
-                      </p>
-                      <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1fr)_15rem]">
-                        <LocalizedBullets items={project.bullets} />
-                        <div>
-                          <p className={eyebrowClass}>{ui.stackLabel}</p>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {project.stack.map((item) => (
-                              <span key={item} className={chipClass}>
-                                {item}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className={eyebrowClass}>case_0{index + 1}</p>
+                    <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-accent)]">
+                      {project.eyebrow}
+                    </p>
+                  </div>
+                  <h3 className="mt-3 text-balance text-xl font-semibold tracking-[-0.035em] sm:text-2xl">
+                    {project.title}
+                  </h3>
+                  <p className={`${copyClass} mt-3 text-pretty`}>{project.description}</p>
+                  <div className="mt-5">
+                    <LocalizedBullets items={project.bullets} />
+                  </div>
+                  <div className="mt-5 flex flex-wrap gap-2 border-t border-[var(--color-line)] pt-4">
+                    {project.stack.map((item) => (
+                      <span key={item} className={chipClass}>
+                        {item}
+                      </span>
+                    ))}
                   </div>
                 </article>
               ))}
@@ -332,6 +340,8 @@ export function PortfolioShell({
             kicker={commands.skills}
             title={sections.skillsTitle}
             text={sections.skillsText}
+            index={3}
+            total={sectionTotal}
           >
             <div className="grid gap-3 md:grid-cols-2">
               {sections.skills.map((item) => (
@@ -354,6 +364,8 @@ export function PortfolioShell({
             kicker={commands.experience}
             title={sections.roleTitle}
             text={`${sections.company} · ${sections.timeline}`}
+            index={4}
+            total={sectionTotal}
           >
             <div className="grid gap-4 lg:grid-cols-[16rem_minmax(0,1fr)]">
               <div className={`${compactPanelClass} p-4`}>
@@ -373,12 +385,14 @@ export function PortfolioShell({
             </div>
           </SectionBlock>
 
-          {articles.length > 0 ? (
+          {hasArticles ? (
             <SectionBlock
               id="articles"
               kicker="cat ./articles"
               title={articleCopy.title}
               text={articleCopy.description}
+              index={5}
+              total={sectionTotal}
             >
               <div className="grid gap-4 md:grid-cols-2">
                 {articles.map((article) => (
@@ -418,6 +432,8 @@ export function PortfolioShell({
             kicker={commands.contact}
             title={sections.contactTitle}
             text={sections.contactText}
+            index={contactIndex}
+            total={sectionTotal}
           >
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
               <ContactForm locale={locale} copy={dictionary.contactForm} />
@@ -499,7 +515,7 @@ export function PortfolioShell({
                     href={link.href}
                     target="_blank"
                     rel="noreferrer"
-                    className={chipClass}
+                    className={`${chipClass} min-h-11`}
                   >
                     {dictionary.socialLinks[link.key]}
                   </a>
@@ -544,7 +560,7 @@ export function PortfolioShell({
                     href={link.href}
                     target="_blank"
                     rel="noreferrer"
-                    className={chipClass}
+                    className={`${chipClass} min-h-11`}
                   >
                     {dictionary.socialLinks[link.key]}
                   </a>

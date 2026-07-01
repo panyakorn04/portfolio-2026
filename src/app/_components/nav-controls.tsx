@@ -39,7 +39,7 @@ export default function NavControls({
               key={item.id}
               href={`/${locale}#${item.id}`}
               aria-current={activeSectionId === item.id ? "location" : undefined}
-              className={`rounded-full border px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] transition-all duration-200 ${
+              className={`whitespace-nowrap rounded-full border px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] transition-all duration-200 ${
                 activeSectionId === item.id
                   ? "border-[var(--accent-border)] bg-[var(--accent-dim)] text-[var(--color-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                   : "border-transparent text-[var(--color-soft)] hover:border-[var(--color-line)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-text)]"
@@ -51,7 +51,7 @@ export default function NavControls({
         </div>
         <Link
           href={`/${locale}/articles`}
-          className="rounded-full border border-[var(--color-line)] bg-[var(--surface)] px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] text-[var(--color-soft)] transition-all duration-200 hover:border-[var(--accent-border)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)]"
+          className="whitespace-nowrap rounded-full border border-[var(--color-line)] bg-[var(--surface)] px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] text-[var(--color-soft)] transition-all duration-200 hover:border-[var(--accent-border)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)]"
         >
           {articleLabel}
         </Link>

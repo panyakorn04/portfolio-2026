@@ -3,7 +3,7 @@ import "../globals.css";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { kanit, spaceGrotesk } from "../_data/fonts";
+import { jetbrainsMono, kanit, spaceGrotesk } from "../_data/fonts";
 import { hasLocale, locales } from "../_data/portfolio";
 import { getMetadataBase } from "../_data/site-url";
 import { getDictionary } from "./dictionaries";
@@ -58,7 +58,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   return (
     <html
       lang={lang}
-      className={`${kanit.variable} ${spaceGrotesk.variable} h-full scroll-smooth antialiased`}
+      className={`${kanit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

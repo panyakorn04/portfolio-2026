@@ -27,7 +27,7 @@ export default function MobileNav({
   const [isOpen, setIsOpen] = useState(false);
   const articleLabel = articleDirectoryCopy[locale].navLabel;
   const actionButtonClass =
-    "inline-flex items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-panel)] px-[0.92rem] py-[0.68rem] font-mono text-[0.66rem] uppercase tracking-[0.04em] tabular-nums text-[var(--color-text)] sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]";
+    "inline-flex min-h-11 items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-panel)] px-[0.92rem] py-[0.68rem] font-mono text-[0.66rem] uppercase tracking-[0.04em] tabular-nums text-[var(--color-text)] sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]";
 
   useEffect(() => {
     if (!isOpen) {
@@ -77,7 +77,7 @@ export default function MobileNav({
           aria-controls="mobile-menu"
           aria-label={isOpen ? ui.closeMenuLabel : ui.menuLabel}
           aria-expanded={isOpen}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-(--color-line-strong) bg-(--color-panel) p-0 text-foreground transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-(--color-line-strong) bg-(--color-panel) p-0 text-foreground transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)"
           onClick={toggleMenu}
         >
           <span className="sr-only">{ui.menuLabel}</span>

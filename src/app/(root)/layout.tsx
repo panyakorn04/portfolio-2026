@@ -1,6 +1,6 @@
 import "../globals.css";
 
-import { kanit, spaceGrotesk } from "../_data/fonts";
+import { jetbrainsMono, kanit, spaceGrotesk } from "../_data/fonts";
 import { defaultLocale } from "../_data/portfolio";
 
 export default function RedirectRootLayout({
@@ -11,7 +11,7 @@ export default function RedirectRootLayout({
   return (
     <html
       lang={defaultLocale}
-      className={`${kanit.variable} ${spaceGrotesk.variable} h-full scroll-smooth antialiased`}
+      className={`${kanit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
