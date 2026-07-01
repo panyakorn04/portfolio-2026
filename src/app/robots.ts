@@ -3,22 +3,17 @@ import type { MetadataRoute } from "next";
 import { getSiteUrl } from "./_data/site-url";
 
 export default function robots(): MetadataRoute.Robots {
-    const siteUrl = getSiteUrl();
+  const siteUrl = getSiteUrl();
 
-    return {
-        rules: [
-            {
-                userAgent: "*",
-                allow: "/",
-                disallow: [
-                    "/en/admin",
-                    "/en/admin/login",
-                    "/th/admin",
-                    "/th/admin/login",
-                ],
-            },
-        ],
-        sitemap: `${siteUrl}/sitemap.xml`,
-        host: siteUrl,
-    };
+  return {
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/en/admin", "/en/admin/login", "/th/admin", "/th/admin/login"],
+      },
+    ],
+    sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
+  };
 }

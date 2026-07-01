@@ -4,16 +4,16 @@ import { kanit, spaceGrotesk } from "../_data/fonts";
 import { defaultLocale } from "../_data/portfolio";
 
 export default function RedirectRootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <html
-            lang={defaultLocale}
-            className={`${kanit.variable} ${spaceGrotesk.variable} h-full scroll-smooth antialiased`}
-        >
-            <body className="min-h-full flex flex-col">{children}</body>
-        </html>
-    );
+  return (
+    <html
+      lang={defaultLocale}
+      className={`${kanit.variable} ${spaceGrotesk.variable} h-full scroll-smooth antialiased`}
+    >
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
+  );
 }

@@ -13,9 +13,11 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 FROM base AS builder
 ARG NEXT_PUBLIC_SITE_URL=https://panyakorn.com
 ARG NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+ARG BUILD_API_BASE_URL=https://api.panyakorn.com
 ARG FRONTEND_API_BASE_URL=http://backend:8888
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV BUILD_API_BASE_URL=$BUILD_API_BASE_URL
 ENV FRONTEND_API_BASE_URL=$FRONTEND_API_BASE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules

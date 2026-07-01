@@ -32,10 +32,13 @@ cp .env.example .env.local
 ```text
 NEXT_PUBLIC_SITE_URL=https://panyakorn.com
 NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+BUILD_API_BASE_URL=https://api.panyakorn.com
 FRONTEND_API_BASE_URL=https://api.panyakorn.com
 ```
 
 For production on the VPS, `FRONTEND_API_BASE_URL` is set to `http://backend:8888` so server-rendered pages call the backend over the Docker network.
+
+`BUILD_API_BASE_URL` is used only while prerendering article pages during `next build`, so CI and Docker image builds can use the public API even when runtime server-side calls use the internal Docker hostname.
 
 Do not set `DATABASE_URL`, `POSTGRES_*`, or `REDIS_URL` on the frontend service. Database credentials belong to the Go backend repository: `panyakorn04/portfolio-backend-2026`.
 
@@ -194,6 +197,7 @@ Required production env vars:
 ```text
 NEXT_PUBLIC_SITE_URL=https://panyakorn.com
 NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+BUILD_API_BASE_URL=https://api.panyakorn.com
 FRONTEND_API_BASE_URL=https://api.panyakorn.com
 ```
 
