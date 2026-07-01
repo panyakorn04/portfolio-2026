@@ -76,10 +76,10 @@ All backend/API implementation files live in `panyakorn04/portfolio-backend-2026
 The floating portfolio chat now calls the backend assistant endpoint instead of using only local mock replies:
 
 ```text
-Browser → NEXT_PUBLIC_API_URL/api/portfolio/assistant/chat → backend → portfolio-site skill profile → Ollama
+Browser → NEXT_PUBLIC_API_URL/api/portfolio/assistant/chat/stream → backend → portfolio-site skill profile → Ollama
 ```
 
-The backend injects only the public-safe `portfolio-site` skills from `panyakorn04/custom-ai-skills`, so this assistant should answer visitor questions about Panyakorn's profile, services, stack, contact, and collaboration while avoiding private VPS/admin/deployment details. If the backend request fails, the UI falls back to the existing local mock replies.
+The backend injects only the public-safe `portfolio-site` skills from `panyakorn04/custom-ai-skills`, so this assistant should answer visitor questions about Panyakorn's profile, services, stack, contact, and collaboration while avoiding private VPS/admin/deployment details. The UI streams live tokens from the backend; if the stream fails it shows an error message rather than a local canned answer.
 
 Production preparation commands:
 

@@ -140,18 +140,11 @@ export type PortfolioDictionary = {
     assistantName: string;
     userName: string;
     emptyState: string;
-    apiNote: string;
+    streamError: string;
     starterConversation: Array<{
       role: "assistant" | "user";
       text: string;
     }>;
-    mockReplies: {
-      intro: string;
-      work: string;
-      skills: string;
-      contact: string;
-      default: string;
-    };
   };
   contactLabels: {
     email: string;

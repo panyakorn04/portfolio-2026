@@ -254,20 +254,19 @@
     "draftLabel": "ขั้นถัดไป",
     "draftValue": "เชื่อม API",
     "introLabel": "พรีวิว",
-    "introTitle": "ออกแบบไว้ให้สลับไปใช้โมเดลจริงภายหลังได้ทันที",
-    "introText": "widget นี้ถูกวางบทบาทให้เป็น AI ตัวแทนของ Panyakorn ที่ช่วยเล่าประสบการณ์ โปรเจกต์ สแตก และสไตล์การทำงานในมุม first person ตอนนี้คำตอบยังเป็น mock อยู่ แต่รูปแบบบทสนทนาพร้อมต่อเข้ากับโมเดลจริงแล้ว",
+    "introTitle": "เชื่อมต่อกับ AI portfolio assistant แบบ streaming แล้ว",
+    "introText": "widget นี้เป็น AI ตัวแทนของ Panyakorn ที่เชื่อมต่อ backend และ Ollama จริงผ่าน streaming endpoint เพื่อช่วยเล่าประสบการณ์ โปรเจกต์ สแตก และสไตล์การทำงานแบบ public-safe",
     "quickPromptsLabel": "คำสั่งลัด",
     "quickPrompts": [
       "สรุปประสบการณ์ frontend ของผมสำหรับ recruiter",
       "ร่างข้อความแนะนำตัวสั้น ๆ สำหรับลูกค้าที่สนใจ",
       "เปลี่ยน portfolio นี้ให้เป็น project pitch แบบกระชับ"
     ],
-    "inputPlaceholder": "พิมพ์ prompt เพื่อจำลอง portfolio agent ในอนาคต...",
+    "inputPlaceholder": "พิมพ์คำถามถึง portfolio AI assistant...",
     "sendLabel": "ส่งข้อความ",
     "assistantName": "panyakorn.ai",
     "userName": "visitor",
     "emptyState": "สวัสดีครับ ผมคือ AI portfolio guide ของ Panyakorn คุณถามผมได้เรื่องประสบการณ์สาย frontend, งาน AI integration, แนวคิดการทำโปรดักต์ หรือรูปแบบทีมที่เขาอยากร่วมงานด้วย",
-    "apiNote": "ตอนนี้ยังเป็น mock response อยู่ แต่ถ้าผมตอบในบทบาท AI assistant ของ Panyakorn ผมจะตอบประมาณว่า:",
     "starterConversation": [
       {
         "role": "assistant",
@@ -290,13 +289,7 @@
         "text": "เหมาะครับ เพราะเขาทำได้ทั้งฝั่ง frontend architecture, API integration, workflow automation และฟีเจอร์ที่มี AI อยู่ในประสบการณ์ผู้ใช้ จึงช่วยได้ทั้งชั้น UI และการเชื่อม model เข้าแอปจริง"
       }
     ],
-    "mockReplies": {
-      "intro": "ผมโฟกัสงาน frontend และ full-stack product โดยเฉพาะ React, Next.js, TypeScript, secure user flows และฟีเจอร์ที่เชื่อม AI เข้ากับโปรดักต์ งานส่วนใหญ่ที่ทำช่วงหลังเป็น production interface ที่ใช้งานจริง ไม่ใช่แค่ prototype",
-      "work": "ถ้าสรุปงานเด่นของผมแบบสั้น ๆ จะมีทั้ง product flows แนว exchange, AI application console และประสบการณ์ commerce สองภาษา โดยปกติผมช่วยได้ตั้งแต่ UI architecture, API integration, state handling ไปจนถึงงาน polish ก่อนขึ้น production",
-      "skills": "สแตกที่ผมถนัดมากคือ React, Next.js, TypeScript, Tailwind และการจัดการ data flow ฝั่ง frontend เช่น React Query นอกจากนี้ผมยังทำงานกับ AI APIs, workflow automation, auth flows และ reusable design systems ได้สบาย",
-      "contact": "ถ้าสนใจร่วมงานกัน วิธีที่ดีที่สุดคือส่งข้อความสั้น ๆ เกี่ยวกับโปรดักต์ ทีม หรือบทบาทที่ต้องการได้เลย ผมเหมาะกับทีมที่ต้องการคนแปลง requirement ที่ซับซ้อนให้เป็นประสบการณ์เว็บที่พร้อมใช้งานจริง",
-      "default": "ลองถามผมเรื่องประสบการณ์ทำงาน โปรเจกต์เด่น tech stack หรือวิธีที่ผมทำงานร่วมกับ product team ได้เลย"
-    }
+    "streamError": "ขออภัยครับ ตอนนี้เชื่อมต่อ AI assistant ไม่สำเร็จ กรุณาลองใหม่อีกครั้งในภายหลัง"
   },
   "contactLabels": {
     "email": "อีเมล",
@@ -330,15 +323,39 @@
     "linkedin": "LinkedIn"
   },
   "navItems": [
-    { "id": "about", "label": "เกี่ยวกับ" },
-    { "id": "work", "label": "ผลงาน" },
-    { "id": "skills", "label": "ทักษะ" },
-    { "id": "experience", "label": "ประสบการณ์" },
-    { "id": "contact", "label": "ติดต่อ" }
+    {
+      "id": "about",
+      "label": "เกี่ยวกับ"
+    },
+    {
+      "id": "work",
+      "label": "ผลงาน"
+    },
+    {
+      "id": "skills",
+      "label": "ทักษะ"
+    },
+    {
+      "id": "experience",
+      "label": "ประสบการณ์"
+    },
+    {
+      "id": "contact",
+      "label": "ติดต่อ"
+    }
   ],
   "stats": [
-    { "value": "5+", "label": "ปีในการสร้างเว็บ production" },
-    { "value": "React", "label": "Next.js, TypeScript และ state/data architecture" },
-    { "value": "AI", "label": "LLM APIs, n8n automation และ AI workflows" }
+    {
+      "value": "5+",
+      "label": "ปีในการสร้างเว็บ production"
+    },
+    {
+      "value": "React",
+      "label": "Next.js, TypeScript และ state/data architecture"
+    },
+    {
+      "value": "AI",
+      "label": "LLM APIs, n8n automation และ AI workflows"
+    }
   ]
 }

@@ -20,17 +20,17 @@ export type ChatMessage = {
   text: string;
 };
 
-type PortfolioAssistantResponse = {
-  ok: boolean;
-  data?: {
-    message?: {
-      role: "assistant" | "user" | "system";
-      content: string;
-    };
-  };
-  error?: {
-    message?: string;
-  };
+type PortfolioAssistantStreamEvent = {
+  type?:
+    | "RUN_STARTED"
+    | "TEXT_MESSAGE_START"
+    | "TEXT_MESSAGE_CONTENT"
+    | "TEXT_MESSAGE_END"
+    | "RUN_FINISHED"
+    | "RUN_ERROR";
+  delta?: string;
+  content?: string;
+  message?: string;
 };
 
 const closeDurMs = 150;
@@ -39,6 +39,13 @@ const apiBaseUrl = (
 ).replace(/\/+$/, "");
 
 function apiUrl(path: string) {
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname.endsWith("panyakorn.com")
+  ) {
+    return path;
+  }
+
   return `${apiBaseUrl}${path}`;
 }
 
@@ -172,14 +179,31 @@ export function useChatDemo(copy: ChatCopy) {
     void submitPrompt(draft);
   }
 
-  async function queueAssistantReply(nextMessages: ChatMessage[]) {
+  function updateAssistantMessage(messageId: string, updater: (text: string) => string) {
+    startTransition(() => {
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === messageId
+            ? { ...message, text: updater(message.text) }
+            : message,
+        ),
+      );
+    });
+  }
+
+  async function streamAssistantReply(
+    nextMessages: ChatMessage[],
+    assistantMessageId: string,
+  ) {
     setIsWaiting(true);
 
     try {
-      const response = await fetch(apiUrl("/api/portfolio/assistant/chat"), {
+      const response = await fetch(apiUrl("/api/portfolio/assistant/chat/stream"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          threadId: "portfolio-widget",
+          runId: `run-${crypto.randomUUID()}`,
           messages: nextMessages
             .filter((message) => message.text.trim() !== "")
             .map((message) => ({
@@ -190,37 +214,24 @@ export function useChatDemo(copy: ChatCopy) {
         }),
       });
 
-      const result = (await response.json()) as PortfolioAssistantResponse;
-      if (!response.ok || !result.ok || !result.data?.message?.content) {
-        throw new Error(
-          result.error?.message ?? `Assistant request failed (${response.status})`,
-        );
+      if (!response.ok || !response.body) {
+        throw new Error(`Assistant stream failed (${response.status})`);
       }
 
-      startTransition(() => {
-        setMessages((current) => [
-          ...current,
-          {
-            id: `assistant-${crypto.randomUUID()}`,
-            role: "assistant",
-            text: result.data?.message?.content ?? copy.mockReplies.default,
-          },
-        ]);
+      await readPortfolioAssistantStream(response.body, (event) => {
+        if (event.type === "TEXT_MESSAGE_CONTENT") {
+          const delta = event.delta ?? event.content ?? "";
+          if (delta) {
+            updateAssistantMessage(assistantMessageId, (text) => `${text}${delta}`);
+          }
+        }
+
+        if (event.type === "RUN_ERROR") {
+          throw new Error(event.message ?? "Assistant stream error");
+        }
       });
     } catch {
-      const prompt = nextMessages[nextMessages.length - 1]?.text.toLowerCase() ?? "";
-      const fallbackReply = selectMockReply(prompt, copy);
-
-      startTransition(() => {
-        setMessages((current) => [
-          ...current,
-          {
-            id: `assistant-${crypto.randomUUID()}`,
-            role: "assistant",
-            text: `${copy.apiNote} ${fallbackReply}`,
-          },
-        ]);
-      });
+      updateAssistantMessage(assistantMessageId, () => copy.streamError);
     } finally {
       setIsWaiting(false);
     }
@@ -238,14 +249,19 @@ export function useChatDemo(copy: ChatCopy) {
       role: "user",
       text: normalizedPrompt,
     };
+    const assistantMessage: ChatMessage = {
+      id: `assistant-${crypto.randomUUID()}`,
+      role: "assistant",
+      text: "",
+    };
     const nextMessages = [...messagesRef.current, userMessage];
 
     startTransition(() => {
-      setMessages(nextMessages);
+      setMessages([...nextMessages, assistantMessage]);
       setDraft("");
     });
 
-    await queueAssistantReply(nextMessages);
+    await streamAssistantReply(nextMessages, assistantMessage.id);
   }
 
   function handleSubmit() {
@@ -269,46 +285,48 @@ export function useChatDemo(copy: ChatCopy) {
   };
 }
 
-function selectMockReply(prompt: string, copy: ChatCopy) {
-  if (
-    prompt.includes("experience") ||
-    prompt.includes("recruiter") ||
-    prompt.includes("ประสบการณ์") ||
-    prompt.includes("สมัครงาน")
-  ) {
-    return copy.mockReplies.intro;
+async function readPortfolioAssistantStream(
+  body: ReadableStream<Uint8Array>,
+  onEvent: (event: PortfolioAssistantStreamEvent) => void,
+) {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    buffer += decoder.decode(value, { stream: true });
+    const parts = buffer.split("\n\n");
+    buffer = parts.pop() ?? "";
+
+    for (const part of parts) {
+      dispatchPortfolioAssistantStreamEvent(part, onEvent);
+    }
   }
 
-  if (
-    prompt.includes("project") ||
-    prompt.includes("work") ||
-    prompt.includes("portfolio") ||
-    prompt.includes("ผลงาน") ||
-    prompt.includes("โปรเจกต์")
-  ) {
-    return copy.mockReplies.work;
+  buffer += decoder.decode();
+  if (buffer.trim() !== "") {
+    dispatchPortfolioAssistantStreamEvent(buffer, onEvent);
+  }
+}
+
+function dispatchPortfolioAssistantStreamEvent(
+  rawEvent: string,
+  onEvent: (event: PortfolioAssistantStreamEvent) => void,
+) {
+  const data = rawEvent
+    .split("\n")
+    .filter((line) => line.startsWith("data:"))
+    .map((line) => line.slice(5).trimStart())
+    .join("\n");
+
+  if (!data) {
+    return;
   }
 
-  if (
-    prompt.includes("skill") ||
-    prompt.includes("stack") ||
-    prompt.includes("react") ||
-    prompt.includes("ai") ||
-    prompt.includes("ทักษะ") ||
-    prompt.includes("สแตก")
-  ) {
-    return copy.mockReplies.skills;
-  }
-
-  if (
-    prompt.includes("contact") ||
-    prompt.includes("hire") ||
-    prompt.includes("client") ||
-    prompt.includes("ติดต่อ") ||
-    prompt.includes("ร่วมงาน")
-  ) {
-    return copy.mockReplies.contact;
-  }
-
-  return copy.mockReplies.default;
+  onEvent(JSON.parse(data) as PortfolioAssistantStreamEvent);
 }

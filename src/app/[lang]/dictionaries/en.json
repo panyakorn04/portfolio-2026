@@ -254,20 +254,19 @@
     "draftLabel": "next_step",
     "draftValue": "connect API",
     "introLabel": "preview",
-    "introTitle": "Built to swap in a real model later.",
-    "introText": "This widget is framed as Panyakorn's AI presence: a portfolio guide that speaks in first person about experience, projects, stack, and collaboration style. The responses are still mocked for now, but the conversation shape is ready for a real model.",
+    "introTitle": "Connected to the streaming AI portfolio assistant.",
+    "introText": "This widget is Panyakorn's AI portfolio guide, connected to the backend and Ollama through a streaming endpoint for public-safe answers about experience, projects, stack, and collaboration style.",
     "quickPromptsLabel": "quick_prompts",
     "quickPrompts": [
       "Summarize my frontend experience for a recruiter.",
       "Draft a short intro message for a potential client.",
       "Turn my portfolio into a concise project pitch."
     ],
-    "inputPlaceholder": "Type a prompt to simulate the future portfolio agent...",
+    "inputPlaceholder": "Ask the portfolio AI assistant...",
     "sendLabel": "Send prompt",
     "assistantName": "panyakorn.ai",
     "userName": "visitor",
     "emptyState": "Hi, I'm Panyakorn's AI portfolio guide. You can ask me about his frontend experience, AI integrations, product thinking, or the kind of team he wants to build with.",
-    "apiNote": "This is still a mocked reply, but if I answered as Panyakorn's AI assistant, I'd say:",
     "starterConversation": [
       {
         "role": "assistant",
@@ -290,13 +289,7 @@
         "text": "Yes. He already works across frontend architecture, API integration, workflow automation, and AI-assisted product features, so he can help both with the user-facing experience and with integrating the model layer into a real app."
       }
     ],
-    "mockReplies": {
-      "intro": "I focus on frontend and full-stack product work, especially React, Next.js, TypeScript, secure user flows, and AI-enabled features. Most of my recent work has involved shipping real production interfaces rather than just prototypes.",
-      "work": "A good snapshot of my work would be exchange-style product flows, AI application consoles, and bilingual commerce experiences. I usually contribute across UI architecture, API integration, state handling, and the final product polish.",
-      "skills": "My strongest stack is React, Next.js, TypeScript, Tailwind, and frontend data patterns like React Query. I also work comfortably with AI APIs, workflow automation, auth flows, and reusable design systems.",
-      "contact": "If you'd like to work together, the best next step is to send a short message about your product, team, or role. I’m most useful in teams that need someone who can turn complex product requirements into clear, production-ready web experiences.",
-      "default": "Ask me about experience, featured projects, tech stack, or how I usually work with product teams."
-    }
+    "streamError": "Sorry, the AI assistant is unavailable right now. Please try again in a moment."
   },
   "contactLabels": {
     "email": "Email",
@@ -330,15 +323,39 @@
     "linkedin": "LinkedIn"
   },
   "navItems": [
-    { "id": "about", "label": "About" },
-    { "id": "work", "label": "Work" },
-    { "id": "skills", "label": "Skills" },
-    { "id": "experience", "label": "Experience" },
-    { "id": "contact", "label": "Contact" }
+    {
+      "id": "about",
+      "label": "About"
+    },
+    {
+      "id": "work",
+      "label": "Work"
+    },
+    {
+      "id": "skills",
+      "label": "Skills"
+    },
+    {
+      "id": "experience",
+      "label": "Experience"
+    },
+    {
+      "id": "contact",
+      "label": "Contact"
+    }
   ],
   "stats": [
-    { "value": "5+", "label": "Years building production web apps" },
-    { "value": "React", "label": "Next.js, TypeScript, state and data architecture" },
-    { "value": "AI", "label": "LLM APIs, n8n automation, AI workflows" }
+    {
+      "value": "5+",
+      "label": "Years building production web apps"
+    },
+    {
+      "value": "React",
+      "label": "Next.js, TypeScript, state and data architecture"
+    },
+    {
+      "value": "AI",
+      "label": "LLM APIs, n8n automation, AI workflows"
+    }
   ]
 }
