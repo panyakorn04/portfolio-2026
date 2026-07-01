@@ -112,9 +112,18 @@ function parseArticleDetail(value: unknown): ArticleDetail | null {
 }
 
 async function fetchApi<T>(path: string) {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    next: { revalidate: 300, tags: ["articles"] },
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${getApiBaseUrl()}${path}`, {
+      next: { revalidate: 300, tags: ["articles"] },
+    });
+  } catch (error) {
+    console.warn(
+      `Portfolio API request skipped for ${path}: ${error instanceof Error ? error.message : "unknown error"}`,
+    );
+    return null;
+  }
 
   if (response.status === 404) {
     return null;
