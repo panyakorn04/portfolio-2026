@@ -33,16 +33,16 @@ export default function NavControls({
       <ReadingProgress activeLabel={activeItem?.label} />
 
       <div className="hidden items-center gap-3 md:flex">
-        <div className="flex items-center gap-1 rounded-full border border-[var(--color-line)] bg-[rgba(8,16,12,0.72)] p-1 shadow-[inset_0_1px_0_rgba(111,247,166,0.04)]">
+        <div className="flex items-center gap-1 rounded-full border border-[var(--color-line)] bg-[var(--surface)] p-1 shadow-[var(--shadow-panel)] backdrop-blur-2xl">
           {navItems.map((item) => (
             <a
               key={item.id}
               href={`/${locale}#${item.id}`}
               aria-current={activeSectionId === item.id ? "location" : undefined}
-              className={`rounded-full border px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] ${
+              className={`rounded-full border px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] transition-all duration-200 ${
                 activeSectionId === item.id
-                  ? "border-[rgba(111,247,166,0.18)] bg-[linear-gradient(180deg,rgba(111,247,166,0.16),rgba(111,247,166,0.08))] text-[var(--color-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-                  : "border-transparent text-[var(--color-soft)] hover:border-[rgba(111,247,166,0.12)] hover:bg-[rgba(111,247,166,0.08)] hover:text-[var(--color-accent)]"
+                  ? "border-[var(--accent-border)] bg-[var(--accent-dim)] text-[var(--color-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                  : "border-transparent text-[var(--color-soft)] hover:border-[var(--color-line)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-text)]"
               }`}
             >
               {item.label}
@@ -51,7 +51,7 @@ export default function NavControls({
         </div>
         <Link
           href={`/${locale}/articles`}
-          className="rounded-full border border-[var(--color-line)] bg-[rgba(8,16,12,0.72)] px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] text-[var(--color-soft)] transition-colors hover:border-[rgba(111,247,166,0.18)] hover:text-[var(--color-accent)]"
+          className="rounded-full border border-[var(--color-line)] bg-[var(--surface)] px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] text-[var(--color-soft)] transition-all duration-200 hover:border-[var(--accent-border)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)]"
         >
           {articleLabel}
         </Link>

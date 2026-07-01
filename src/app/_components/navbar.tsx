@@ -12,18 +12,23 @@ export default function Navbar({
   const alternateLocale: Locale = locale === "en" ? "th" : "en";
 
   return (
-    <div className="sticky top-0 z-40 border-b border-[rgba(111,247,166,0.08)] bg-[rgba(7,14,10,0.82)] backdrop-blur-md">
-      <nav className="relative mx-auto max-w-7xl px-5 py-3 sm:px-8 sm:py-4">
+    <div className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[rgba(2,2,3,0.66)] backdrop-blur-2xl backdrop-saturate-150">
+      <nav className="relative mx-auto max-w-[92rem] px-4 py-3 sm:px-6">
         <div className="relative flex items-center justify-between gap-3 sm:gap-4">
-          <a href={`/${locale}#top`} className="flex items-center gap-2.5 sm:gap-3">
-            <span className="grid size-9 place-items-center rounded-xl border border-[rgba(111,247,166,0.2)] bg-[rgba(111,247,166,0.08)] text-[0.68rem] font-semibold text-[var(--color-accent)] shadow-[inset_0_1px_0_rgba(111,247,166,0.08)] transition-all duration-200 hover:border-[rgba(111,247,166,0.35)] hover:bg-[rgba(111,247,166,0.12)] sm:size-10 sm:rounded-xl sm:text-xs">
+          <a
+            href={`/${locale}#top`}
+            className="flex min-w-0 items-center gap-2.5 sm:gap-3"
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-[0.7rem] bg-[linear-gradient(135deg,var(--color-accent),#16a34a)] font-mono text-[0.68rem] font-black text-[#05070a] shadow-[0_0_22px_var(--accent-glow)] sm:size-10 sm:text-xs">
               PB
             </span>
-            <div className="hidden sm:block">
-              <p className="text-sm font-semibold text-[var(--color-text)]">
+            <div className="hidden min-w-0 sm:block">
+              <p className="truncate text-sm font-semibold tracking-[-0.03em] text-[var(--color-text)]">
                 Panyakorn Boonyong
               </p>
-              <p className="text-[0.72rem] text-[var(--color-soft)]">{t.brandRole}</p>
+              <p className="truncate font-mono text-[0.62rem] uppercase tracking-[0.08em] text-[var(--color-soft)]">
+                {t.brandRole}
+              </p>
             </div>
           </a>
 
