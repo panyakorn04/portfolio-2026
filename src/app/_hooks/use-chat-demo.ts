@@ -33,6 +33,27 @@ type PortfolioAssistantStreamEvent = {
   message?: string;
 };
 
+type BackendChatSession = {
+  id: string;
+  threadId: string;
+};
+
+type BackendChatMessage = {
+  id: string;
+  role: "assistant" | "user";
+  text: string;
+};
+
+type BackendChatSessionPayload = {
+  session: BackendChatSession;
+  messages?: BackendChatMessage[];
+};
+
+type ApiEnvelope<T> = {
+  ok?: boolean;
+  data?: T;
+};
+
 type StoredChatSession = {
   messages: ChatMessage[];
   threadId: string;
@@ -61,19 +82,18 @@ export function useChatDemo(copy: ChatCopy) {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [hasLoadedSession, setHasLoadedSession] = useState(false);
   const [threadId, setThreadId] = useState(createChatSessionId);
-  const [hasLoadedStoredSession, setHasLoadedStoredSession] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatLogRef = useRef<HTMLDivElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesRef = useRef<ChatMessage[]>([]);
-  const [messages, setMessages] = useState<ChatMessage[]>(
-    copy.starterConversation.map((message, index) => ({
-      id: `starter-${index}`,
-      role: message.role,
-      text: message.text,
-    })),
+  const sessionIdRef = useRef<string | null>(null);
+  const threadIdRef = useRef(threadId);
+  const [messages, setMessages] = useState<ChatMessage[]>(() =>
+    createStarterMessages(copy),
   );
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current) {
@@ -87,19 +107,62 @@ export function useChatDemo(copy: ChatCopy) {
   }, [messages]);
 
   useEffect(() => {
-    const storedSession = readStoredChatSession();
+    sessionIdRef.current = sessionId;
+  }, [sessionId]);
 
-    if (storedSession) {
-      setMessages(storedSession.messages);
-      setThreadId(storedSession.threadId);
-      messagesRef.current = storedSession.messages;
+  useEffect(() => {
+    threadIdRef.current = threadId;
+  }, [threadId]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadBackendSession() {
+      try {
+        const payload = await fetchPortfolioChatSession(controller.signal);
+        if (controller.signal.aborted || !payload) {
+          return;
+        }
+
+        setSessionId(payload.session.id);
+        setThreadId(payload.session.threadId);
+
+        const backendMessages = (payload.messages ?? [])
+          .filter(isBackendChatMessage)
+          .map((message) => ({
+            id: message.id,
+            role: message.role,
+            text: message.text,
+          }));
+
+        if (backendMessages.length > 0) {
+          setMessages(backendMessages);
+          messagesRef.current = backendMessages;
+        }
+      } catch {
+        const storedSession = readStoredChatSession();
+
+        if (storedSession) {
+          setMessages(storedSession.messages);
+          setThreadId(storedSession.threadId);
+          messagesRef.current = storedSession.messages;
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setHasLoadedSession(true);
+        }
+      }
     }
 
-    setHasLoadedStoredSession(true);
+    void loadBackendSession();
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   useEffect(() => {
-    if (!hasLoadedStoredSession) {
+    if (!hasLoadedSession || sessionId) {
       return;
     }
 
@@ -108,7 +171,7 @@ export function useChatDemo(copy: ChatCopy) {
       threadId,
       updatedAt: new Date().toISOString(),
     });
-  }, [hasLoadedStoredSession, messages, threadId]);
+  }, [hasLoadedSession, messages, sessionId, threadId]);
 
   const startClose = useCallback(() => {
     clearCloseTimer();
@@ -227,24 +290,38 @@ export function useChatDemo(copy: ChatCopy) {
   async function streamAssistantReply(
     nextMessages: ChatMessage[],
     assistantMessageId: string,
+    userMessage: ChatMessage,
   ) {
     setIsWaiting(true);
 
     try {
+      const currentSessionId = sessionIdRef.current;
       const response = await fetch(apiUrl("/api/portfolio/assistant/chat/stream"), {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          threadId,
-          runId: `run-${crypto.randomUUID()}`,
-          messages: nextMessages
-            .filter((message) => message.text.trim() !== "")
-            .map((message) => ({
-              role: message.role,
-              content: message.text,
-            }))
-            .slice(-10),
-        }),
+        body: JSON.stringify(
+          currentSessionId
+            ? {
+                sessionId: currentSessionId,
+                runId: `run-${crypto.randomUUID()}`,
+                message: {
+                  role: userMessage.role,
+                  content: userMessage.text,
+                },
+              }
+            : {
+                threadId: threadIdRef.current,
+                runId: `run-${crypto.randomUUID()}`,
+                messages: nextMessages
+                  .filter((message) => message.text.trim() !== "")
+                  .map((message) => ({
+                    role: message.role,
+                    content: message.text,
+                  }))
+                  .slice(-10),
+              },
+        ),
       });
 
       if (!response.ok || !response.body) {
@@ -294,7 +371,7 @@ export function useChatDemo(copy: ChatCopy) {
       setDraft("");
     });
 
-    await streamAssistantReply(nextMessages, assistantMessage.id);
+    await streamAssistantReply(nextMessages, assistantMessage.id, userMessage);
   }
 
   function handleSubmit() {
@@ -323,12 +400,64 @@ export function useChatDemo(copy: ChatCopy) {
   };
 }
 
+function createStarterMessages(copy: ChatCopy): ChatMessage[] {
+  return copy.starterConversation.map((message, index) => ({
+    id: `starter-${index}`,
+    role: message.role,
+    text: message.text,
+  }));
+}
+
 function createChatSessionId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return `portfolio-widget-${crypto.randomUUID()}`;
   }
 
   return `portfolio-widget-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+async function fetchPortfolioChatSession(signal: AbortSignal) {
+  const response = await fetch(
+    apiUrl(`/api/portfolio/assistant/sessions/current?locale=${currentLocale()}`),
+    {
+      credentials: "include",
+      signal,
+    },
+  );
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const envelope = (await response.json()) as ApiEnvelope<BackendChatSessionPayload>;
+
+  if (!envelope.ok || !envelope.data?.session?.id || !envelope.data.session.threadId) {
+    return null;
+  }
+
+  return envelope.data;
+}
+
+function currentLocale() {
+  if (typeof window === "undefined") {
+    return "en";
+  }
+
+  return window.location.pathname.startsWith("/th") ? "th" : "en";
+}
+
+function isBackendChatMessage(message: unknown): message is BackendChatMessage {
+  if (!message || typeof message !== "object") {
+    return false;
+  }
+
+  const candidate = message as Partial<BackendChatMessage>;
+
+  return (
+    typeof candidate.id === "string" &&
+    (candidate.role === "assistant" || candidate.role === "user") &&
+    typeof candidate.text === "string"
+  );
 }
 
 function readStoredChatSession(): StoredChatSession | null {
