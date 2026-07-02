@@ -95,6 +95,72 @@
         "stack": ["Next.js", "CMS", "n8n", "Docker", "Open Graph", "Payments"]
       }
     ],
+    "ecosystemEyebrow": "ระบบพอร์ตโฟลิโอ",
+    "ecosystemTitle": "พอร์ตโฟลิโอที่เชื่อม frontend, backend, AI console และ custom AI skills เข้าด้วยกัน",
+    "ecosystemText": "ทั้ง 4 repo นี้ทำงานร่วมกันเป็นระบบพอร์ตโฟลิโอจริง: frontend ใช้นำเสนอผลงาน, backend ดูแล API และ AI adapter, AI console ใช้เป็นพื้นที่ทำงานส่วนตัวกับโมเดลบน VPS และ custom-ai-skills ใช้จัดการ context ของ AI ให้เหมาะกับแต่ละพื้นที่",
+    "ecosystemRepositories": [
+      {
+        "eyebrow": "Frontend platform",
+        "title": "พอร์ตโฟลิโอสองภาษาพร้อม AI assistant",
+        "description": "เว็บพอร์ตโฟลิโอ production ที่สร้างด้วย Next.js สำหรับนำเสนอประสบการณ์ frontend, full-stack และ AI integration พร้อมเนื้อหาไทย/อังกฤษ บทความ ฟอร์มติดต่อ และ AI assistant สำหรับผู้เข้าชม",
+        "bullets": [
+          "สร้างประสบการณ์พอร์ตโฟลิโอสองภาษา พร้อม metadata, routing, navigation และ SEO-ready pages",
+          "เชื่อม contact form และ articles ผ่าน backend API แยก ไม่ใส่ database logic ไว้ใน frontend",
+          "เพิ่ม portfolio assistant แบบ streaming ที่ตอบคำถามผู้เข้าชมด้วย public-safe skill context"
+        ],
+        "stack": [
+          "Next.js",
+          "React",
+          "TypeScript",
+          "Tailwind CSS",
+          "Docker",
+          "GitHub Actions"
+        ],
+        "href": "https://github.com/panyakorn04/portfolio-2026"
+      },
+      {
+        "eyebrow": "Backend API",
+        "title": "Go API สำหรับ content, contact, admin และ AI routes",
+        "description": "Backend แยกด้วย Go สำหรับจัดการ database, admin, contact, articles และ AI adapter โดยให้ frontend เรียกผ่าน HTTP API ที่ชัดเจน",
+        "bullets": [
+          "สร้าง public endpoints สำหรับ articles, contact inquiries และ portfolio AI assistant",
+          "เพิ่ม admin/session/article/contact APIs พร้อม response format ที่สม่ำเสมอ",
+          "ใช้ backend เป็น adapter ที่ปลอดภัยระหว่าง frontend กับ Ollama/AI services ภายใน"
+        ],
+        "stack": ["Go", "go-zero", "Supabase REST", "Redis", "Docker", "Ollama"],
+        "href": "https://github.com/panyakorn04/portfolio-backend-2026"
+      },
+      {
+        "eyebrow": "AI workspace",
+        "title": "Private AI console ที่ได้แรงบันดาลใจจาก Open WebUI",
+        "description": "UI สำหรับ AI console ที่ออกแบบในสไตล์ dark emerald/glass คล้าย Open WebUI เพื่อใช้กับ Ollama stack บน VPS",
+        "bullets": [
+          "ออกแบบ chat workspace พร้อม sidebar, sessions, model/status panels และ responsive layout",
+          "เชื่อม composer กับ backend AI chat streaming endpoints ผ่าน API routing",
+          "ใช้ visual system นี้เป็น reference ให้ theme ปัจจุบันของ portfolio"
+        ],
+        "stack": ["Next.js", "React", "TanStack AI", "Tailwind CSS", "SSE", "Ollama"],
+        "href": "https://github.com/panyakorn04/open-webui-theme"
+      },
+      {
+        "eyebrow": "AI context system",
+        "title": "ระบบจัดการ skills สำหรับ AI assistant หลายพื้นผิว",
+        "description": "Repo สำหรับจัดการ AI skill profiles, Ollama Modelfiles และ deploy assets เพื่อให้ AI แต่ละตัวโหลด context ที่เหมาะกับงานของตัวเอง",
+        "bullets": [
+          "แยก skill context สำหรับ public portfolio-site และ internal ai-console",
+          "จำกัด public assistant ให้ตอบเฉพาะเรื่อง profile, services, stack และ collaboration โดยไม่เปิดเผยรายละเอียดภายใน",
+          "sync AI assets ผ่าน GitHub Actions เพื่อให้ backend และ Ollama stack ใช้ context ล่าสุดได้บน VPS"
+        ],
+        "stack": [
+          "Python",
+          "Ollama Modelfile",
+          "GitHub Actions",
+          "Skill profiles",
+          "VPS"
+        ],
+        "href": "https://github.com/panyakorn04/custom-ai-skills"
+      }
+    ],
     "skillsEyebrow": "ความสามารถ",
     "skillsTitle": "ระบบ frontend สมัยใหม่ พร้อม workflow ที่ใช้ AI อย่างมีเหตุผล",
     "skillsText": "แม้เครื่องมือจะหลากหลาย แต่แกนหลักของงานยังเหมือนเดิม คือ architecture ที่ชัด ส่งมอบได้จริง และดูแลต่อหลัง launch ได้ง่าย",
@@ -330,6 +396,10 @@
     {
       "id": "work",
       "label": "ผลงาน"
+    },
+    {
+      "id": "ecosystem",
+      "label": "Ecosystem"
     },
     {
       "id": "skills",

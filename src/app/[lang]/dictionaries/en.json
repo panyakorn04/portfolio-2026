@@ -95,6 +95,72 @@
         "stack": ["Next.js", "CMS", "n8n", "Docker", "Open Graph", "Payments"]
       }
     ],
+    "ecosystemEyebrow": "Portfolio ecosystem",
+    "ecosystemTitle": "A connected portfolio, AI console, backend API, and custom skill system.",
+    "ecosystemText": "These public repositories work together as a production portfolio stack: the frontend presents the experience, the backend powers content and AI endpoints, the AI console demonstrates the private assistant workspace, and the custom skills repository manages reusable AI context for public and internal surfaces.",
+    "ecosystemRepositories": [
+      {
+        "eyebrow": "Frontend platform",
+        "title": "Bilingual portfolio with live AI assistant",
+        "description": "A production Next.js portfolio for presenting frontend, full-stack, and AI integration work with Thai/English content, articles, contact flows, and a public-safe AI assistant.",
+        "bullets": [
+          "Built a bilingual portfolio experience with localized metadata, content, navigation, and SEO-ready routes.",
+          "Integrated contact and article flows through a separate backend API instead of putting database logic in the frontend.",
+          "Added a streaming portfolio assistant experience that can answer visitor questions using public-safe skill context."
+        ],
+        "stack": [
+          "Next.js",
+          "React",
+          "TypeScript",
+          "Tailwind CSS",
+          "Docker",
+          "GitHub Actions"
+        ],
+        "href": "https://github.com/panyakorn04/portfolio-2026"
+      },
+      {
+        "eyebrow": "Backend API",
+        "title": "Go API for content, contact, admin, and AI routes",
+        "description": "A separate Go backend that keeps database, admin, contact, article, and AI adapter logic outside the frontend while exposing clean HTTP APIs for the portfolio site.",
+        "bullets": [
+          "Built public endpoints for articles, contact inquiries, and the portfolio AI assistant.",
+          "Added admin, session, article, and contact management APIs with structured response envelopes.",
+          "Used the backend as a safe adapter between frontend surfaces and internal Ollama/AI services."
+        ],
+        "stack": ["Go", "go-zero", "Supabase REST", "Redis", "Docker", "Ollama"],
+        "href": "https://github.com/panyakorn04/portfolio-backend-2026"
+      },
+      {
+        "eyebrow": "AI workspace",
+        "title": "Open WebUI-inspired private AI console",
+        "description": "A custom AI console interface inspired by Open WebUI and the panyakorn.com dark emerald visual system, designed for a VPS-hosted Ollama stack.",
+        "bullets": [
+          "Designed a dark emerald, glassmorphism chat workspace with sidebar, sessions, model/status panels, and responsive layout.",
+          "Connected the composer to backend AI chat streaming endpoints through same-origin API routing.",
+          "Used this visual system as the design reference for the portfolio’s current AI-console-inspired theme."
+        ],
+        "stack": ["Next.js", "React", "TanStack AI", "Tailwind CSS", "SSE", "Ollama"],
+        "href": "https://github.com/panyakorn04/open-webui-theme"
+      },
+      {
+        "eyebrow": "AI context system",
+        "title": "Repo-managed skills for public and internal AI assistants",
+        "description": "A repository for managing AI skill profiles, Ollama Modelfiles, and deployment assets so different AI surfaces can load the right context safely.",
+        "bullets": [
+          "Split skills into public portfolio-site context and internal ai-console context.",
+          "Kept visitor-facing assistant answers focused on profile, services, stack, and collaboration while avoiding private infrastructure details.",
+          "Synced AI assets through GitHub Actions so the backend and Ollama stack can load updated context from the VPS."
+        ],
+        "stack": [
+          "Python",
+          "Ollama Modelfile",
+          "GitHub Actions",
+          "Skill profiles",
+          "VPS"
+        ],
+        "href": "https://github.com/panyakorn04/custom-ai-skills"
+      }
+    ],
     "skillsEyebrow": "Capabilities",
     "skillsTitle": "Modern frontend systems with pragmatic AI workflows.",
     "skillsText": "The stack is broad, but the through-line is consistent: clear architecture, reliable delivery, and interfaces that stay maintainable after launch.",
@@ -330,6 +396,10 @@
     {
       "id": "work",
       "label": "Work"
+    },
+    {
+      "id": "ecosystem",
+      "label": "Ecosystem"
     },
     {
       "id": "skills",

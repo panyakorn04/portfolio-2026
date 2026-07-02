@@ -64,6 +64,17 @@ export type PortfolioDictionary = {
       bullets: string[];
       stack: string[];
     }>;
+    ecosystemEyebrow: string;
+    ecosystemTitle: string;
+    ecosystemText: string;
+    ecosystemRepositories: Array<{
+      eyebrow: string;
+      title: string;
+      description: string;
+      bullets: string[];
+      stack: string[];
+      href: string;
+    }>;
     skillsEyebrow: string;
     skillsTitle: string;
     skillsText: string;
