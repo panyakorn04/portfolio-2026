@@ -14,7 +14,7 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "verify": "pnpm lint && pnpm build",
-    "hooks:install": "git config core.hooksPath .githooks",
+    "hooks:install": "command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "prepare": "pnpm hooks:install",
     "doctor": "pnpm dlx react-doctor@latest",
     "deploy:prepare": "pnpm env:check && pnpm build"
