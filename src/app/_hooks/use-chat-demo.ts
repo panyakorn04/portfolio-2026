@@ -117,10 +117,25 @@ export function useChatDemo(copy: ChatCopy) {
   useEffect(() => {
     const controller = new AbortController();
 
+    function loadLocalStoredSessionFallback() {
+      const storedSession = readStoredChatSession();
+
+      if (storedSession) {
+        setMessages(storedSession.messages);
+        setThreadId(storedSession.threadId);
+        messagesRef.current = storedSession.messages;
+      }
+    }
+
     async function loadBackendSession() {
       try {
         const payload = await fetchPortfolioChatSession(controller.signal);
-        if (controller.signal.aborted || !payload) {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        if (!payload) {
+          loadLocalStoredSessionFallback();
           return;
         }
 
@@ -140,13 +155,7 @@ export function useChatDemo(copy: ChatCopy) {
           messagesRef.current = backendMessages;
         }
       } catch {
-        const storedSession = readStoredChatSession();
-
-        if (storedSession) {
-          setMessages(storedSession.messages);
-          setThreadId(storedSession.threadId);
-          messagesRef.current = storedSession.messages;
-        }
+        loadLocalStoredSessionFallback();
       } finally {
         if (!controller.signal.aborted) {
           setHasLoadedSession(true);
