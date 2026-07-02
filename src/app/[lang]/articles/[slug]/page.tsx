@@ -3,11 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { findArticle, getArticleSlugs } from "@/app/_data/articles-api";
-
+import { buttonBase, buttonSizes, buttonVariants } from "../../../_components/button";
 import { articleDirectoryCopy } from "../../../_data/articles";
 import { hasLocale, locales } from "../../../_data/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../_data/site-url";
-import { buttonBase, buttonVariants, buttonSizes } from "../../../_components/button";
 
 export const revalidate = 300;
 

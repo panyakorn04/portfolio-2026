@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 
 import type { adminDirectoryCopy } from "../_data/admin";
 import type { Locale } from "../_data/portfolio";
-import { Button, buttonBase, buttonVariants, buttonSizes } from "./button";
+import { Button, buttonBase, buttonSizes, buttonVariants } from "./button";
 
 type AdminCopy = (typeof adminDirectoryCopy)[Locale];
 
@@ -140,12 +140,7 @@ export default function AdminLogin({
             />
 
             <div className="mt-4 flex flex-wrap gap-3">
-              <Button
-                variant="primary"
-                size="md"
-                onClick={signIn}
-                disabled={isSigningIn}
-              >
+              <Button variant="primary" size="md" onClick={signIn} disabled={isSigningIn}>
                 {isSigningIn ? copy.signingInLabel : copy.signInLabel}
               </Button>
             </div>

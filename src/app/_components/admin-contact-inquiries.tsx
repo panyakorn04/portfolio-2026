@@ -11,7 +11,7 @@ import {
 
 import type { adminDirectoryCopy } from "../_data/admin";
 import type { Locale } from "../_data/portfolio";
-import { Button, buttonBase, buttonVariants, buttonSizes } from "./button";
+import { Button, buttonBase, buttonSizes, buttonVariants } from "./button";
 
 type AdminCopy = (typeof adminDirectoryCopy)[Locale];
 
@@ -685,12 +685,7 @@ export default function AdminContactInquiries({
             >
               {copy.backToPortfolioLabel}
             </a>
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={signOut}
-              disabled={isSigningOut}
-            >
+            <Button variant="ghost" size="xs" onClick={signOut} disabled={isSigningOut}>
               {isSigningOut ? copy.signingOutLabel : copy.signOutLabel}
             </Button>
           </div>

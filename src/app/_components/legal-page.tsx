@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
-import { buttonBase, buttonVariants, buttonSizes } from "./button";
+import { buttonBase, buttonSizes, buttonVariants } from "./button";
 
 const pageShellClass =
   "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";

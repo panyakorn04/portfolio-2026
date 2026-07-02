@@ -1,11 +1,6 @@
 import { type ButtonHTMLAttributes, forwardRef } from "react";
 
-export type ButtonVariant =
-  | "primary"
-  | "secondary"
-  | "ghost"
-  | "action"
-  | "chip";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "action" | "chip";
 
 export type ButtonSize = "lg" | "md" | "sm" | "xs";
 
@@ -22,12 +17,10 @@ export const buttonVariants: Record<ButtonVariant, string> = {
     "border border-[var(--color-line-strong)] bg-[var(--color-accent)] text-[#041009] hover:opacity-90",
   secondary:
     "border border-[var(--color-line-strong)] bg-[var(--surface)] text-[var(--color-text)] hover:border-[var(--color-accent)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)]",
-  ghost:
-    "border border-[var(--color-line)] text-[var(--color-text)] hover:opacity-80",
+  ghost: "border border-[var(--color-line)] text-[var(--color-text)] hover:opacity-80",
   action:
     "border border-[var(--color-line-strong)] bg-[var(--color-panel)] text-[var(--color-text)]",
-  chip:
-    "border border-[var(--color-line)] bg-[var(--surface)] text-[var(--color-text)] hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)]",
+  chip: "border border-[var(--color-line)] bg-[var(--surface)] text-[var(--color-text)] hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)]",
 };
 
 export const buttonSizes: Record<ButtonSize, string> = {

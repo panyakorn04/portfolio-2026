@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 
 import type { AdminArticlesCopy } from "../_data/admin-articles";
 import type { Locale } from "../_data/portfolio";
-import { Button, buttonBase, buttonVariants, buttonSizes } from "./button";
+import { Button, buttonBase, buttonSizes, buttonVariants } from "./button";
 
 type ArticleStatus = "draft" | "published";
 
@@ -60,7 +60,6 @@ const labelClass =
   "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
 const inputClass =
   "w-full rounded-[0.85rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.7)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition-colors duration-150 focus:border-[var(--color-line-strong)]";
-
 
 function emptyTranslation(): DraftTranslation {
   return {
@@ -727,12 +726,7 @@ export default function AdminArticles({
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button
-              variant="primary"
-              size="md"
-              onClick={saveDraft}
-              disabled={isSaving}
-            >
+            <Button variant="primary" size="md" onClick={saveDraft} disabled={isSaving}>
               {isSaving ? copy.savingLabel : copy.saveLabel}
             </Button>
             <Button

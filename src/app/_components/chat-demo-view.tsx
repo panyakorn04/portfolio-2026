@@ -4,7 +4,6 @@ import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from "react";
 
 import type { PortfolioDictionary } from "../_data/portfolio";
 import type { ChatMessage } from "../_hooks/use-chat-demo";
-import { buttonBase, buttonVariants, buttonSizes } from "./button";
 
 type ChatCopy = PortfolioDictionary["chat"];
 
@@ -93,8 +92,19 @@ export default function ChatDemoView({
             className="flex size-7 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
             aria-label={copy.closeLabel}
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2 2L12 12M12 2L2 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <svg
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+            >
+              <path
+                d="M2 2L12 12M12 2L2 12"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -136,9 +146,18 @@ export default function ChatDemoView({
                   <div className="flex justify-start">
                     <div className="rounded-2xl rounded-tl-sm border border-[var(--color-line)] bg-[rgba(10,20,16,0.8)] px-3.5 py-3">
                       <div className={typingClass} aria-hidden="true">
-                        <span className={typingDotClass} style={{ animationDelay: "0ms" }} />
-                        <span className={typingDotClass} style={{ animationDelay: "150ms" }} />
-                        <span className={typingDotClass} style={{ animationDelay: "300ms" }} />
+                        <span
+                          className={typingDotClass}
+                          style={{ animationDelay: "0ms" }}
+                        />
+                        <span
+                          className={typingDotClass}
+                          style={{ animationDelay: "150ms" }}
+                        />
+                        <span
+                          className={typingDotClass}
+                          style={{ animationDelay: "300ms" }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -190,8 +209,20 @@ export default function ChatDemoView({
               className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[var(--color-line-strong)] bg-[var(--color-accent)] text-[#041009] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label={copy.sendLabel}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 8L14 8M14 8L9 3M14 8L9 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                aria-hidden="true"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  d="M2 8L14 8M14 8L9 3M14 8L9 13"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           </form>
