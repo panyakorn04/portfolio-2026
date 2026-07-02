@@ -13,6 +13,9 @@
     "env:check": "node scripts/check-env.mjs",
     "lint": "biome check .",
     "format": "biome format --write .",
+    "verify": "pnpm lint && pnpm build",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "prepare": "pnpm hooks:install",
     "doctor": "pnpm dlx react-doctor@latest",
     "deploy:prepare": "pnpm env:check && pnpm build"
   },

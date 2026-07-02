@@ -69,166 +69,163 @@ export default function ChatDemoView({
       ) : null}
 
       {show ? (
-        <section
-          id="portfolio-chat-widget"
-          className={flyoutClass}
-        >
-        <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <span className="flex size-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-[0.6rem] font-bold text-[#041009]">
-              P
-            </span>
-            <div>
-              <p className="text-[0.78rem] font-semibold leading-tight text-[var(--color-text)]">
-                {copy.assistantName}
-              </p>
-              <p className="font-mono text-[0.55rem] uppercase tracking-[0.06em] text-[var(--color-soft)]">
-                {isWaiting ? "Thinking..." : "Online"}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex size-7 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
-            aria-label={copy.closeLabel}
-          >
-            <svg
-              aria-hidden="true"
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-            >
-              <path
-                d="M2 2L12 12M12 2L2 12"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <div className="grid gap-3 p-3">
-          <div ref={chatLogRef} className={chatLogClass}>
-            {messages.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center p-4 text-center">
-                <p className="text-pretty text-[0.82rem] leading-relaxed text-[var(--color-muted)]">
-                  {copy.emptyState}
+        <section id="portfolio-chat-widget" className={flyoutClass}>
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
+            <div className="flex items-center gap-2.5">
+              <span className="flex size-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-[0.6rem] font-bold text-[#041009]">
+                P
+              </span>
+              <div>
+                <p className="text-[0.78rem] font-semibold leading-tight text-[var(--color-text)]">
+                  {copy.assistantName}
+                </p>
+                <p className="font-mono text-[0.55rem] uppercase tracking-[0.06em] text-[var(--color-soft)]">
+                  {isWaiting ? "Thinking..." : "Online"}
                 </p>
               </div>
-            ) : (
-              <>
-                {messages.map((message) => {
-                  const isAssistant = message.role === "assistant";
-
-                  return (
-                    <div
-                      key={message.id}
-                      className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}
-                    >
-                      <div
-                        className={`max-w-[86%] rounded-2xl px-3.5 py-2.5 ${
-                          isAssistant
-                            ? "rounded-tl-sm border border-[var(--color-line)] bg-[rgba(10,20,16,0.8)]"
-                            : "rounded-br-sm border border-[rgba(111,247,166,0.2)] bg-[rgba(111,247,166,0.1)]"
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap text-pretty text-[0.82rem] leading-relaxed text-[var(--color-text)]">
-                          {message.text}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {isWaiting ? (
-                  <div className="flex justify-start">
-                    <div className="rounded-2xl rounded-tl-sm border border-[var(--color-line)] bg-[rgba(10,20,16,0.8)] px-3.5 py-3">
-                      <div className={typingClass} aria-hidden="true">
-                        <span
-                          className={typingDotClass}
-                          style={{ animationDelay: "0ms" }}
-                        />
-                        <span
-                          className={typingDotClass}
-                          style={{ animationDelay: "150ms" }}
-                        />
-                        <span
-                          className={typingDotClass}
-                          style={{ animationDelay: "300ms" }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-              </>
-            )}
-
-            <div ref={chatEndRef} aria-hidden="true" />
-          </div>
-
-          {!hasUserMessages && copy.quickPrompts.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5">
-              {copy.quickPrompts.map((prompt) => (
-                <button
-                  key={prompt}
-                  type="button"
-                  onClick={() => onQuickPrompt(prompt)}
-                  className="rounded-full border border-[var(--color-line)] bg-[rgba(10,20,16,0.6)] px-3 py-1.5 text-left text-[0.7rem] leading-snug text-[var(--color-muted)] transition-colors hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
-                >
-                  {prompt}
-                </button>
-              ))}
             </div>
-          ) : null}
-
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              onSubmit();
-            }}
-            className="flex items-end gap-2"
-          >
-            <label className="sr-only" htmlFor="chat-draft">
-              {copy.inputPlaceholder}
-            </label>
-            <textarea
-              id="chat-draft"
-              ref={textareaRef}
-              value={draft}
-              rows={1}
-              placeholder={copy.inputPlaceholder}
-              className="min-h-10 max-h-28 flex-1 resize-none rounded-xl border border-[var(--color-line)] bg-[rgba(5,11,8,0.7)] px-3 py-2.5 text-[0.82rem] leading-relaxed text-[var(--color-text)] outline-none placeholder:text-[var(--color-soft)] transition-colors focus:border-[var(--color-accent)]"
-              onChange={(event) => onDraftChange(event.target.value)}
-              onKeyDown={onDraftKeyDown}
-            />
             <button
-              type="submit"
-              disabled={isWaiting || !draft.trim()}
-              className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[var(--color-line-strong)] bg-[var(--color-accent)] text-[#041009] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label={copy.sendLabel}
+              type="button"
+              onClick={onClose}
+              className="flex size-7 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
+              aria-label={copy.closeLabel}
             >
               <svg
                 aria-hidden="true"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
                 fill="none"
               >
                 <path
-                  d="M2 8L14 8M14 8L9 3M14 8L9 13"
+                  d="M2 2L12 12M12 2L2 12"
                   stroke="currentColor"
                   strokeWidth="1.5"
                   strokeLinecap="round"
-                  strokeLinejoin="round"
                 />
               </svg>
             </button>
-          </form>
-        </div>
-      </section>
+          </div>
+
+          <div className="grid gap-3 p-3">
+            <div ref={chatLogRef} className={chatLogClass}>
+              {messages.length === 0 ? (
+                <div className="flex flex-1 items-center justify-center p-4 text-center">
+                  <p className="text-pretty text-[0.82rem] leading-relaxed text-[var(--color-muted)]">
+                    {copy.emptyState}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {messages.map((message) => {
+                    const isAssistant = message.role === "assistant";
+
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}
+                      >
+                        <div
+                          className={`max-w-[86%] rounded-2xl px-3.5 py-2.5 ${
+                            isAssistant
+                              ? "rounded-tl-sm border border-[var(--color-line)] bg-[rgba(10,20,16,0.8)]"
+                              : "rounded-br-sm border border-[rgba(111,247,166,0.2)] bg-[rgba(111,247,166,0.1)]"
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap text-pretty text-[0.82rem] leading-relaxed text-[var(--color-text)]">
+                            {message.text}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {isWaiting ? (
+                    <div className="flex justify-start">
+                      <div className="rounded-2xl rounded-tl-sm border border-[var(--color-line)] bg-[rgba(10,20,16,0.8)] px-3.5 py-3">
+                        <div className={typingClass} aria-hidden="true">
+                          <span
+                            className={typingDotClass}
+                            style={{ animationDelay: "0ms" }}
+                          />
+                          <span
+                            className={typingDotClass}
+                            style={{ animationDelay: "150ms" }}
+                          />
+                          <span
+                            className={typingDotClass}
+                            style={{ animationDelay: "300ms" }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </>
+              )}
+
+              <div ref={chatEndRef} aria-hidden="true" />
+            </div>
+
+            {!hasUserMessages && copy.quickPrompts.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {copy.quickPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => onQuickPrompt(prompt)}
+                    className="rounded-full border border-[var(--color-line)] bg-[rgba(10,20,16,0.6)] px-3 py-1.5 text-left text-[0.7rem] leading-snug text-[var(--color-muted)] transition-colors hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                onSubmit();
+              }}
+              className="flex items-end gap-2"
+            >
+              <label className="sr-only" htmlFor="chat-draft">
+                {copy.inputPlaceholder}
+              </label>
+              <textarea
+                id="chat-draft"
+                ref={textareaRef}
+                value={draft}
+                rows={1}
+                placeholder={copy.inputPlaceholder}
+                className="min-h-10 max-h-28 flex-1 resize-none rounded-xl border border-[var(--color-line)] bg-[rgba(5,11,8,0.7)] px-3 py-2.5 text-[0.82rem] leading-relaxed text-[var(--color-text)] outline-none placeholder:text-[var(--color-soft)] transition-colors focus:border-[var(--color-accent)]"
+                onChange={(event) => onDraftChange(event.target.value)}
+                onKeyDown={onDraftKeyDown}
+              />
+              <button
+                type="submit"
+                disabled={isWaiting || !draft.trim()}
+                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[var(--color-line-strong)] bg-[var(--color-accent)] text-[#041009] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label={copy.sendLabel}
+              >
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    d="M2 8L14 8M14 8L9 3M14 8L9 13"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </form>
+          </div>
+        </section>
       ) : null}
 
       <button
