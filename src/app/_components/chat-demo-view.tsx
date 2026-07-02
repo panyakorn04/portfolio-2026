@@ -55,23 +55,24 @@ export default function ChatDemoView({
   textareaRef,
 }: ChatDemoViewProps) {
   const show = isOpen || isClosing;
-  const stateClass = isClosing ? "is-closing" : isOpen ? "is-open" : "";
   const hasUserMessages = messages.some((m) => m.role === "user");
 
   return (
     <div className={widgetShellClass}>
-      <button
-        type="button"
-        aria-label={copy.closeLabel}
-        className={`${backdropClass} ${show ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
-        onClick={onClose}
-      />
+      {show ? (
+        <button
+          type="button"
+          aria-label={copy.closeLabel}
+          className={`${backdropClass} pointer-events-auto opacity-100`}
+          onClick={onClose}
+        />
+      ) : null}
 
-      <section
-        id="portfolio-chat-widget"
-        aria-hidden={!isOpen}
-        className={`${flyoutClass} ${stateClass}`}
-      >
+      {show ? (
+        <section
+          id="portfolio-chat-widget"
+          className={flyoutClass}
+        >
         <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
           <div className="flex items-center gap-2.5">
             <span className="flex size-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-[0.6rem] font-bold text-[#041009]">
@@ -228,6 +229,7 @@ export default function ChatDemoView({
           </form>
         </div>
       </section>
+      ) : null}
 
       <button
         type="button"
