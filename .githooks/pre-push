@@ -7,10 +7,10 @@ if [ "${SKIP_VERIFY:-}" = "1" ]; then
 fi
 
 echo "[pre-push] Running local verification before push..."
-echo "[pre-push] pnpm lint"
-pnpm lint
+echo "[pre-push] bun run lint"
+bun run lint
 
-echo "[pre-push] pnpm build"
-pnpm build
+echo "[pre-push] bun run build"
+bun run build
 
 echo "[pre-push] Verification passed. Continuing push."

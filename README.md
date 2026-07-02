@@ -13,8 +13,8 @@ Modern bilingual portfolio for Panyakorn Boonyong, built with Next.js, TypeScrip
 ## Local development
 
 ```bash
-pnpm install
-pnpm dev
+bun install
+bun run dev
 ```
 
 Open:
@@ -87,8 +87,8 @@ The backend injects only the public-safe `portfolio-site` skills from `panyakorn
 Production preparation commands:
 
 ```bash
-pnpm env:check      # verifies frontend env vars exist
-pnpm deploy:prepare # env check + production build
+bun run env:check      # verifies frontend env vars exist
+bun run deploy:prepare # env check + production build
 ```
 
 ## Contact form flow
@@ -114,8 +114,8 @@ Notes:
 ## Production check
 
 ```bash
-pnpm lint
-pnpm build
+bun run lint
+bun run build
 ```
 
 ## CI/CD
@@ -137,9 +137,9 @@ CI runs on:
 It executes:
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm lint
-pnpm build
+bun install --frozen-lockfile
+bun run lint
+bun run build
 ```
 
 ### CD behavior for VPS
@@ -189,7 +189,7 @@ public/Panyakorn_Boonyong_Resume.pdf
 The current production target is the VPS at `76.13.185.117` behind Caddy. If you deploy this frontend elsewhere, keep the build command:
 
 ```bash
-pnpm deploy:prepare
+bun run deploy:prepare
 ```
 
 Required production env vars:

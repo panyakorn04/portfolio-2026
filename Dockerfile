@@ -1,14 +1,11 @@
 # syntax=docker/dockerfile:1
 
-FROM node:24-alpine AS base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+FROM oven/bun:1 AS base
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 FROM base AS builder
 ARG NEXT_PUBLIC_SITE_URL=https://panyakorn.com
@@ -22,7 +19,7 @@ ENV FRONTEND_API_BASE_URL=$FRONTEND_API_BASE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm build
+RUN bun run build
 
 FROM node:24-alpine AS runner
 WORKDIR /app

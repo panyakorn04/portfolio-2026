@@ -7,7 +7,7 @@
       "src/**/*.json",
       ".github/workflows/**",
       "package.json",
-      "pnpm-lock.yaml",
+      "bun.lock",
       "biome.json",
       "README.md",
       "*.mjs"
