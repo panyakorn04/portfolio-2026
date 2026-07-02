@@ -8,6 +8,7 @@ import ChatDemo from "./chat-demo";
 import ContactForm from "./contact-form";
 import MotionReveal from "./motion-reveal";
 import Navbar from "./navbar";
+import { buttonBase, buttonVariants, buttonSizes } from "./button";
 
 const surfaceClass =
   "border border-[var(--color-line)] bg-[linear-gradient(158deg,rgba(255,255,255,0.065),rgba(255,255,255,0.025))] shadow-[var(--shadow-panel)] backdrop-blur-[24px] backdrop-saturate-[1.6]";
@@ -18,12 +19,9 @@ const eyebrowClass =
 const copyClass =
   "text-[0.88rem] leading-[1.78] text-[var(--color-muted)] sm:text-[0.92rem]";
 const smallCopyClass = "text-[0.78rem] leading-[1.65] text-[var(--color-muted)]";
-const chipClass =
-  "inline-flex items-center rounded-full border border-[var(--color-line)] bg-[var(--surface)] px-3 py-1.5 font-mono text-[0.64rem] uppercase tracking-[0.04em] text-[var(--color-text)] transition-all duration-200 hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)]";
-const primaryButtonClass =
-  "inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--color-accent),#16a34a)] px-5 py-3 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-[#05070a] shadow-[var(--shadow-btn)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0";
-const secondaryButtonClass =
-  "inline-flex items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--surface)] px-5 py-3 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-[var(--color-text)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--color-accent)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)] active:translate-y-0";
+const chipClass = `${buttonBase} ${buttonVariants.chip} ${buttonSizes.sm}`;
+const primaryButtonClass = `${buttonBase} ${buttonSizes.lg} bg-[linear-gradient(135deg,var(--color-accent),#16a34a)] text-[#05070a] shadow-[var(--shadow-btn)] font-semibold tracking-[0.06em] hover:-translate-y-0.5 active:translate-y-0`;
+const secondaryButtonClass = `${buttonBase} ${buttonSizes.lg} border border-[var(--color-line-strong)] bg-[var(--surface)] text-[var(--color-text)] font-semibold tracking-[0.06em] hover:-translate-y-0.5 hover:border-[var(--color-accent)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)] active:translate-y-0`;
 
 type SectionBlockProps = {
   id: string;

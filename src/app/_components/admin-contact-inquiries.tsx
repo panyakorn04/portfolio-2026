@@ -11,6 +11,7 @@ import {
 
 import type { adminDirectoryCopy } from "../_data/admin";
 import type { Locale } from "../_data/portfolio";
+import { Button, buttonBase, buttonVariants, buttonSizes } from "./button";
 
 type AdminCopy = (typeof adminDirectoryCopy)[Locale];
 
@@ -680,18 +681,18 @@ export default function AdminContactInquiries({
             </span>
             <a
               href={`/${locale}`}
-              className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-text)] transition-opacity duration-150 ease-out hover:opacity-80"
+              className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.xs}`}
             >
               {copy.backToPortfolioLabel}
             </a>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="xs"
               onClick={signOut}
               disabled={isSigningOut}
-              className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-text)] transition-opacity duration-150 ease-out hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSigningOut ? copy.signingOutLabel : copy.signOutLabel}
-            </button>
+            </Button>
           </div>
 
           <div className="mt-6 max-w-4xl space-y-4 border-b border-[var(--color-line)] pb-6">
@@ -725,16 +726,16 @@ export default function AdminContactInquiries({
               <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className={labelClass}>{copy.sessionsLabel}</p>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={logoutEverywhere}
                     disabled={isRevokingEverywhere}
-                    className="inline-flex items-center justify-center rounded-full border border-[var(--color-line)] px-3 py-2 font-mono text-[0.66rem] uppercase tracking-[0.04em] text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isRevokingEverywhere
                       ? copy.loggingOutEverywhereLabel
                       : copy.logoutEverywhereLabel}
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="mt-4 space-y-3">
@@ -752,16 +753,16 @@ export default function AdminContactInquiries({
                           <p className="font-mono text-[0.7rem] text-[var(--color-soft)]">
                             {session.isCurrent ? copy.sessionsCurrentLabel : session.id}
                           </p>
-                          <button
-                            type="button"
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => revokeSession(session.id)}
                             disabled={revokingSessionId === session.id}
-                            className="inline-flex items-center justify-center rounded-full border border-[var(--color-line)] px-3 py-2 font-mono text-[0.66rem] uppercase tracking-[0.04em] text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {revokingSessionId === session.id
                               ? copy.revokingSessionLabel
                               : copy.revokeSessionLabel}
-                          </button>
+                          </Button>
                         </div>
                         <p className={`${bodyClass} mt-2`}>
                           Created: {new Date(session.createdAt).toLocaleString(locale)}
@@ -938,24 +939,24 @@ export default function AdminContactInquiries({
                     {copy.pageLabel} {currentPage} / {totalPages}
                   </p>
                   <div className="flex gap-3">
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="md"
                       onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                       disabled={currentPage <= 1 || isLoadingList}
-                      className="inline-flex items-center justify-center rounded-full border border-[var(--color-line)] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.04em] text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {copy.previousPageLabel}
-                    </button>
-                    <button
-                      type="button"
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="md"
                       onClick={() =>
                         setCurrentPage((page) => Math.min(totalPages, page + 1))
                       }
                       disabled={currentPage >= totalPages || isLoadingList}
-                      className="inline-flex items-center justify-center rounded-full border border-[var(--color-line)] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.04em] text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {copy.nextPageLabel}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </section>
@@ -972,16 +973,16 @@ export default function AdminContactInquiries({
                 <div className="flex items-center justify-between gap-3">
                   <p className={labelClass}>{copy.detailsLabel}</p>
                   {detailInquiry ? (
-                    <button
-                      type="button"
+                    <Button
+                      variant="primary"
+                      size="md"
                       onClick={fetchSummary}
                       disabled={isLoadingSummary}
-                      className="inline-flex items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-accent)] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.04em] text-[#041009] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isLoadingSummary
                         ? copy.generatingSummaryLabel
                         : copy.generateSummaryLabel}
-                    </button>
+                    </Button>
                   ) : null}
                 </div>
 
@@ -1045,14 +1046,14 @@ export default function AdminContactInquiries({
                 <div className="flex items-center justify-between gap-3">
                   <p className={labelClass}>{copy.workflowLabel}</p>
                   {detailInquiry && canEditInquiries ? (
-                    <button
-                      type="button"
+                    <Button
+                      variant="primary"
+                      size="md"
                       onClick={saveInquiryChanges}
                       disabled={isSavingChanges}
-                      className="inline-flex items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-accent)] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.04em] text-[#041009] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isSavingChanges ? copy.savingChangesLabel : copy.saveChangesLabel}
-                    </button>
+                    </Button>
                   ) : null}
                 </div>
 

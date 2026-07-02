@@ -135,16 +135,6 @@ export type PortfolioDictionary = {
     openLabel: string;
     closeLabel: string;
     windowTitle: string;
-    statusLabel: string;
-    statusValue: string;
-    responseLabel: string;
-    responseValue: string;
-    draftLabel: string;
-    draftValue: string;
-    introLabel: string;
-    introTitle: string;
-    introText: string;
-    quickPromptsLabel: string;
     quickPrompts: string[];
     inputPlaceholder: string;
     sendLabel: string;

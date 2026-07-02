@@ -309,53 +309,27 @@
     }
   },
   "chat": {
-    "launcherLabel": "agent widget",
-    "openLabel": "เปิดแชต",
+    "launcherLabel": "ผู้ช่วย AI",
+    "openLabel": "แชต",
     "closeLabel": "ปิด",
-    "windowTitle": "agent://portfolio-chat",
-    "statusLabel": "สถานะเอเจนต์",
-    "statusValue": "UI พร้อมแล้ว",
-    "responseLabel": "โหมดตอบกลับ",
-    "responseValue": "mock ในเครื่อง",
-    "draftLabel": "ขั้นถัดไป",
-    "draftValue": "เชื่อม API",
-    "introLabel": "พรีวิว",
-    "introTitle": "เชื่อมต่อกับ AI portfolio assistant แบบ streaming แล้ว",
-    "introText": "widget นี้เป็น AI ตัวแทนของ Panyakorn ที่เชื่อมต่อ backend และ Ollama จริงผ่าน streaming endpoint เพื่อช่วยเล่าประสบการณ์ โปรเจกต์ สแตก และสไตล์การทำงานแบบ public-safe",
-    "quickPromptsLabel": "คำสั่งลัด",
+    "windowTitle": "portfolio/assistant",
     "quickPrompts": [
-      "สรุปประสบการณ์ frontend ของผมสำหรับ recruiter",
-      "ร่างข้อความแนะนำตัวสั้น ๆ สำหรับลูกค้าที่สนใจ",
-      "เปลี่ยน portfolio นี้ให้เป็น project pitch แบบกระชับ"
+      "สรุปประสบการณ์ frontend ของเขาให้ recruiter ฟัง",
+      "ทีมและบทบาทในฝันของเขาคือแบบไหน?",
+      "เขาเข้าใกล้โปรเจกต์ AI ยังไง?"
     ],
-    "inputPlaceholder": "พิมพ์คำถามถึง portfolio AI assistant...",
-    "sendLabel": "ส่งข้อความ",
-    "assistantName": "panyakorn.ai",
-    "userName": "visitor",
-    "emptyState": "สวัสดีครับ ผมคือ AI portfolio guide ของ Panyakorn คุณถามผมได้เรื่องประสบการณ์สาย frontend, งาน AI integration, แนวคิดการทำโปรดักต์ หรือรูปแบบทีมที่เขาอยากร่วมงานด้วย",
+    "inputPlaceholder": "ถามอะไรก็ได้เกี่ยวกับ Panyakorn...",
+    "sendLabel": "ส่ง",
+    "assistantName": "Panyakorn AI",
+    "userName": "คุณ",
+    "emptyState": "สวัสดีครับ ผมคือผู้ช่วย AI ของ Panyakorn ถามเกี่ยวกับประสบการณ์ โปรเจกต์ สกิล หรือสิ่งที่เขามองหาได้เลยครับ",
     "starterConversation": [
       {
         "role": "assistant",
-        "text": "สวัสดีครับ ผมคือ AI portfolio guide ของ Panyakorn ผมช่วยเล่าภาพรวมประสบการณ์สาย frontend, งาน product และการเชื่อม AI เข้ากับโปรดักต์ได้ครับ"
-      },
-      {
-        "role": "user",
-        "text": "เขาถนัดงานแบบไหนมากที่สุด?"
-      },
-      {
-        "role": "assistant",
-        "text": "เขาถนัดงาน React, Next.js และ TypeScript ที่มีความซับซ้อนจริงในโปรดักต์ เช่น auth, KYC, wallet flows, dashboard, data-heavy UI และฟีเจอร์ AI ที่ต้องพร้อมใช้งานบน production"
-      },
-      {
-        "role": "user",
-        "text": "ถ้าทีมกำลังสร้าง AI product จะเหมาะไหม?"
-      },
-      {
-        "role": "assistant",
-        "text": "เหมาะครับ เพราะเขาทำได้ทั้งฝั่ง frontend architecture, API integration, workflow automation และฟีเจอร์ที่มี AI อยู่ในประสบการณ์ผู้ใช้ จึงช่วยได้ทั้งชั้น UI และการเชื่อม model เข้าแอปจริง"
+        "text": "สวัสดีครับ! ผมพร้อมช่วยให้คุณรู้จัก Panyakorn มากขึ้น — งาน frontend, ประสบการณ์ด้าน AI, แนวคิดเรื่องโปรดักต์ และทีมที่เขาอยากร่วมงาน สนใจเรื่องไหนเป็นพิเศษไหมครับ?"
       }
     ],
-    "streamError": "ขออภัยครับ ตอนนี้เชื่อมต่อ AI assistant ไม่สำเร็จ กรุณาลองใหม่อีกครั้งในภายหลัง"
+    "streamError": "ขออภัยครับ ตอนนี้เชื่อมต่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
   },
   "contactLabels": {
     "email": "อีเมล",

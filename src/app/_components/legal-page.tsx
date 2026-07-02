@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
+import { buttonBase, buttonVariants, buttonSizes } from "./button";
 
 const pageShellClass =
   "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";
@@ -39,7 +40,7 @@ export default function LegalPage({ locale, dictionary, page, url }: LegalPagePr
             </span>
             <Link
               href={`/${locale}`}
-              className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-text)] transition-opacity duration-150 ease-out hover:opacity-80"
+              className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.xs}`}
             >
               {shared.backToHome}
             </Link>

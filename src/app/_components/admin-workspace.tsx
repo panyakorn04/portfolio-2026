@@ -7,11 +7,9 @@ import type { adminArticlesCopy } from "../_data/admin-articles";
 import type { Locale } from "../_data/portfolio";
 import AdminArticles from "./admin-articles";
 import AdminContactInquiries from "./admin-contact-inquiries";
+import { Button } from "./button";
 
 type Tab = "inquiries" | "articles";
-
-const tabBaseClass =
-  "rounded-full border px-4 py-1.5 font-mono text-[0.66rem] uppercase tracking-[0.04em] transition-opacity duration-150";
 
 export default function AdminWorkspace({
   locale,
@@ -27,28 +25,20 @@ export default function AdminWorkspace({
   return (
     <div className="space-y-6">
       <div className="mx-auto flex max-w-6xl flex-wrap gap-2 px-5 pt-8 sm:px-8">
-        <button
-          type="button"
-          className={`${tabBaseClass} ${
-            tab === "inquiries"
-              ? "border-[var(--color-line-strong)] bg-[var(--color-accent)] text-[#041009]"
-              : "border-[var(--color-line)] text-[var(--color-text)] hover:opacity-80"
-          }`}
+        <Button
+          variant={tab === "inquiries" ? "primary" : "ghost"}
+          size="xs"
           onClick={() => setTab("inquiries")}
         >
           {articlesCopy.tabContactLabel}
-        </button>
-        <button
-          type="button"
-          className={`${tabBaseClass} ${
-            tab === "articles"
-              ? "border-[var(--color-line-strong)] bg-[var(--color-accent)] text-[#041009]"
-              : "border-[var(--color-line)] text-[var(--color-text)] hover:opacity-80"
-          }`}
+        </Button>
+        <Button
+          variant={tab === "articles" ? "primary" : "ghost"}
+          size="xs"
           onClick={() => setTab("articles")}
         >
           {articlesCopy.tabArticlesLabel}
-        </button>
+        </Button>
       </div>
 
       {tab === "inquiries" ? (

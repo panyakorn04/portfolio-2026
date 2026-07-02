@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 
 import type { AdminArticlesCopy } from "../_data/admin-articles";
 import type { Locale } from "../_data/portfolio";
+import { Button, buttonBase, buttonVariants, buttonSizes } from "./button";
 
 type ArticleStatus = "draft" | "published";
 
@@ -59,10 +60,7 @@ const labelClass =
   "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
 const inputClass =
   "w-full rounded-[0.85rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.7)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition-colors duration-150 focus:border-[var(--color-line-strong)]";
-const primaryButtonClass =
-  "inline-flex items-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-accent)] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.04em] text-[#041009] transition-opacity duration-150 hover:opacity-90 disabled:opacity-50";
-const ghostButtonClass =
-  "inline-flex items-center rounded-full border border-[var(--color-line)] px-3 py-1.5 font-mono text-[0.66rem] uppercase tracking-[0.04em] text-[var(--color-text)] transition-opacity duration-150 hover:opacity-80 disabled:opacity-50";
+
 
 function emptyTranslation(): DraftTranslation {
   return {
@@ -338,9 +336,9 @@ export default function AdminArticles({
               {copy.description}
             </p>
           </div>
-          <button
-            type="button"
-            className={primaryButtonClass}
+          <Button
+            variant="primary"
+            size="md"
             onClick={() => {
               setErrorDetails([]);
               setStatusMessage(null);
@@ -349,7 +347,7 @@ export default function AdminArticles({
             }}
           >
             {copy.newArticleLabel}
-          </button>
+          </Button>
         </div>
 
         {statusMessage ? (
@@ -390,13 +388,13 @@ export default function AdminArticles({
       <section className={panelClass}>
         <div className="flex items-center justify-between gap-3">
           <p className={labelClass}>{copy.listLabel}</p>
-          <button
-            type="button"
-            className={ghostButtonClass}
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setReloadToken((token) => token + 1)}
           >
             {isLoading ? copy.loadingLabel : copy.refreshLabel}
-          </button>
+          </Button>
         </div>
 
         {articles.length === 0 ? (
@@ -445,7 +443,7 @@ export default function AdminArticles({
                     <div className="flex shrink-0 flex-wrap items-center gap-2">
                       {article.status === "published" ? (
                         <a
-                          className={ghostButtonClass}
+                          className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.sm}`}
                           href={`/${locale}/articles/${article.slug}`}
                           target="_blank"
                           rel="noreferrer"
@@ -453,9 +451,9 @@ export default function AdminArticles({
                           {copy.viewPublicLabel}
                         </a>
                       ) : null}
-                      <button
-                        type="button"
-                        className={ghostButtonClass}
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => {
                           setErrorDetails([]);
                           setStatusMessage(null);
@@ -464,17 +462,17 @@ export default function AdminArticles({
                         }}
                       >
                         {copy.editLabel}
-                      </button>
-                      <button
-                        type="button"
-                        className={ghostButtonClass}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => deleteArticle(article.id)}
                         disabled={deletingId === article.id}
                       >
                         {deletingId === article.id
                           ? copy.deletingLabel
                           : copy.deleteLabel}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </article>
@@ -532,18 +530,14 @@ export default function AdminArticles({
 
           <div className="mt-5 flex gap-2">
             {(["en", "th"] as const).map((loc) => (
-              <button
+              <Button
                 key={loc}
-                type="button"
-                className={`rounded-full border px-3 py-1.5 font-mono text-[0.66rem] uppercase tracking-[0.04em] transition-opacity duration-150 ${
-                  activeLocale === loc
-                    ? "border-[var(--color-line-strong)] bg-[var(--color-accent)] text-[#041009]"
-                    : "border-[var(--color-line)] text-[var(--color-text)] hover:opacity-80"
-                }`}
+                variant={activeLocale === loc ? "primary" : "ghost"}
+                size="sm"
                 onClick={() => setActiveLocale(loc)}
               >
                 {loc === "en" ? copy.translationEnLabel : copy.translationThLabel}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -611,9 +605,9 @@ export default function AdminArticles({
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <span className={labelClass}>{copy.sectionsLabel}</span>
-                <button
-                  type="button"
-                  className={ghostButtonClass}
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() =>
                     updateSections((sections) => [
                       ...sections,
@@ -622,7 +616,7 @@ export default function AdminArticles({
                   }
                 >
                   {copy.addSectionLabel}
-                </button>
+                </Button>
               </div>
 
               {activeTranslation.sections.map((section, sectionIndex) => (
@@ -649,9 +643,9 @@ export default function AdminArticles({
                       />
                     </label>
                     {activeTranslation.sections.length > 1 ? (
-                      <button
-                        type="button"
-                        className={ghostButtonClass}
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() =>
                           updateSections((sections) =>
                             sections.filter((_, index) => index !== sectionIndex),
@@ -659,7 +653,7 @@ export default function AdminArticles({
                         }
                       >
                         {copy.removeSectionLabel}
-                      </button>
+                      </Button>
                     ) : null}
                   </div>
 
@@ -688,9 +682,9 @@ export default function AdminArticles({
                           }
                         />
                         {section.paragraphs.length > 1 ? (
-                          <button
-                            type="button"
-                            className={ghostButtonClass}
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() =>
                               updateSections((sections) =>
                                 sections.map((item, index) =>
@@ -707,13 +701,13 @@ export default function AdminArticles({
                             }
                           >
                             {copy.removeParagraphLabel}
-                          </button>
+                          </Button>
                         ) : null}
                       </div>
                     ))}
-                    <button
-                      type="button"
-                      className={ghostButtonClass}
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() =>
                         updateSections((sections) =>
                           sections.map((item, index) =>
@@ -725,7 +719,7 @@ export default function AdminArticles({
                       }
                     >
                       {copy.addParagraphLabel}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -733,24 +727,24 @@ export default function AdminArticles({
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <button
-              type="button"
-              className={primaryButtonClass}
+            <Button
+              variant="primary"
+              size="md"
               onClick={saveDraft}
               disabled={isSaving}
             >
               {isSaving ? copy.savingLabel : copy.saveLabel}
-            </button>
-            <button
-              type="button"
-              className={ghostButtonClass}
+            </Button>
+            <Button
+              variant="ghost"
+              size="md"
               onClick={() => {
                 setDraft(null);
                 setErrorDetails([]);
               }}
             >
               {copy.cancelLabel}
-            </button>
+            </Button>
           </div>
         </section>
       ) : null}

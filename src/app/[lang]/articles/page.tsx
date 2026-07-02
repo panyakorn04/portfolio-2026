@@ -7,6 +7,7 @@ import { listArticles } from "@/app/_data/articles-api";
 import { articleDirectoryCopy } from "../../_data/articles";
 import { hasLocale } from "../../_data/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../_data/site-url";
+import { buttonBase, buttonVariants, buttonSizes } from "../../_components/button";
 
 export const revalidate = 300;
 
@@ -76,7 +77,7 @@ export default async function ArticlesPage({ params }: PageProps<"/[lang]/articl
             </span>
             <Link
               href={`/${lang}`}
-              className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-text)] transition-opacity duration-150 ease-out hover:opacity-80"
+              className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.xs}`}
             >
               {copy.backToPortfolioLabel}
             </Link>
@@ -127,7 +128,7 @@ export default async function ArticlesPage({ params }: PageProps<"/[lang]/articl
 
                 <Link
                   href={`/${lang}/articles/${featuredArticle.slug}`}
-                  className="mt-5 inline-flex rounded-full border border-[var(--color-line-strong)] bg-[var(--color-accent)] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.04em] text-[#041009]"
+                  className={`${buttonBase} ${buttonVariants.primary} ${buttonSizes.md} mt-5`}
                 >
                   {copy.readArticleLabel}
                 </Link>

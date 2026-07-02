@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 
 import type { adminDirectoryCopy } from "../_data/admin";
 import type { Locale } from "../_data/portfolio";
+import { Button, buttonBase, buttonVariants, buttonSizes } from "./button";
 
 type AdminCopy = (typeof adminDirectoryCopy)[Locale];
 
@@ -96,7 +97,7 @@ export default function AdminLogin({
             </span>
             <a
               href={`/${locale}`}
-              className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-text)] transition-opacity duration-150 ease-out hover:opacity-80"
+              className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.xs}`}
             >
               {copy.backToPortfolioLabel}
             </a>
@@ -139,14 +140,14 @@ export default function AdminLogin({
             />
 
             <div className="mt-4 flex flex-wrap gap-3">
-              <button
-                type="button"
+              <Button
+                variant="primary"
+                size="md"
                 onClick={signIn}
                 disabled={isSigningIn}
-                className="inline-flex items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-accent)] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.04em] text-[#041009] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSigningIn ? copy.signingInLabel : copy.signInLabel}
-              </button>
+              </Button>
             </div>
 
             {statusMessage ? (

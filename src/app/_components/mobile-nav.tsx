@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
+import { Button, buttonBase, buttonVariants, buttonSizes } from "./button";
 
 type MobileNavProps = {
   activeSectionId: string | null;
@@ -26,8 +27,7 @@ export default function MobileNav({
 }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const articleLabel = articleDirectoryCopy[locale].navLabel;
-  const actionButtonClass =
-    "inline-flex min-h-11 items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-panel)] px-[0.92rem] py-[0.68rem] font-mono text-[0.66rem] uppercase tracking-[0.04em] tabular-nums text-[var(--color-text)] sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]";
+  const actionButtonClass = `${buttonBase} ${buttonVariants.action} px-[0.92rem] py-[0.68rem] text-[0.66rem] tabular-nums sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]`;
 
   useEffect(() => {
     if (!isOpen) {
@@ -72,12 +72,13 @@ export default function MobileNav({
 
       <div className="relative md:hidden">
         {/* Hamburger toggle button */}
-        <button
+        <Button
           type="button"
           aria-controls="mobile-menu"
           aria-label={isOpen ? ui.closeMenuLabel : ui.menuLabel}
           aria-expanded={isOpen}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-(--color-line-strong) bg-(--color-panel) p-0 text-foreground transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)"
+          variant="action"
+          className="h-11 w-11 p-0 text-foreground hover:border-(--color-accent) hover:text-(--color-accent) motion-reduce:transition-none"
           onClick={toggleMenu}
         >
           <span className="sr-only">{ui.menuLabel}</span>
@@ -102,7 +103,7 @@ export default function MobileNav({
               }`}
             />
           </span>
-        </button>
+        </Button>
 
         {/* Backdrop */}
         <button

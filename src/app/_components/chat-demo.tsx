@@ -14,6 +14,7 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
     draft,
     handleDraftChange,
     handleDraftKeyDown,
+    handleQuickPrompt,
     handleSubmit,
     isClosing,
     isOpen,
@@ -36,6 +37,7 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
       onClose={closeChat}
       onDraftChange={handleDraftChange}
       onDraftKeyDown={handleDraftKeyDown}
+      onQuickPrompt={handleQuickPrompt}
       onSubmit={handleSubmit}
       onToggle={toggleChat}
       textareaRef={textareaRef}

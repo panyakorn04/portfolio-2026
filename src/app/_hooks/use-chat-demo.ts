@@ -268,6 +268,10 @@ export function useChatDemo(copy: ChatCopy) {
     void submitPrompt(draft);
   }
 
+  function handleQuickPrompt(prompt: string) {
+    void submitPrompt(prompt);
+  }
+
   return {
     chatEndRef,
     chatLogRef,
@@ -275,6 +279,7 @@ export function useChatDemo(copy: ChatCopy) {
     draft,
     handleDraftChange,
     handleDraftKeyDown,
+    handleQuickPrompt,
     handleSubmit,
     isClosing,
     isOpen,

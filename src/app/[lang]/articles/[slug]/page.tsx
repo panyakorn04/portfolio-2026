@@ -7,6 +7,7 @@ import { findArticle, getArticleSlugs } from "@/app/_data/articles-api";
 import { articleDirectoryCopy } from "../../../_data/articles";
 import { hasLocale, locales } from "../../../_data/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../_data/site-url";
+import { buttonBase, buttonVariants, buttonSizes } from "../../../_components/button";
 
 export const revalidate = 300;
 
@@ -99,7 +100,7 @@ export default async function ArticleDetailPage({
             </span>
             <Link
               href={`/${lang}/articles`}
-              className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-text)] transition-opacity duration-150 ease-out hover:opacity-80"
+              className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.xs}`}
             >
               {copy.backToArticlesLabel}
             </Link>

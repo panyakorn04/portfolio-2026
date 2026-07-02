@@ -5,6 +5,7 @@ import Link from "next/link";
 import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 import { useActiveSection } from "../_hooks/use-active-section";
+import { buttonBase, buttonVariants, buttonSizes } from "./button";
 import MobileNav from "./mobile-nav";
 import ReadingProgress from "./reading-progress";
 
@@ -51,7 +52,7 @@ export default function NavControls({
         </div>
         <Link
           href={`/${locale}/articles`}
-          className="whitespace-nowrap rounded-full border border-[var(--color-line)] bg-[var(--surface)] px-3 py-2 text-[0.7rem] uppercase tracking-[0.04em] text-[var(--color-soft)] transition-all duration-200 hover:border-[var(--accent-border)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)]"
+          className={`${buttonBase} ${buttonVariants.chip} px-3 py-2 text-[0.7rem]`}
         >
           {articleLabel}
         </Link>

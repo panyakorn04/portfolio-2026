@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
+import { Button } from "./button";
 
 type ContactFormCopy = PortfolioDictionary["contactForm"];
 
@@ -284,13 +285,9 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
             ) : null}
           </div>
 
-          <button
-            type="submit"
-            disabled={isPending}
-            className="inline-flex items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--color-accent)] px-4 py-3 font-mono text-[0.7rem] uppercase tracking-[0.04em] text-[#041009] disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <Button type="submit" disabled={isPending}>
             {isPending ? copy.submittingLabel : copy.submitLabel}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

@@ -309,53 +309,27 @@
     }
   },
   "chat": {
-    "launcherLabel": "agent widget",
-    "openLabel": "Open chat",
+    "launcherLabel": "AI assistant",
+    "openLabel": "Chat",
     "closeLabel": "Close",
-    "windowTitle": "agent://portfolio-chat",
-    "statusLabel": "agent_status",
-    "statusValue": "UI ready",
-    "responseLabel": "response_mode",
-    "responseValue": "local mock",
-    "draftLabel": "next_step",
-    "draftValue": "connect API",
-    "introLabel": "preview",
-    "introTitle": "Connected to the streaming AI portfolio assistant.",
-    "introText": "This widget is Panyakorn's AI portfolio guide, connected to the backend and Ollama through a streaming endpoint for public-safe answers about experience, projects, stack, and collaboration style.",
-    "quickPromptsLabel": "quick_prompts",
+    "windowTitle": "portfolio/assistant",
     "quickPrompts": [
-      "Summarize my frontend experience for a recruiter.",
-      "Draft a short intro message for a potential client.",
-      "Turn my portfolio into a concise project pitch."
+      "Summarize his frontend experience for a recruiter",
+      "What's his ideal team and role?",
+      "How does he approach AI products?"
     ],
-    "inputPlaceholder": "Ask the portfolio AI assistant...",
-    "sendLabel": "Send prompt",
-    "assistantName": "panyakorn.ai",
-    "userName": "visitor",
-    "emptyState": "Hi, I'm Panyakorn's AI portfolio guide. You can ask me about his frontend experience, AI integrations, product thinking, or the kind of team he wants to build with.",
+    "inputPlaceholder": "Ask me anything about Panyakorn...",
+    "sendLabel": "Send",
+    "assistantName": "Panyakorn AI",
+    "userName": "You",
+    "emptyState": "Hi, I'm Panyakorn's AI assistant. Ask me about his experience, projects, skills, or what he's looking for.",
     "starterConversation": [
       {
         "role": "assistant",
-        "text": "Hi, I'm Panyakorn's AI portfolio guide. I can walk you through his frontend background, product work, and AI integration experience."
-      },
-      {
-        "role": "user",
-        "text": "What kind of work is he strongest at?"
-      },
-      {
-        "role": "assistant",
-        "text": "He’s strongest in React, Next.js, and TypeScript projects where the product has real complexity: auth, KYC, wallet flows, dashboards, data-heavy UI, and AI-enabled features that need to feel polished in production."
-      },
-      {
-        "role": "user",
-        "text": "Would he fit a team building an AI product?"
-      },
-      {
-        "role": "assistant",
-        "text": "Yes. He already works across frontend architecture, API integration, workflow automation, and AI-assisted product features, so he can help both with the user-facing experience and with integrating the model layer into a real app."
+        "text": "Hi! I'm here to help you learn more about Panyakorn — his frontend work, AI experience, product thinking, and what kind of team he'd thrive in. What would you like to know?"
       }
     ],
-    "streamError": "Sorry, the AI assistant is unavailable right now. Please try again in a moment."
+    "streamError": "Sorry, I'm having trouble connecting right now. Please try again in a moment."
   },
   "contactLabels": {
     "email": "Email",
