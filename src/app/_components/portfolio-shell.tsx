@@ -10,34 +10,20 @@ import MotionReveal from "./motion-reveal";
 import Navbar from "./navbar";
 
 const surfaceClass =
-  "terminal-window border border-[var(--color-line)] bg-[var(--surface)] shadow-[var(--shadow-panel)] backdrop-blur-[18px] backdrop-saturate-[1.25]";
+  "border border-[var(--color-line)] bg-[linear-gradient(158deg,rgba(255,255,255,0.065),rgba(255,255,255,0.025))] shadow-[var(--shadow-panel)] backdrop-blur-[24px] backdrop-saturate-[1.6]";
 const panelClass = `${surfaceClass} rounded-[var(--radius-lg)]`;
 const compactPanelClass = `${surfaceClass} rounded-[var(--radius)]`;
 const eyebrowClass =
-  "font-mono text-[0.58rem] uppercase tracking-[0.14em] tabular-nums text-[var(--color-soft)] sm:text-[0.62rem]";
+  "font-mono text-[0.58rem] uppercase tracking-[0.11em] tabular-nums text-[var(--color-soft)] sm:text-[0.62rem]";
 const copyClass =
   "text-[0.88rem] leading-[1.78] text-[var(--color-muted)] sm:text-[0.92rem]";
 const smallCopyClass = "text-[0.78rem] leading-[1.65] text-[var(--color-muted)]";
 const chipClass =
-  "inline-flex items-center rounded-[0.45rem] border border-[var(--color-line)] bg-[rgba(255,255,255,0.035)] px-2.5 py-1.5 font-mono text-[0.64rem] uppercase tracking-[0.04em] text-[var(--color-text)] transition-all duration-200 hover:border-[var(--color-accent)] hover:bg-[var(--accent-dim)] hover:text-[var(--color-accent)]";
+  "inline-flex items-center rounded-full border border-[var(--color-line)] bg-[var(--surface)] px-3 py-1.5 font-mono text-[0.64rem] uppercase tracking-[0.04em] text-[var(--color-text)] transition-all duration-200 hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)]";
 const primaryButtonClass =
-  "inline-flex items-center justify-center rounded-[0.55rem] border border-[var(--accent-border)] bg-[linear-gradient(180deg,#76ffb6,var(--color-accent))] px-5 py-3 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-[#03150b] shadow-[var(--shadow-btn)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0";
+  "inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--color-accent),#16a34a)] px-5 py-3 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-[#05070a] shadow-[var(--shadow-btn)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0";
 const secondaryButtonClass =
-  "inline-flex items-center justify-center rounded-[0.55rem] border border-[var(--color-line-strong)] bg-[rgba(255,255,255,0.035)] px-5 py-3 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-[var(--color-text)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--color-accent)] hover:bg-[var(--accent-dim)] hover:text-[var(--color-accent)] active:translate-y-0";
-
-function TerminalChrome({ title, right }: { title: string; right?: React.ReactNode }) {
-  return (
-    <div className="terminal-titlebar flex items-center justify-between gap-4 border-b border-[var(--color-line)] px-4 py-3 font-mono text-[0.62rem] uppercase tracking-[0.08em] text-[var(--color-soft)]">
-      <div className="flex min-w-0 items-center gap-2.5">
-        <span className="size-3 rounded-full bg-[#ff5f57] shadow-[0_0_12px_rgba(255,95,87,0.3)]" />
-        <span className="size-3 rounded-full bg-[#ffbd2e] shadow-[0_0_12px_rgba(255,189,46,0.25)]" />
-        <span className="size-3 rounded-full bg-[#28c840] shadow-[0_0_12px_rgba(40,200,64,0.28)]" />
-        <span className="ml-2 truncate text-[var(--color-muted)]">{title}</span>
-      </div>
-      {right ? <div className="shrink-0">{right}</div> : null}
-    </div>
-  );
-}
+  "inline-flex items-center justify-center rounded-full border border-[var(--color-line-strong)] bg-[var(--surface)] px-5 py-3 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-[var(--color-text)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--color-accent)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)] active:translate-y-0";
 
 type SectionBlockProps = {
   id: string;
@@ -62,17 +48,12 @@ function SectionBlock({
     <section id={id} className="scroll-mt-28 py-8 sm:py-10">
       <MotionReveal className="rounded-[var(--radius-lg)]">
         <div className={`${panelClass} overflow-hidden`}>
-          <TerminalChrome
-            title={`~/portfolio/${id}`}
-            right={
-              <span className="rounded-[0.4rem] border border-[var(--accent-border)] bg-[var(--accent-dim)] px-2.5 py-1 text-[var(--color-accent)]">
+          <div className="border-b border-[var(--color-line)] bg-[rgba(255,255,255,0.025)] px-5 py-5 sm:px-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className={eyebrowClass}>{kicker}</p>
+              <span className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-dim)] px-3 py-1 font-mono text-[0.6rem] uppercase tabular-nums tracking-[0.08em] text-[var(--color-accent)]">
                 {String(index).padStart(2, "0")} / {String(total).padStart(2, "0")}
               </span>
-            }
-          />
-          <div className="terminal-body border-b border-[var(--color-line)] px-5 py-5 sm:px-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className={`${eyebrowClass} terminal-prompt`}>{kicker}</p>
             </div>
             <h2 className="mt-4 max-w-3xl text-balance [font-family:var(--font-display),sans-serif] text-[clamp(1.7rem,4vw,3.15rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-[var(--color-text)]">
               {title}
@@ -81,7 +62,7 @@ function SectionBlock({
               <p className={`${copyClass} mt-4 max-w-3xl text-pretty`}>{text}</p>
             ) : null}
           </div>
-          <div className="terminal-body p-5 sm:p-6">{children}</div>
+          <div className="p-5 sm:p-6">{children}</div>
         </div>
       </MotionReveal>
     </section>
@@ -149,26 +130,32 @@ export function PortfolioShell({
       className="relative min-h-screen overflow-x-clip text-[var(--color-text)]"
     >
       <div className="ambient" aria-hidden="true" />
-      <div className="terminal-scanline" aria-hidden="true" />
       <Navbar locale={locale} dictionary={dictionary} />
 
       <div className="px-4 py-4 sm:px-6 lg:py-6">
         <section id="top" className="scroll-mt-28">
           <MotionReveal className="rounded-[var(--radius-lg)]">
             <div className={`${panelClass} overflow-hidden`}>
-              <TerminalChrome
-                title={`panyakorn@portfolio:~/${locale}`}
-                right={<span className="hidden sm:inline">v{appVersion}</span>}
-              />
+              <div className="flex items-center justify-between gap-4 border-b border-[var(--color-line)] bg-[rgba(255,255,255,0.025)] px-4 py-3 font-mono text-[0.62rem] uppercase tracking-[0.08em] text-[var(--color-soft)]">
+                <div className="flex items-center gap-2.5">
+                  <span className="size-2.5 rounded-full bg-[#ff5f56]" />
+                  <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
+                  <span className="size-2.5 rounded-full bg-[#27c93f]" />
+                  <span className="ml-3">
+                    {ui.sessionLabel}/{locale}
+                  </span>
+                </div>
+                <span className="hidden sm:inline">v{appVersion}</span>
+              </div>
 
-              <div className="terminal-body grid gap-6 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_17rem]">
+              <div className="grid gap-6 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_17rem]">
                 <div className="min-w-0 space-y-5">
                   <div className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-dim)] px-3 py-1.5 font-mono text-[0.64rem] uppercase tracking-[0.08em] text-[var(--color-accent)]">
                     <span className="size-1.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_14px_var(--accent-glow)]" />
                     {hero.heroKicker}
                   </div>
-                  <h1 className="max-w-4xl text-balance [font-family:var(--font-display),sans-serif] text-[clamp(2.35rem,5.3vw,4.65rem)] font-semibold leading-[0.94] tracking-[-0.07em]">
-                    <span className="terminal-cursor bg-[linear-gradient(135deg,#fff_12%,#d8ffe8_46%,var(--color-accent)_100%)] bg-clip-text text-transparent drop-shadow-[0_0_28px_rgba(51,255,153,0.14)]">
+                  <h1 className="max-w-4xl text-balance [font-family:var(--font-display),sans-serif] text-[clamp(2.5rem,7vw,5.9rem)] font-semibold leading-[0.88] tracking-[-0.075em]">
+                    <span className="bg-[linear-gradient(135deg,#fff_18%,#d7ffe5_52%,var(--color-accent)_100%)] bg-clip-text text-transparent">
                       {hero.heroTitle}
                     </span>
                   </h1>
@@ -177,7 +164,7 @@ export function PortfolioShell({
                   >
                     {hero.heroText}
                   </p>
-                  <div className="grid gap-2 rounded-[var(--radius)] border border-[var(--color-line)] bg-[rgba(0,0,0,0.36)] p-4 shadow-[inset_0_0_28px_rgba(51,255,153,0.035)]">
+                  <div className="grid gap-2 rounded-[var(--radius)] border border-[var(--color-line)] bg-[rgba(0,0,0,0.18)] p-4">
                     <MiniTerminalLine
                       label={commands.whoami}
                       value="Panyakorn Boonyong"

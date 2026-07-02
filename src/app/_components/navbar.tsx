@@ -12,14 +12,14 @@ export default function Navbar({
   const alternateLocale: Locale = locale === "en" ? "th" : "en";
 
   return (
-    <div className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[rgba(9,9,9,0.78)] shadow-[0_10px_32px_rgba(0,0,0,0.42)] backdrop-blur-xl backdrop-saturate-125">
+    <div className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[rgba(2,2,3,0.66)] backdrop-blur-2xl backdrop-saturate-150">
       <nav className="relative mx-auto max-w-[92rem] px-4 py-3 sm:px-6">
         <div className="relative flex items-center justify-between gap-3 sm:gap-4">
           <a
             href={`/${locale}#top`}
             className="flex min-w-0 items-center gap-2.5 sm:gap-3"
           >
-            <span className="grid size-9 shrink-0 place-items-center rounded-[0.55rem] border border-[var(--accent-border)] bg-[linear-gradient(180deg,#76ffb6,var(--color-accent))] font-mono text-[0.68rem] font-black text-[#03150b] shadow-[0_0_22px_var(--accent-glow)] sm:size-10 sm:text-xs">
+            <span className="grid size-9 shrink-0 place-items-center rounded-[0.7rem] bg-[linear-gradient(135deg,var(--color-accent),#16a34a)] font-mono text-[0.68rem] font-black text-[#05070a] shadow-[0_0_22px_var(--accent-glow)] sm:size-10 sm:text-xs">
               PB
             </span>
             <div className="hidden min-w-0 sm:block">
