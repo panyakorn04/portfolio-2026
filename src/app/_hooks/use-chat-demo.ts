@@ -33,7 +33,14 @@ type PortfolioAssistantStreamEvent = {
   message?: string;
 };
 
+type StoredChatSession = {
+  messages: ChatMessage[];
+  threadId: string;
+  updatedAt: string;
+};
+
 const closeDurMs = 150;
+const chatSessionStorageKey = "panyakorn:portfolio-chat-session:v1";
 const apiBaseUrl = (
   process.env.NEXT_PUBLIC_API_URL ?? "https://api.panyakorn.com"
 ).replace(/\/+$/, "");
@@ -54,6 +61,8 @@ export function useChatDemo(copy: ChatCopy) {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
+  const [threadId, setThreadId] = useState(createChatSessionId);
+  const [hasLoadedStoredSession, setHasLoadedStoredSession] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatLogRef = useRef<HTMLDivElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -76,6 +85,30 @@ export function useChatDemo(copy: ChatCopy) {
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+
+  useEffect(() => {
+    const storedSession = readStoredChatSession();
+
+    if (storedSession) {
+      setMessages(storedSession.messages);
+      setThreadId(storedSession.threadId);
+      messagesRef.current = storedSession.messages;
+    }
+
+    setHasLoadedStoredSession(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasLoadedStoredSession) {
+      return;
+    }
+
+    writeStoredChatSession({
+      messages,
+      threadId,
+      updatedAt: new Date().toISOString(),
+    });
+  }, [hasLoadedStoredSession, messages, threadId]);
 
   const startClose = useCallback(() => {
     clearCloseTimer();
@@ -202,7 +235,7 @@ export function useChatDemo(copy: ChatCopy) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          threadId: "portfolio-widget",
+          threadId,
           runId: `run-${crypto.randomUUID()}`,
           messages: nextMessages
             .filter((message) => message.text.trim() !== "")
@@ -288,6 +321,90 @@ export function useChatDemo(copy: ChatCopy) {
     textareaRef,
     toggleChat,
   };
+}
+
+function createChatSessionId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return `portfolio-widget-${crypto.randomUUID()}`;
+  }
+
+  return `portfolio-widget-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function readStoredChatSession(): StoredChatSession | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const rawSession = window.localStorage.getItem(chatSessionStorageKey);
+
+    if (!rawSession) {
+      return null;
+    }
+
+    const parsedSession = JSON.parse(rawSession) as Partial<StoredChatSession>;
+
+    if (
+      typeof parsedSession.threadId !== "string" ||
+      parsedSession.threadId.trim() === "" ||
+      !Array.isArray(parsedSession.messages)
+    ) {
+      window.localStorage.removeItem(chatSessionStorageKey);
+      return null;
+    }
+
+    const messages = parsedSession.messages
+      .filter(isStoredChatMessage)
+      .map((message) => ({
+        id: message.id,
+        role: message.role,
+        text: message.text,
+      }));
+
+    if (messages.length === 0) {
+      window.localStorage.removeItem(chatSessionStorageKey);
+      return null;
+    }
+
+    return {
+      messages,
+      threadId: parsedSession.threadId,
+      updatedAt:
+        typeof parsedSession.updatedAt === "string"
+          ? parsedSession.updatedAt
+          : new Date().toISOString(),
+    };
+  } catch {
+    window.localStorage.removeItem(chatSessionStorageKey);
+    return null;
+  }
+}
+
+function writeStoredChatSession(session: StoredChatSession) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(chatSessionStorageKey, JSON.stringify(session));
+  } catch {
+    // Ignore storage failures so the chat still works in private or constrained browsers.
+  }
+}
+
+function isStoredChatMessage(message: unknown): message is ChatMessage {
+  if (!message || typeof message !== "object") {
+    return false;
+  }
+
+  const candidate = message as Partial<ChatMessage>;
+
+  return (
+    typeof candidate.id === "string" &&
+    (candidate.role === "assistant" || candidate.role === "user") &&
+    typeof candidate.text === "string"
+  );
 }
 
 async function readPortfolioAssistantStream(
