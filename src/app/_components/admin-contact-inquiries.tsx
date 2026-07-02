@@ -10,8 +10,14 @@ import {
 } from "react";
 
 import type { adminDirectoryCopy } from "../_data/admin";
+import {
+  bodyClass,
+  glassCompactPanelClass,
+  labelClass,
+  inputClass as sharedInputClass,
+} from "../_data/admin-styles";
 import type { Locale } from "../_data/portfolio";
-import { Button, buttonBase, buttonSizes, buttonVariants } from "./button";
+import { Button } from "./button";
 
 type AdminCopy = (typeof adminDirectoryCopy)[Locale];
 
@@ -642,18 +648,7 @@ export default function AdminContactInquiries({
     });
   }
 
-  const pageShellClass =
-    "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";
-  const panelClass =
-    "rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-5 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-6";
-  const titleClass =
-    '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance';
-  const bodyClass =
-    "text-[0.88rem] leading-[1.85] text-[var(--color-muted)] sm:text-[0.92rem]";
-  const labelClass =
-    "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
-  const inputClass =
-    "mt-2 w-full rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.82)] px-3.5 py-3 text-sm text-[var(--color-text)] outline-none transition-colors placeholder:text-[var(--color-soft)] focus:border-[var(--color-line-strong)]";
+  const fieldClass = `mt-2 ${sharedInputClass}`;
   const detailInquiry = selectedInquiryDetail ?? selectedInquiry;
 
   function formatActivityEvent(eventType: string) {
@@ -672,523 +667,495 @@ export default function AdminContactInquiries({
   }
 
   return (
-    <main lang={locale} className={pageShellClass}>
-      <div className="mx-auto max-w-7xl space-y-6">
-        <section className={panelClass}>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full border border-[var(--color-line-strong)] px-3 py-1 font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-accent)]">
-              /admin
-            </span>
-            <a
-              href={`/${locale}`}
-              className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.xs}`}
-            >
-              {copy.backToPortfolioLabel}
-            </a>
-            <Button variant="ghost" size="xs" onClick={signOut} disabled={isSigningOut}>
-              {isSigningOut ? copy.signingOutLabel : copy.signOutLabel}
-            </Button>
-          </div>
+    <div lang={locale}>
+      <div className="grid gap-6 xl:grid-cols-[22rem_minmax(0,1fr)]">
+        <div className="space-y-6">
+          <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
+            <p className={labelClass}>{copy.currentUserLabel}</p>
+            <div className="mt-3 space-y-2">
+              <p className="text-sm font-semibold text-[var(--color-text)]">
+                {currentUser?.email ?? "-"}
+              </p>
+              <p className={bodyClass}>
+                {copy.roleLabel}: {currentUser ? roleLabelByValue[currentUser.role] : "-"}
+              </p>
+              <p className={bodyClass}>
+                {canManageUsers
+                  ? copy.permissionsManageUsersLabel
+                  : canEditInquiries
+                    ? copy.permissionsWriteLabel
+                    : copy.permissionsReadOnlyLabel}
+              </p>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={signOut}
+                disabled={isSigningOut}
+                className="mt-3"
+              >
+                {isSigningOut ? copy.signingOutLabel : copy.signOutLabel}
+              </Button>
+            </div>
+          </section>
 
-          <div className="mt-6 max-w-4xl space-y-4 border-b border-[var(--color-line)] pb-6">
-            <p className={labelClass}>{copy.eyebrow}</p>
-            <h1 className={titleClass}>{copy.title}</h1>
-            <p className={`${bodyClass} max-w-3xl text-pretty`}>{copy.description}</p>
-          </div>
-
-          <div className="mt-6 grid gap-6 xl:grid-cols-[22rem_minmax(0,1fr)]">
-            <div className="space-y-6">
-              <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
-                <p className={labelClass}>{copy.currentUserLabel}</p>
-                <div className="mt-3 space-y-2">
-                  <p className="text-sm font-semibold text-[var(--color-text)]">
-                    {currentUser?.email ?? "-"}
-                  </p>
-                  <p className={bodyClass}>
-                    {copy.roleLabel}:{" "}
-                    {currentUser ? roleLabelByValue[currentUser.role] : "-"}
-                  </p>
-                  <p className={bodyClass}>
-                    {canManageUsers
-                      ? copy.permissionsManageUsersLabel
-                      : canEditInquiries
-                        ? copy.permissionsWriteLabel
-                        : copy.permissionsReadOnlyLabel}
-                  </p>
-                </div>
-              </section>
-
-              <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className={labelClass}>{copy.sessionsLabel}</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={logoutEverywhere}
-                    disabled={isRevokingEverywhere}
-                  >
-                    {isRevokingEverywhere
-                      ? copy.loggingOutEverywhereLabel
-                      : copy.logoutEverywhereLabel}
-                  </Button>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  {sessions.length === 0 ? (
-                    <p className={bodyClass}>
-                      {isLoadingSessions ? copy.loadingLabel : copy.sessionsEmptyLabel}
-                    </p>
-                  ) : (
-                    sessions.map((session) => (
-                      <div
-                        key={session.id}
-                        className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="font-mono text-[0.7rem] text-[var(--color-soft)]">
-                            {session.isCurrent ? copy.sessionsCurrentLabel : session.id}
-                          </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => revokeSession(session.id)}
-                            disabled={revokingSessionId === session.id}
-                          >
-                            {revokingSessionId === session.id
-                              ? copy.revokingSessionLabel
-                              : copy.revokeSessionLabel}
-                          </Button>
-                        </div>
-                        <p className={`${bodyClass} mt-2`}>
-                          Created: {new Date(session.createdAt).toLocaleString(locale)}
-                        </p>
-                        <p className={bodyClass}>
-                          Last seen: {new Date(session.lastSeenAt).toLocaleString(locale)}
-                        </p>
-                        <p className={bodyClass}>
-                          Expires: {new Date(session.expiresAt).toLocaleString(locale)}
-                        </p>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </section>
-
-              {canManageUsers ? (
-                <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className={labelClass}>{copy.usersLabel}</p>
-                    {isLoadingUsers ? (
-                      <span className="font-mono text-[0.7rem] text-[var(--color-soft)]">
-                        {copy.loadingLabel}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <div className="mt-4 space-y-3">
-                    {users.length === 0 ? (
-                      <p className={bodyClass}>{copy.usersEmptyLabel}</p>
-                    ) : (
-                      users.map((user) => (
-                        <div
-                          key={user.id}
-                          className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
-                        >
-                          <p className="text-sm font-semibold text-[var(--color-text)]">
-                            {user.email}
-                          </p>
-                          <p className={`${bodyClass} mt-1`}>{user.name ?? "-"}</p>
-                          <label
-                            htmlFor={`user-role-${user.id}`}
-                            className={`${labelClass} mt-3 block`}
-                          >
-                            {copy.roleLabel}
-                          </label>
-                          <select
-                            id={`user-role-${user.id}`}
-                            value={user.role}
-                            onChange={(event) =>
-                              saveUserRole(
-                                user.id,
-                                event.target.value as UserItem["role"],
-                              )
-                            }
-                            disabled={savingUserId === user.id}
-                            className={inputClass}
-                          >
-                            <option value="admin">{copy.roleAdminLabel}</option>
-                            <option value="editor">{copy.roleEditorLabel}</option>
-                            <option value="viewer">{copy.roleViewerLabel}</option>
-                          </select>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </section>
-              ) : null}
-
-              <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className={labelClass}>{copy.inquiriesLabel}</p>
-                  <span className="font-mono text-[0.7rem] text-[var(--color-soft)]">
-                    {totalResults} {copy.resultsLabel}
-                  </span>
-                </div>
-
-                <div className="mt-4 grid gap-4">
-                  <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
-                    <p className={labelClass}>{copy.listControlsLabel}</p>
-                    <div className="mt-3 grid gap-4">
-                      <div>
-                        <label htmlFor="admin-search" className={labelClass}>
-                          {copy.searchLabel}
-                        </label>
-                        <input
-                          id="admin-search"
-                          value={searchInput}
-                          onChange={(event) => {
-                            setSearchInput(event.target.value);
-                            setCurrentPage(1);
-                          }}
-                          placeholder={copy.searchPlaceholder}
-                          className={inputClass}
-                        />
-                      </div>
-
-                      <div>
-                        <label htmlFor="admin-status-filter" className={labelClass}>
-                          {copy.statusFilterLabel}
-                        </label>
-                        <select
-                          id="admin-status-filter"
-                          value={statusFilter}
-                          onChange={(event) => {
-                            setStatusFilter(
-                              event.target.value as InquiryItem["status"] | "all",
-                            );
-                            setCurrentPage(1);
-                          }}
-                          className={inputClass}
-                        >
-                          <option value="all">{copy.statusAllLabel}</option>
-                          <option value="new">{copy.statusNewLabel}</option>
-                          <option value="in_progress">
-                            {copy.statusInProgressLabel}
-                          </option>
-                          <option value="handled">{copy.statusHandledLabel}</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  {inquiries.length === 0 ? (
-                    <p className={bodyClass}>{copy.emptyLabel}</p>
-                  ) : (
-                    inquiries.map((item) => {
-                      const isActive = item.id === selectedInquiryId;
-
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedInquiryId(item.id);
-                            setSummary(null);
-                            setSelectedInquiryDetail(null);
-                          }}
-                          className={`w-full rounded-[1rem] border px-4 py-3 text-left transition-colors ${
-                            isActive
-                              ? "border-[var(--color-line-strong)] bg-[rgba(111,247,166,0.1)]"
-                              : "border-[var(--color-line)] bg-[rgba(6,12,9,0.7)]"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-[var(--color-text)]">
-                              {item.subject}
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <span className="rounded-full border border-[var(--color-line)] px-2 py-1 font-mono text-[0.58rem] uppercase text-[var(--color-soft)]">
-                                {statusLabelByValue[item.status]}
-                              </span>
-                              <span className="font-mono text-[0.64rem] uppercase text-[var(--color-soft)]">
-                                {item.locale}
-                              </span>
-                            </div>
-                          </div>
-                          <p className="mt-1 text-sm text-[var(--color-muted)]">
-                            {item.email}
-                          </p>
-                          <p className="mt-2 font-mono text-[0.64rem] uppercase text-[var(--color-soft)]">
-                            {new Date(item.createdAt).toLocaleString(locale)}
-                          </p>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-
-                <div className="mt-4 flex items-center justify-between gap-3 rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
-                  <p className="font-mono text-[0.7rem] text-[var(--color-soft)]">
-                    {copy.pageLabel} {currentPage} / {totalPages}
-                  </p>
-                  <div className="flex gap-3">
-                    <Button
-                      variant="ghost"
-                      size="md"
-                      onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                      disabled={currentPage <= 1 || isLoadingList}
-                    >
-                      {copy.previousPageLabel}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="md"
-                      onClick={() =>
-                        setCurrentPage((page) => Math.min(totalPages, page + 1))
-                      }
-                      disabled={currentPage >= totalPages || isLoadingList}
-                    >
-                      {copy.nextPageLabel}
-                    </Button>
-                  </div>
-                </div>
-              </section>
+          <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className={labelClass}>{copy.sessionsLabel}</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={logoutEverywhere}
+                disabled={isRevokingEverywhere}
+              >
+                {isRevokingEverywhere
+                  ? copy.loggingOutEverywhereLabel
+                  : copy.logoutEverywhereLabel}
+              </Button>
             </div>
 
-            <div className="space-y-6">
-              {statusMessage ? (
-                <section className={panelClass}>
-                  <p className="text-sm text-[var(--color-accent)]">{statusMessage}</p>
-                </section>
-              ) : null}
-
-              <section className={panelClass}>
-                <div className="flex items-center justify-between gap-3">
-                  <p className={labelClass}>{copy.detailsLabel}</p>
-                  {detailInquiry ? (
-                    <Button
-                      variant="primary"
-                      size="md"
-                      onClick={fetchSummary}
-                      disabled={isLoadingSummary}
-                    >
-                      {isLoadingSummary
-                        ? copy.generatingSummaryLabel
-                        : copy.generateSummaryLabel}
-                    </Button>
-                  ) : null}
-                </div>
-
-                {detailInquiry ? (
-                  <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_15rem]">
-                    <div className="space-y-4">
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        {[
-                          [copy.nameLabel, detailInquiry.name],
-                          [copy.emailLabel, detailInquiry.email],
-                          [copy.companyLabel, detailInquiry.company ?? "-"],
-                          [copy.subjectLabel, detailInquiry.subject],
-                          [copy.localeLabel, detailInquiry.locale],
-                          [copy.deliveryLabel, detailInquiry.deliveryMode],
-                          [copy.statusLabel, statusLabelByValue[detailInquiry.status]],
-                        ].map(([label, value]) => (
-                          <div
-                            key={`${label}-${value}`}
-                            className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
-                          >
-                            <p className={labelClass}>{label}</p>
-                            <p className="mt-2 text-sm text-[var(--color-text)]">
-                              {value}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
-                        <p className={labelClass}>{copy.messageLabel}</p>
-                        <p className={`${bodyClass} mt-3 whitespace-pre-wrap`}>
-                          {detailInquiry.message}
-                        </p>
-                      </div>
+            <div className="mt-4 space-y-3">
+              {sessions.length === 0 ? (
+                <p className={bodyClass}>
+                  {isLoadingSessions ? copy.loadingLabel : copy.sessionsEmptyLabel}
+                </p>
+              ) : (
+                sessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-mono text-[0.7rem] text-[var(--color-soft)]">
+                        {session.isCurrent ? copy.sessionsCurrentLabel : session.id}
+                      </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => revokeSession(session.id)}
+                        disabled={revokingSessionId === session.id}
+                      >
+                        {revokingSessionId === session.id
+                          ? copy.revokingSessionLabel
+                          : copy.revokeSessionLabel}
+                      </Button>
                     </div>
-
-                    <div className="space-y-4">
-                      <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
-                        <p className={labelClass}>{copy.createdAtLabel}</p>
-                        <p className="mt-2 text-sm text-[var(--color-text)]">
-                          {new Date(detailInquiry.createdAt).toLocaleString(locale)}
-                        </p>
-                      </div>
-
-                      <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
-                        <p className={labelClass}>{copy.handledAtLabel}</p>
-                        <p className="mt-2 text-sm text-[var(--color-text)]">
-                          {detailInquiry.handledAt
-                            ? new Date(detailInquiry.handledAt).toLocaleString(locale)
-                            : "-"}
-                        </p>
-                      </div>
-                    </div>
+                    <p className={`${bodyClass} mt-2`}>
+                      Created: {new Date(session.createdAt).toLocaleString(locale)}
+                    </p>
+                    <p className={bodyClass}>
+                      Last seen: {new Date(session.lastSeenAt).toLocaleString(locale)}
+                    </p>
+                    <p className={bodyClass}>
+                      Expires: {new Date(session.expiresAt).toLocaleString(locale)}
+                    </p>
                   </div>
+                ))
+              )}
+            </div>
+          </section>
+
+          {canManageUsers ? (
+            <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className={labelClass}>{copy.usersLabel}</p>
+                {isLoadingUsers ? (
+                  <span className="font-mono text-[0.7rem] text-[var(--color-soft)]">
+                    {copy.loadingLabel}
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="mt-4 space-y-3">
+                {users.length === 0 ? (
+                  <p className={bodyClass}>{copy.usersEmptyLabel}</p>
                 ) : (
-                  <p className={`${bodyClass} mt-4`}>{copy.emptyLabel}</p>
-                )}
-              </section>
-
-              <section className={panelClass}>
-                <div className="flex items-center justify-between gap-3">
-                  <p className={labelClass}>{copy.workflowLabel}</p>
-                  {detailInquiry && canEditInquiries ? (
-                    <Button
-                      variant="primary"
-                      size="md"
-                      onClick={saveInquiryChanges}
-                      disabled={isSavingChanges}
+                  users.map((user) => (
+                    <div
+                      key={user.id}
+                      className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
                     >
-                      {isSavingChanges ? copy.savingChangesLabel : copy.saveChangesLabel}
-                    </Button>
-                  ) : null}
-                </div>
-
-                {detailInquiry ? (
-                  <div className="mt-4 grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
-                    <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
-                      <label htmlFor="inquiry-status" className={labelClass}>
-                        {copy.statusLabel}
+                      <p className="text-sm font-semibold text-[var(--color-text)]">
+                        {user.email}
+                      </p>
+                      <p className={`${bodyClass} mt-1`}>{user.name ?? "-"}</p>
+                      <label
+                        htmlFor={`user-role-${user.id}`}
+                        className={`${labelClass} mt-3 block`}
+                      >
+                        {copy.roleLabel}
                       </label>
                       <select
-                        id="inquiry-status"
-                        value={draftStatus}
+                        id={`user-role-${user.id}`}
+                        value={user.role}
                         onChange={(event) =>
-                          setDraftStatus(event.target.value as InquiryItem["status"])
+                          saveUserRole(user.id, event.target.value as UserItem["role"])
                         }
-                        disabled={!canEditInquiries}
-                        className={inputClass}
+                        disabled={savingUserId === user.id}
+                        className={fieldClass}
                       >
-                        <option value="new">{copy.statusNewLabel}</option>
-                        <option value="in_progress">{copy.statusInProgressLabel}</option>
-                        <option value="handled">{copy.statusHandledLabel}</option>
+                        <option value="admin">{copy.roleAdminLabel}</option>
+                        <option value="editor">{copy.roleEditorLabel}</option>
+                        <option value="viewer">{copy.roleViewerLabel}</option>
                       </select>
                     </div>
-
-                    <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
-                      <label htmlFor="inquiry-note" className={labelClass}>
-                        {copy.internalNoteLabel}
-                      </label>
-                      <textarea
-                        id="inquiry-note"
-                        value={draftInternalNote}
-                        onChange={(event) => setDraftInternalNote(event.target.value)}
-                        placeholder={copy.internalNotePlaceholder}
-                        rows={7}
-                        disabled={!canEditInquiries}
-                        className={`${inputClass} min-h-32 resize-y`}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <p className={`${bodyClass} mt-4`}>{copy.emptyLabel}</p>
+                  ))
                 )}
-                {!canEditInquiries ? (
-                  <p className={`${bodyClass} mt-4`}>{copy.permissionsReadOnlyLabel}</p>
-                ) : null}
-              </section>
+              </div>
+            </section>
+          ) : null}
 
-              <section className={panelClass}>
-                <div className="flex items-center justify-between gap-3">
-                  <p className={labelClass}>{copy.historyLabel}</p>
-                  {isLoadingDetail ? (
-                    <span className="font-mono text-[0.7rem] text-[var(--color-soft)]">
-                      {copy.loadingLabel}
-                    </span>
-                  ) : null}
+          <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className={labelClass}>{copy.inquiriesLabel}</p>
+              <span className="font-mono text-[0.7rem] text-[var(--color-soft)]">
+                {totalResults} {copy.resultsLabel}
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-4">
+              <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                <p className={labelClass}>{copy.listControlsLabel}</p>
+                <div className="mt-3 grid gap-4">
+                  <div>
+                    <label htmlFor="admin-search" className={labelClass}>
+                      {copy.searchLabel}
+                    </label>
+                    <input
+                      id="admin-search"
+                      value={searchInput}
+                      onChange={(event) => {
+                        setSearchInput(event.target.value);
+                        setCurrentPage(1);
+                      }}
+                      placeholder={copy.searchPlaceholder}
+                      className={fieldClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="admin-status-filter" className={labelClass}>
+                      {copy.statusFilterLabel}
+                    </label>
+                    <select
+                      id="admin-status-filter"
+                      value={statusFilter}
+                      onChange={(event) => {
+                        setStatusFilter(
+                          event.target.value as InquiryItem["status"] | "all",
+                        );
+                        setCurrentPage(1);
+                      }}
+                      className={fieldClass}
+                    >
+                      <option value="all">{copy.statusAllLabel}</option>
+                      <option value="new">{copy.statusNewLabel}</option>
+                      <option value="in_progress">{copy.statusInProgressLabel}</option>
+                      <option value="handled">{copy.statusHandledLabel}</option>
+                    </select>
+                  </div>
                 </div>
+              </div>
+            </div>
 
-                {selectedInquiryDetail?.activities.length ? (
-                  <div className="mt-4 space-y-4">
-                    {selectedInquiryDetail.activities.map((activity) => (
-                      <div
-                        key={activity.id}
-                        className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-[var(--color-text)]">
-                            {formatActivityEvent(activity.eventType)}
-                          </p>
+            <div className="mt-4 space-y-3">
+              {inquiries.length === 0 ? (
+                <p className={bodyClass}>{copy.emptyLabel}</p>
+              ) : (
+                inquiries.map((item) => {
+                  const isActive = item.id === selectedInquiryId;
+
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedInquiryId(item.id);
+                        setSummary(null);
+                        setSelectedInquiryDetail(null);
+                      }}
+                      className={`w-full rounded-[1rem] border px-4 py-3 text-left transition-colors ${
+                        isActive
+                          ? "border-[var(--color-line-strong)] bg-[rgba(111,247,166,0.1)]"
+                          : "border-[var(--color-line)] bg-[rgba(6,12,9,0.7)]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-[var(--color-text)]">
+                          {item.subject}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-full border border-[var(--color-line)] px-2 py-1 font-mono text-[0.58rem] uppercase text-[var(--color-soft)]">
+                            {statusLabelByValue[item.status]}
+                          </span>
                           <span className="font-mono text-[0.64rem] uppercase text-[var(--color-soft)]">
-                            {new Date(activity.createdAt).toLocaleString(locale)}
+                            {item.locale}
                           </span>
                         </div>
+                      </div>
+                      <p className="mt-1 text-sm text-[var(--color-muted)]">
+                        {item.email}
+                      </p>
+                      <p className="mt-2 font-mono text-[0.64rem] uppercase text-[var(--color-soft)]">
+                        {new Date(item.createdAt).toLocaleString(locale)}
+                      </p>
+                    </button>
+                  );
+                })
+              )}
+            </div>
 
-                        <p className={`${bodyClass} mt-2`}>
-                          {copy.historyByLabel}: {activity.actorLabel}
-                        </p>
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+              <p className="font-mono text-[0.7rem] text-[var(--color-soft)]">
+                {copy.pageLabel} {currentPage} / {totalPages}
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  size="md"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={currentPage <= 1 || isLoadingList}
+                >
+                  {copy.previousPageLabel}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  disabled={currentPage >= totalPages || isLoadingList}
+                >
+                  {copy.nextPageLabel}
+                </Button>
+              </div>
+            </div>
+          </section>
+        </div>
 
-                        {activity.statusFrom || activity.statusTo ? (
-                          <p className={`${bodyClass} mt-2`}>
-                            {copy.historyFromLabel}:{" "}
-                            {activity.statusFrom
-                              ? statusLabelByValue[
-                                  activity.statusFrom as InquiryItem["status"]
-                                ]
-                              : "-"}{" "}
-                            {copy.historyToLabel}:{" "}
-                            {activity.statusTo
-                              ? statusLabelByValue[
-                                  activity.statusTo as InquiryItem["status"]
-                                ]
-                              : "-"}
-                          </p>
-                        ) : null}
+        <div className="space-y-6">
+          {statusMessage ? (
+            <section className={`${glassCompactPanelClass} p-5 sm:p-6`}>
+              <p className="text-sm text-[var(--color-accent)]">{statusMessage}</p>
+            </section>
+          ) : null}
 
-                        {activity.internalNoteFrom !== null ||
-                        activity.internalNoteTo !== null ? (
-                          <div className="mt-3 space-y-2">
-                            <p className={labelClass}>{copy.historyNoteBeforeLabel}</p>
-                            <p className={`${bodyClass} whitespace-pre-wrap`}>
-                              {activity.internalNoteFrom || "-"}
-                            </p>
-                            <p className={labelClass}>{copy.historyNoteAfterLabel}</p>
-                            <p className={`${bodyClass} whitespace-pre-wrap`}>
-                              {activity.internalNoteTo || "-"}
-                            </p>
-                          </div>
-                        ) : null}
+          <section className={`${glassCompactPanelClass} p-5 sm:p-6`}>
+            <div className="flex items-center justify-between gap-3">
+              <p className={labelClass}>{copy.detailsLabel}</p>
+              {detailInquiry ? (
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={fetchSummary}
+                  disabled={isLoadingSummary}
+                >
+                  {isLoadingSummary
+                    ? copy.generatingSummaryLabel
+                    : copy.generateSummaryLabel}
+                </Button>
+              ) : null}
+            </div>
+
+            {detailInquiry ? (
+              <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_15rem]">
+                <div className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {[
+                      [copy.nameLabel, detailInquiry.name],
+                      [copy.emailLabel, detailInquiry.email],
+                      [copy.companyLabel, detailInquiry.company ?? "-"],
+                      [copy.subjectLabel, detailInquiry.subject],
+                      [copy.localeLabel, detailInquiry.locale],
+                      [copy.deliveryLabel, detailInquiry.deliveryMode],
+                      [copy.statusLabel, statusLabelByValue[detailInquiry.status]],
+                    ].map(([label, value]) => (
+                      <div
+                        key={`${label}-${value}`}
+                        className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
+                      >
+                        <p className={labelClass}>{label}</p>
+                        <p className="mt-2 text-sm text-[var(--color-text)]">{value}</p>
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <p className={`${bodyClass} mt-4`}>{copy.historyEmptyLabel}</p>
-                )}
-              </section>
 
-              <section className={panelClass}>
-                <p className={labelClass}>{copy.summaryLabel}</p>
-                {summary ? (
-                  <div className="mt-4 space-y-4">
-                    <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
-                      <p className={labelClass}>{copy.summaryResultLabel}</p>
-                      <p className={`${bodyClass} mt-3 whitespace-pre-wrap`}>
-                        {summary.summary}
-                      </p>
-                    </div>
-                    <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
-                      <p className={labelClass}>{copy.summaryPromptLabel}</p>
-                      <pre className="mt-3 overflow-x-auto whitespace-pre-wrap font-mono text-[0.72rem] leading-6 text-[var(--color-soft)]">
-                        {summary.prompt}
-                      </pre>
-                    </div>
+                  <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                    <p className={labelClass}>{copy.messageLabel}</p>
+                    <p className={`${bodyClass} mt-3 whitespace-pre-wrap`}>
+                      {detailInquiry.message}
+                    </p>
                   </div>
-                ) : (
-                  <p className={`${bodyClass} mt-4`}>{copy.summaryEmptyLabel}</p>
-                )}
-              </section>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                    <p className={labelClass}>{copy.createdAtLabel}</p>
+                    <p className="mt-2 text-sm text-[var(--color-text)]">
+                      {new Date(detailInquiry.createdAt).toLocaleString(locale)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                    <p className={labelClass}>{copy.handledAtLabel}</p>
+                    <p className="mt-2 text-sm text-[var(--color-text)]">
+                      {detailInquiry.handledAt
+                        ? new Date(detailInquiry.handledAt).toLocaleString(locale)
+                        : "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className={`${bodyClass} mt-4`}>{copy.emptyLabel}</p>
+            )}
+          </section>
+
+          <section className={`${glassCompactPanelClass} p-5 sm:p-6`}>
+            <div className="flex items-center justify-between gap-3">
+              <p className={labelClass}>{copy.workflowLabel}</p>
+              {detailInquiry && canEditInquiries ? (
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={saveInquiryChanges}
+                  disabled={isSavingChanges}
+                >
+                  {isSavingChanges ? copy.savingChangesLabel : copy.saveChangesLabel}
+                </Button>
+              ) : null}
             </div>
-          </div>
-        </section>
+
+            {detailInquiry ? (
+              <div className="mt-4 grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
+                <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                  <label htmlFor="inquiry-status" className={labelClass}>
+                    {copy.statusLabel}
+                  </label>
+                  <select
+                    id="inquiry-status"
+                    value={draftStatus}
+                    onChange={(event) =>
+                      setDraftStatus(event.target.value as InquiryItem["status"])
+                    }
+                    disabled={!canEditInquiries}
+                    className={fieldClass}
+                  >
+                    <option value="new">{copy.statusNewLabel}</option>
+                    <option value="in_progress">{copy.statusInProgressLabel}</option>
+                    <option value="handled">{copy.statusHandledLabel}</option>
+                  </select>
+                </div>
+
+                <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                  <label htmlFor="inquiry-note" className={labelClass}>
+                    {copy.internalNoteLabel}
+                  </label>
+                  <textarea
+                    id="inquiry-note"
+                    value={draftInternalNote}
+                    onChange={(event) => setDraftInternalNote(event.target.value)}
+                    placeholder={copy.internalNotePlaceholder}
+                    rows={7}
+                    disabled={!canEditInquiries}
+                    className={`${fieldClass} min-h-32 resize-y`}
+                  />
+                </div>
+              </div>
+            ) : (
+              <p className={`${bodyClass} mt-4`}>{copy.emptyLabel}</p>
+            )}
+            {!canEditInquiries ? (
+              <p className={`${bodyClass} mt-4`}>{copy.permissionsReadOnlyLabel}</p>
+            ) : null}
+          </section>
+
+          <section className={`${glassCompactPanelClass} p-5 sm:p-6`}>
+            <div className="flex items-center justify-between gap-3">
+              <p className={labelClass}>{copy.historyLabel}</p>
+              {isLoadingDetail ? (
+                <span className="font-mono text-[0.7rem] text-[var(--color-soft)]">
+                  {copy.loadingLabel}
+                </span>
+              ) : null}
+            </div>
+
+            {selectedInquiryDetail?.activities.length ? (
+              <div className="mt-4 space-y-4">
+                {selectedInquiryDetail.activities.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-[var(--color-text)]">
+                        {formatActivityEvent(activity.eventType)}
+                      </p>
+                      <span className="font-mono text-[0.64rem] uppercase text-[var(--color-soft)]">
+                        {new Date(activity.createdAt).toLocaleString(locale)}
+                      </span>
+                    </div>
+
+                    <p className={`${bodyClass} mt-2`}>
+                      {copy.historyByLabel}: {activity.actorLabel}
+                    </p>
+
+                    {activity.statusFrom || activity.statusTo ? (
+                      <p className={`${bodyClass} mt-2`}>
+                        {copy.historyFromLabel}:{" "}
+                        {activity.statusFrom
+                          ? statusLabelByValue[
+                              activity.statusFrom as InquiryItem["status"]
+                            ]
+                          : "-"}{" "}
+                        {copy.historyToLabel}:{" "}
+                        {activity.statusTo
+                          ? statusLabelByValue[activity.statusTo as InquiryItem["status"]]
+                          : "-"}
+                      </p>
+                    ) : null}
+
+                    {activity.internalNoteFrom !== null ||
+                    activity.internalNoteTo !== null ? (
+                      <div className="mt-3 space-y-2">
+                        <p className={labelClass}>{copy.historyNoteBeforeLabel}</p>
+                        <p className={`${bodyClass} whitespace-pre-wrap`}>
+                          {activity.internalNoteFrom || "-"}
+                        </p>
+                        <p className={labelClass}>{copy.historyNoteAfterLabel}</p>
+                        <p className={`${bodyClass} whitespace-pre-wrap`}>
+                          {activity.internalNoteTo || "-"}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className={`${bodyClass} mt-4`}>{copy.historyEmptyLabel}</p>
+            )}
+          </section>
+
+          <section className={`${glassCompactPanelClass} p-5 sm:p-6`}>
+            <p className={labelClass}>{copy.summaryLabel}</p>
+            {summary ? (
+              <div className="mt-4 space-y-4">
+                <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                  <p className={labelClass}>{copy.summaryResultLabel}</p>
+                  <p className={`${bodyClass} mt-3 whitespace-pre-wrap`}>
+                    {summary.summary}
+                  </p>
+                </div>
+                <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                  <p className={labelClass}>{copy.summaryPromptLabel}</p>
+                  <pre className="mt-3 overflow-x-auto whitespace-pre-wrap font-mono text-[0.72rem] leading-6 text-[var(--color-soft)]">
+                    {summary.prompt}
+                  </pre>
+                </div>
+              </div>
+            ) : (
+              <p className={`${bodyClass} mt-4`}>{copy.summaryEmptyLabel}</p>
+            )}
+          </section>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

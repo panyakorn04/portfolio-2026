@@ -3,10 +3,21 @@
 import { useState, useTransition } from "react";
 
 import type { adminDirectoryCopy } from "../_data/admin";
+import {
+  bodyClass,
+  eyeClass,
+  glassPanelClass,
+  inputClass,
+  labelClass,
+} from "../_data/admin-styles";
 import type { Locale } from "../_data/portfolio";
 import { Button, buttonBase, buttonSizes, buttonVariants } from "./button";
 
 type AdminCopy = (typeof adminDirectoryCopy)[Locale];
+
+const titleClass =
+  '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance';
+const localInputClass = `mt-2 ${inputClass}`;
 
 export default function AdminLogin({
   locale,
@@ -19,19 +30,6 @@ export default function AdminLogin({
   const [passwordInput, setPasswordInput] = useState("");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isSigningIn, startSigningIn] = useTransition();
-
-  const pageShellClass =
-    "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";
-  const panelClass =
-    "rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-5 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-6";
-  const titleClass =
-    '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance';
-  const bodyClass =
-    "text-[0.88rem] leading-[1.85] text-[var(--color-muted)] sm:text-[0.92rem]";
-  const labelClass =
-    "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
-  const inputClass =
-    "mt-2 w-full rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.82)] px-3.5 py-3 text-sm text-[var(--color-text)] outline-none transition-colors placeholder:text-[var(--color-soft)] focus:border-[var(--color-line-strong)]";
 
   function signIn() {
     const email = emailInput.trim().toLowerCase();
@@ -88,11 +86,15 @@ export default function AdminLogin({
   }
 
   return (
-    <main lang={locale} className={pageShellClass}>
-      <div className="mx-auto max-w-4xl">
-        <section className={panelClass}>
+    <main
+      lang={locale}
+      className="relative min-h-screen overflow-x-clip bg-[var(--color-bg)] text-[var(--color-text)]"
+    >
+      <div className="ambient" aria-hidden="true" />
+      <div className="relative z-10 mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-10">
+        <section className={glassPanelClass}>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full border border-[var(--color-line-strong)] px-3 py-1 font-mono text-[0.66rem] uppercase tabular-nums text-[var(--color-accent)]">
+            <span className="rounded-full border border-[var(--color-line-strong)] bg-[var(--accent-dim)] px-3 py-1 font-mono text-[0.66rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-accent)]">
               /admin/login
             </span>
             <a
@@ -104,7 +106,7 @@ export default function AdminLogin({
           </div>
 
           <div className="mt-6 max-w-3xl space-y-4 border-b border-[var(--color-line)] pb-6">
-            <p className={labelClass}>{copy.authPanelLabel}</p>
+            <p className={eyeClass}>{copy.authPanelLabel}</p>
             <h1 className={titleClass}>{copy.authTitle}</h1>
             <p className={`${bodyClass} text-pretty`}>{copy.authDescription}</p>
           </div>
@@ -119,7 +121,7 @@ export default function AdminLogin({
               value={emailInput}
               onChange={(event) => setEmailInput(event.target.value)}
               placeholder={copy.emailLoginPlaceholder}
-              className={inputClass}
+              className={localInputClass}
             />
 
             <label htmlFor="admin-password" className={labelClass}>
@@ -136,7 +138,7 @@ export default function AdminLogin({
                 }
               }}
               placeholder={copy.passwordPlaceholder}
-              className={inputClass}
+              className={localInputClass}
             />
 
             <div className="mt-4 flex flex-wrap gap-3">

@@ -3,6 +3,11 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 
 import type { AdminArticlesCopy } from "../_data/admin-articles";
+import {
+  glassCompactPanelClass,
+  labelClass,
+  inputClass as sharedInputClass,
+} from "../_data/admin-styles";
 import type { Locale } from "../_data/portfolio";
 import { Button, buttonBase, buttonSizes, buttonVariants } from "./button";
 
@@ -54,12 +59,8 @@ type DraftArticle = {
   translations: Record<"en" | "th", DraftTranslation>;
 };
 
-const panelClass =
-  "rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-5 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-6";
-const labelClass =
-  "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
-const inputClass =
-  "w-full rounded-[0.85rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.7)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition-colors duration-150 focus:border-[var(--color-line-strong)]";
+const panelClass = `${glassCompactPanelClass} p-5 sm:p-6`;
+const inputClass = sharedInputClass;
 
 function emptyTranslation(): DraftTranslation {
   return {
