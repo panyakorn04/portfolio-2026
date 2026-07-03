@@ -205,6 +205,14 @@ export function useChatDemo(copy: ChatCopy) {
       return;
     }
 
+    const hasUserText = messages.some(
+      (m) => m.role === "user" && !m.id.startsWith("starter-"),
+    );
+
+    if (!hasUserText) {
+      return;
+    }
+
     persistChatSession({
       copy,
       messages,
@@ -420,41 +428,9 @@ export function useChatDemo(copy: ChatCopy) {
       return;
     }
 
-    const fallbackThreadId = createChatSessionId();
-    const starterMessages = createStarterMessages(copy);
-
-    try {
-      const payload = await createPortfolioChatSession(currentLocale());
-      if (payload) {
-        setSessionId(payload.session.id);
-        setThreadId(payload.session.threadId);
-        replaceMessages(starterMessages);
-        persistChatSession({
-          copy,
-          messages: starterMessages,
-          sessionId: payload.session.id,
-          threadId: payload.session.threadId,
-          title: payload.session.title ?? copy.newChatLabel,
-          updatedAt: payload.session.updatedAt,
-        });
-        setRecentSessions(readStoredRecentSessions());
-        return;
-      }
-    } catch {
-      // Fall back to a browser-only session if the backend session API is unavailable.
-    }
-
     setSessionId(null);
-    setThreadId(fallbackThreadId);
-    replaceMessages(starterMessages);
-    persistChatSession({
-      copy,
-      messages: starterMessages,
-      sessionId: null,
-      threadId: fallbackThreadId,
-      title: copy.newChatLabel,
-    });
-    setRecentSessions(readStoredRecentSessions());
+    setThreadId(createChatSessionId());
+    replaceMessages(createStarterMessages(copy));
   }
 
   function handleSelectRecentChat(recentId: string) {
@@ -830,15 +806,28 @@ function upsertStoredRecentSession(session: StoredChatSession) {
   }
 
   const recents = readStoredRecentSessions();
-  const nextRecents = [
-    {
-      id: session.id,
-      title: session.title,
-      preview: session.preview,
-      updatedAt: session.updatedAt,
-    },
-    ...recents.filter((recent) => recent.id !== session.id),
-  ].slice(0, maxRecentSessions);
+  const sessionIndex = recents.findIndex((recent) => recent.id === session.id);
+  const nextRecents =
+    sessionIndex !== -1
+      ? recents.map((recent, index) =>
+          index === sessionIndex
+            ? {
+                id: session.id,
+                title: session.title,
+                preview: session.preview,
+                updatedAt: session.updatedAt,
+              }
+            : recent,
+        )
+      : [
+          {
+            id: session.id,
+            title: session.title,
+            preview: session.preview,
+            updatedAt: session.updatedAt,
+          },
+          ...recents,
+        ].slice(0, maxRecentSessions);
 
   window.localStorage.setItem(chatRecentsStorageKey, JSON.stringify(nextRecents));
 }

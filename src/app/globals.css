@@ -365,6 +365,10 @@ select:focus-visible,
     border-radius: 4px;
 }
 
+#chat-draft:focus-visible {
+    outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto;
