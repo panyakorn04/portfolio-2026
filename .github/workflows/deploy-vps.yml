@@ -37,7 +37,7 @@ jobs:
       - name: Build Next.js app
         env:
           NEXT_PUBLIC_SITE_URL: https://panyakorn.com
-          NEXT_PUBLIC_API_URL: https://api.panyakorn.com
+          NEXT_PUBLIC_API_URL: ""
           BUILD_API_BASE_URL: https://api.panyakorn.com
           FRONTEND_API_BASE_URL: http://backend:8888
           PORTFOLIO_API_TIMEOUT_MS: 3000
@@ -54,7 +54,7 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}
           build-args: |
             NEXT_PUBLIC_SITE_URL=https://panyakorn.com
-            NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+            NEXT_PUBLIC_API_URL=
             BUILD_API_BASE_URL=https://api.panyakorn.com
             FRONTEND_API_BASE_URL=http://backend:8888
             PORTFOLIO_API_TIMEOUT_MS=3000

@@ -14,6 +14,7 @@ Modern bilingual portfolio for Panyakorn Boonyong, built with Next.js, TypeScrip
 
 ```bash
 bun install
+cp .env.example .env.local
 bun run dev
 ```
 
@@ -23,20 +24,25 @@ Open:
 http://localhost:3000
 ```
 
-Environment variables:
-
-```bash
-cp .env.example .env.local
-```
+Local browser API calls should stay same-origin so cookies/SSE work without CORS issues:
 
 ```text
-NEXT_PUBLIC_SITE_URL=https://panyakorn.com
-NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=
 BUILD_API_BASE_URL=https://api.panyakorn.com
 FRONTEND_API_BASE_URL=https://api.panyakorn.com
+PORTFOLIO_API_TIMEOUT_MS=3000
 ```
 
-For production on the VPS, `FRONTEND_API_BASE_URL` is set to `http://backend:8888` so server-rendered pages call the backend over the Docker network.
+With `NEXT_PUBLIC_API_URL` empty, browser calls use `/api/*`; `next.config.ts` rewrites those requests to `FRONTEND_API_BASE_URL`. This makes the chat stream and contact form work locally through the Next dev server instead of calling `https://api.panyakorn.com` cross-origin.
+
+You can also start a fresh live-API dev server without editing env files:
+
+```bash
+bun run dev:live-api
+```
+
+For production on the VPS, `FRONTEND_API_BASE_URL` is set to `http://backend:8888` so server-rendered pages and `/api/*` rewrites call the backend over the Docker network.
 
 `BUILD_API_BASE_URL` is used only while prerendering article pages during `next build`, so CI and Docker image builds can use the public API even when runtime server-side calls use the internal Docker hostname.
 
@@ -70,7 +76,7 @@ Example contact payload:
 }
 ```
 
-`POST /api/contact` is handled by the backend API. The frontend form posts to `NEXT_PUBLIC_API_URL`, and the backend is responsible for validation, database persistence, and optional webhook delivery.
+`POST /api/contact` is handled by the backend API. The frontend form posts to same-origin `/api/contact`, and the frontend server or Caddy forwards that request to the backend for validation, database persistence, and optional webhook delivery.
 
 All backend/API implementation files live in `panyakorn04/portfolio-backend-2026`; this repo contains only the frontend and the API client used by server-rendered pages.
 
@@ -79,7 +85,7 @@ All backend/API implementation files live in `panyakorn04/portfolio-backend-2026
 The floating portfolio chat now calls the backend assistant endpoint instead of using only local mock replies:
 
 ```text
-Browser → NEXT_PUBLIC_API_URL/api/portfolio/assistant/chat/stream → backend → portfolio-site skill profile → Ollama
+Browser → /api/portfolio/assistant/chat/stream → Next rewrite/Caddy → backend → portfolio-site skill profile → Ollama
 ```
 
 The backend injects only the public-safe `portfolio-site` skills from `panyakorn04/custom-ai-skills`, so this assistant should answer visitor questions about Panyakorn's profile, services, stack, contact, and collaboration while avoiding private VPS/admin/deployment details. The UI streams live tokens from the backend; if the stream fails it shows an error message rather than a local canned answer.
@@ -99,7 +105,8 @@ Runtime flow:
 
 ```text
 Visitor submits form
-→ Browser posts to NEXT_PUBLIC_API_URL/api/contact
+→ Browser posts to /api/contact
+→ Next rewrite/Caddy forwards to Go backend
 → Go backend validates request
 → Go backend saves inquiry to PostgreSQL
 → Optional backend webhook forwards the same payload
@@ -159,7 +166,7 @@ The VPS frontend service should receive only frontend env vars:
 
 ```text
 NEXT_PUBLIC_SITE_URL=https://panyakorn.com
-NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+NEXT_PUBLIC_API_URL=
 FRONTEND_API_BASE_URL=http://backend:8888
 ```
 
@@ -196,7 +203,7 @@ Required production env vars:
 
 ```text
 NEXT_PUBLIC_SITE_URL=https://panyakorn.com
-NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+NEXT_PUBLIC_API_URL=
 BUILD_API_BASE_URL=https://api.panyakorn.com
 FRONTEND_API_BASE_URL=https://api.panyakorn.com
 ```

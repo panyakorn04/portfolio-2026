@@ -50,9 +50,7 @@ type ApiSuccessResponse = {
   };
 };
 
-const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_API_URL ?? "https://api.panyakorn.com"
-).replace(/\/+$/, "");
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
 
 export default function ContactForm({ locale, copy }: ContactFormProps) {
   const [form, setForm] = useState<FormState>(initialFormState);

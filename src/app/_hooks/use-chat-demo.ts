@@ -79,18 +79,9 @@ const legacyChatSessionStorageKey = "panyakorn:portfolio-chat-session:v1";
 const chatRecentsStorageKey = "panyakorn:portfolio-chat-recents:v1";
 const chatSessionStoragePrefix = "panyakorn:portfolio-chat-session:v2:";
 const maxRecentSessions = 6;
-const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_API_URL ?? "https://api.panyakorn.com"
-).replace(/\/+$/, "");
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
 
 function apiUrl(path: string) {
-  if (
-    typeof window !== "undefined" &&
-    window.location.hostname.endsWith("panyakorn.com")
-  ) {
-    return path;
-  }
-
   return `${apiBaseUrl}${path}`;
 }
 

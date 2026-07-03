@@ -9,7 +9,7 @@ RUN bun install --frozen-lockfile
 
 FROM base AS builder
 ARG NEXT_PUBLIC_SITE_URL=https://panyakorn.com
-ARG NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+ARG NEXT_PUBLIC_API_URL=
 ARG BUILD_API_BASE_URL=https://api.panyakorn.com
 ARG FRONTEND_API_BASE_URL=http://backend:8888
 ARG PORTFOLIO_API_TIMEOUT_MS=3000
@@ -30,7 +30,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 ENV NEXT_PUBLIC_SITE_URL=https://panyakorn.com
-ENV NEXT_PUBLIC_API_URL=https://api.panyakorn.com
+ENV NEXT_PUBLIC_API_URL=
 ENV FRONTEND_API_BASE_URL=http://backend:8888
 ENV PORTFOLIO_API_TIMEOUT_MS=3000
 
