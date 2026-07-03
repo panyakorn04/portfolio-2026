@@ -545,31 +545,6 @@ async function fetchPortfolioChatSession(signal: AbortSignal) {
   return envelope.data;
 }
 
-async function createPortfolioChatSession(locale: string) {
-  const searchParams = new URLSearchParams({ locale });
-  const response = await fetch(
-    apiUrl(`/api/portfolio/assistant/sessions?${searchParams.toString()}`),
-    {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ locale }),
-    },
-  );
-
-  if (!response.ok) {
-    return null;
-  }
-
-  const envelope = (await response.json()) as ApiEnvelope<BackendChatSessionPayload>;
-
-  if (!envelope.ok || !envelope.data?.session?.id || !envelope.data.session.threadId) {
-    return null;
-  }
-
-  return envelope.data;
-}
-
 async function deletePortfolioChatSession(sessionId: string) {
   const response = await fetch(
     apiUrl(`/api/portfolio/assistant/sessions/${encodeURIComponent(sessionId)}`),
