@@ -92,18 +92,35 @@ export default function ChatDemoView({
 
       {show ? (
         <section id="portfolio-chat-widget" className={flyoutClass}>
-          <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
             <div className="flex items-center gap-2.5">
               <span className="flex size-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-[0.6rem] font-bold text-[#041009]">
                 P
               </span>
-              <div>
-                <p className="text-[0.78rem] font-semibold leading-tight text-[var(--color-text)]">
-                  {copy.assistantName}
-                </p>
-                <p className="font-mono text-[0.55rem] uppercase tracking-[0.06em] text-[var(--color-soft)]">
-                  {isWaiting ? "Thinking..." : "Online"}
-                </p>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("new")}
+                  className={`rounded-full px-2.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
+                    activeTab === "new"
+                      ? "bg-[var(--color-accent)] text-[#041009]"
+                      : "border border-[var(--color-line)] text-[var(--color-soft)] hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
+                  }`}
+                >
+                  Chat
+                </button>
+                <span className="text-[0.55rem] text-[var(--color-soft)]">/</span>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("recent")}
+                  className={`rounded-full px-2.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
+                    activeTab === "recent"
+                      ? "bg-[var(--color-accent)] text-[#041009]"
+                      : "border border-[var(--color-line)] text-[var(--color-soft)] hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
+                  }`}
+                >
+                  {copy.recentChatsLabel}
+                </button>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -113,24 +130,24 @@ export default function ChatDemoView({
                   setActiveTab("new");
                   onNewChat();
                 }}
-                className={`rounded-full px-3 py-1.5 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
-                  activeTab === "new"
-                    ? "bg-[var(--color-accent)] text-[#041009]"
-                    : "border border-[var(--color-line)] text-[var(--color-soft)] hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
-                }`}
+                className="flex size-7 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
+                aria-label={copy.newChatLabel}
               >
-                {copy.newChatLabel}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("recent")}
-                className={`rounded-full px-3 py-1.5 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
-                  activeTab === "recent"
-                    ? "bg-[var(--color-accent)] text-[#041009]"
-                    : "border border-[var(--color-line)] text-[var(--color-soft)] hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
-                }`}
-              >
-                {copy.recentChatsLabel}
+                <svg
+                  aria-hidden="true"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                >
+                  <path
+                    d="M11 2L12 3L5 10L2 12L4 9L11 2Z"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </button>
               <button
                 type="button"
