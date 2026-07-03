@@ -17,9 +17,11 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
     handleDraftKeyDown,
     handleNewChat,
     handleQuickPrompt,
+    handleSelectLatestChat,
     handleSelectRecentChat,
     handleSubmit,
     isClosing,
+    isLoadingLatest,
     isOpen,
     isWaiting,
     messages,
@@ -37,6 +39,7 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
       copy={copy}
       draft={draft}
       isClosing={isClosing}
+      isLoadingLatest={isLoadingLatest}
       isOpen={isOpen}
       isWaiting={isWaiting}
       messages={messages}
@@ -46,6 +49,7 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
       onDraftKeyDown={handleDraftKeyDown}
       onNewChat={handleNewChat}
       onQuickPrompt={handleQuickPrompt}
+      onSelectLatestChat={handleSelectLatestChat}
       onSelectRecentChat={handleSelectRecentChat}
       onSubmit={handleSubmit}
       onToggle={toggleChat}

@@ -18,6 +18,7 @@ type ChatDemoViewProps = {
   copy: ChatCopy;
   draft: string;
   isClosing: boolean;
+  isLoadingLatest: boolean;
   isOpen: boolean;
   isWaiting: boolean;
   messages: ChatMessage[];
@@ -27,6 +28,7 @@ type ChatDemoViewProps = {
   onDraftKeyDown: (event: ReactKeyboardEvent<HTMLTextAreaElement>) => void;
   onNewChat: () => void;
   onQuickPrompt: (prompt: string) => void;
+  onSelectLatestChat: () => void;
   onSelectRecentChat: (sessionId: string) => void;
   onSubmit: () => void;
   onToggle: () => void;
@@ -55,6 +57,7 @@ export default function ChatDemoView({
   copy,
   draft,
   isClosing,
+  isLoadingLatest,
   isOpen,
   isWaiting,
   messages,
@@ -64,6 +67,7 @@ export default function ChatDemoView({
   onDraftKeyDown,
   onNewChat,
   onQuickPrompt,
+  onSelectLatestChat,
   onSelectRecentChat,
   onSubmit,
   onToggle,
@@ -156,7 +160,20 @@ export default function ChatDemoView({
             <div ref={chatLogRef} className={chatLogClass}>
               {activeTab === "recent" ? (
                 titledSessions.length > 0 ? (
-                  <div className="grid gap-1.5">
+                  <div className="grid gap-2">
+                    <button
+                      type="button"
+                      disabled={isWaiting || isLoadingLatest}
+                      onClick={() => {
+                        setActiveTab("new");
+                        onSelectLatestChat();
+                      }}
+                      className="rounded-xl border border-[rgba(111,247,166,0.22)] bg-[rgba(111,247,166,0.08)] px-3 py-2 text-left font-mono text-[0.62rem] uppercase tracking-[0.06em] text-[var(--color-accent)] transition-colors hover:border-[rgba(111,247,166,0.44)] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isLoadingLatest
+                        ? copy.loadingLatestChatLabel
+                        : copy.latestChatLabel}
+                    </button>
                     {titledSessions.map((session) => {
                       const isActive = session.id === activeSessionKey;
 
@@ -168,7 +185,10 @@ export default function ChatDemoView({
                           <button
                             type="button"
                             disabled={isWaiting || isActive}
-                            onClick={() => onSelectRecentChat(session.id)}
+                            onClick={() => {
+                              setActiveTab("new");
+                              onSelectRecentChat(session.id);
+                            }}
                             className={`${recentButtonClass} ${
                               isActive
                                 ? "border-[var(--color-line-strong)] bg-[rgba(111,247,166,0.08)]"
@@ -213,10 +233,28 @@ export default function ChatDemoView({
                     })}
                   </div>
                 ) : (
-                  <div className="flex flex-1 items-center justify-center p-4 text-center">
-                    <p className="text-pretty text-[0.82rem] leading-relaxed text-[var(--color-muted)]">
-                      {copy.recentChatsEmptyLabel}
-                    </p>
+                  <div className="flex flex-1 flex-col items-center justify-center gap-3 p-4 text-center">
+                    <div>
+                      <p className="text-pretty text-[0.82rem] leading-relaxed text-[var(--color-muted)]">
+                        {copy.recentChatsEmptyLabel}
+                      </p>
+                      <p className="mt-1 text-pretty text-[0.68rem] leading-relaxed text-[var(--color-soft)]">
+                        {copy.latestChatEmptyLabel}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isWaiting || isLoadingLatest}
+                      onClick={() => {
+                        setActiveTab("new");
+                        onSelectLatestChat();
+                      }}
+                      className="rounded-full border border-[var(--color-line-strong)] bg-[rgba(111,247,166,0.08)] px-3 py-1.5 font-mono text-[0.62rem] uppercase tracking-[0.06em] text-[var(--color-accent)] transition-colors hover:border-[rgba(111,247,166,0.44)] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isLoadingLatest
+                        ? copy.loadingLatestChatLabel
+                        : copy.latestChatLabel}
+                    </button>
                   </div>
                 )
               ) : messages.length === 0 ? (

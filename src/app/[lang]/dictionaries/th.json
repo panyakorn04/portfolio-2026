@@ -324,7 +324,10 @@
     "userName": "คุณ",
     "newChatLabel": "แชตใหม่",
     "recentChatsLabel": "แชตล่าสุด",
-    "recentChatsEmptyLabel": "ไม่มีประวัติการแชต",
+    "recentChatsEmptyLabel": "ไม่มีประวัติการแชตในเครื่องนี้",
+    "latestChatLabel": "โหลดแชตล่าสุดจากระบบ",
+    "loadingLatestChatLabel": "กำลังโหลดแชตล่าสุด...",
+    "latestChatEmptyLabel": "ถ้ามีแชตล่าสุดใน backend ปุ่มนี้จะโหลด session เพื่อสนทนาต่อ",
     "deleteChatLabel": "ลบแชต",
     "emptyState": "สวัสดีครับ ผมคือผู้ช่วย AI ของ Panyakorn ถามเกี่ยวกับประสบการณ์ โปรเจกต์ สกิล หรือสิ่งที่เขามองหาได้เลยครับ",
     "starterConversation": [

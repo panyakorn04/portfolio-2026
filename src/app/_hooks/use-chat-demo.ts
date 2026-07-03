@@ -55,7 +55,7 @@ type BackendChatMessage = {
 };
 
 type BackendChatSessionPayload = {
-  session: BackendChatSession;
+  session: BackendChatSession | null;
   messages?: BackendChatMessage[];
 };
 
@@ -92,6 +92,7 @@ export function useChatDemo(copy: ChatCopy) {
   const [isWaiting, setIsWaiting] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [hasLoadedSession, setHasLoadedSession] = useState(false);
+  const [isLoadingLatest, setIsLoadingLatest] = useState(false);
   const [threadId, setThreadId] = useState(createChatSessionId);
   const [recentSessions, setRecentSessions] = useState<ChatRecentSession[]>([]);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -120,6 +121,37 @@ export function useChatDemo(copy: ChatCopy) {
       setMessages(nextMessages);
     });
   }, []);
+
+  const applyBackendSession = useCallback(
+    (payload: BackendChatSessionPayload) => {
+      if (!payload.session) {
+        return;
+      }
+
+      const backendMessages = (payload.messages ?? [])
+        .filter(isBackendChatMessage)
+        .map((message) => ({
+          id: message.id,
+          role: message.role,
+          text: message.text,
+        }));
+      const nextMessages =
+        backendMessages.length > 0 ? backendMessages : createStarterMessages(copy);
+
+      setSessionId(payload.session.id);
+      setThreadId(payload.session.threadId);
+      replaceMessages(nextMessages);
+      persistChatSession({
+        copy,
+        messages: nextMessages,
+        sessionId: payload.session.id,
+        threadId: payload.session.threadId,
+        title: payload.session.title ?? undefined,
+        updatedAt: payload.session.updatedAt,
+      });
+    },
+    [copy, replaceMessages],
+  );
 
   useEffect(() => {
     messagesRef.current = messages;
@@ -162,27 +194,11 @@ export function useChatDemo(copy: ChatCopy) {
           return;
         }
 
-        const backendMessages = (payload.messages ?? [])
-          .filter(isBackendChatMessage)
-          .map((message) => ({
-            id: message.id,
-            role: message.role,
-            text: message.text,
-          }));
-        const nextMessages =
-          backendMessages.length > 0 ? backendMessages : createStarterMessages(copy);
+        if (!payload.session) {
+          return;
+        }
 
-        setSessionId(payload.session.id);
-        setThreadId(payload.session.threadId);
-        replaceMessages(nextMessages);
-        persistChatSession({
-          copy,
-          messages: nextMessages,
-          sessionId: payload.session.id,
-          threadId: payload.session.threadId,
-          title: payload.session.title ?? undefined,
-          updatedAt: payload.session.updatedAt,
-        });
+        applyBackendSession(payload);
         setRecentSessions(readStoredRecentSessions());
       } catch {
         loadLocalStoredSessionFallback();
@@ -198,7 +214,7 @@ export function useChatDemo(copy: ChatCopy) {
     return () => {
       controller.abort();
     };
-  }, [copy, replaceMessages]);
+  }, [applyBackendSession, replaceMessages]);
 
   useEffect(() => {
     if (!hasLoadedSession) {
@@ -428,9 +444,40 @@ export function useChatDemo(copy: ChatCopy) {
       return;
     }
 
+    const fallbackThreadId = createChatSessionId();
     setSessionId(null);
-    setThreadId(createChatSessionId());
+    setThreadId(fallbackThreadId);
     replaceMessages(createStarterMessages(copy));
+
+    try {
+      const payload = await createPortfolioChatSession(copy.newChatLabel);
+      if (payload.session) {
+        setSessionId(payload.session.id);
+        setThreadId(payload.session.threadId);
+      }
+    } catch {
+      setThreadId(fallbackThreadId);
+    }
+  }
+
+  async function handleSelectLatestChat() {
+    if (isWaiting || isLoadingLatest) {
+      return;
+    }
+
+    setIsLoadingLatest(true);
+
+    try {
+      const payload = await fetchPortfolioChatSession();
+      if (!payload?.session) {
+        return;
+      }
+
+      applyBackendSession(payload);
+      setRecentSessions(readStoredRecentSessions());
+    } finally {
+      setIsLoadingLatest(false);
+    }
   }
 
   function handleSelectRecentChat(recentId: string) {
@@ -495,9 +542,11 @@ export function useChatDemo(copy: ChatCopy) {
     handleDraftKeyDown,
     handleNewChat,
     handleQuickPrompt,
+    handleSelectLatestChat,
     handleSelectRecentChat,
     handleSubmit,
     isClosing,
+    isLoadingLatest,
     isOpen,
     isWaiting,
     messages,
@@ -523,9 +572,9 @@ function createChatSessionId() {
   return `portfolio-widget-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-async function fetchPortfolioChatSession(signal: AbortSignal) {
+async function fetchPortfolioChatSession(signal?: AbortSignal) {
   const response = await fetch(
-    apiUrl(`/api/portfolio/assistant/sessions/current?locale=${currentLocale()}`),
+    apiUrl(`/api/portfolio/assistant/sessions/latest?locale=${currentLocale()}`),
     {
       credentials: "include",
       signal,
@@ -538,8 +587,40 @@ async function fetchPortfolioChatSession(signal: AbortSignal) {
 
   const envelope = (await response.json()) as ApiEnvelope<BackendChatSessionPayload>;
 
-  if (!envelope.ok || !envelope.data?.session?.id || !envelope.data.session.threadId) {
+  if (!envelope.ok || !envelope.data) {
     return null;
+  }
+
+  if (envelope.data.session === null) {
+    return envelope.data;
+  }
+
+  if (!envelope.data.session.id || !envelope.data.session.threadId) {
+    return null;
+  }
+
+  return envelope.data;
+}
+
+async function createPortfolioChatSession(title: string) {
+  const response = await fetch(apiUrl("/api/portfolio/assistant/sessions"), {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      locale: currentLocale(),
+      title,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Create chat session failed (${response.status})`);
+  }
+
+  const envelope = (await response.json()) as ApiEnvelope<BackendChatSessionPayload>;
+
+  if (!envelope.ok || !envelope.data?.session?.id || !envelope.data.session.threadId) {
+    throw new Error("Create chat session returned an invalid payload");
   }
 
   return envelope.data;

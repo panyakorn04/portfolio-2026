@@ -324,7 +324,10 @@
     "userName": "You",
     "newChatLabel": "New chat",
     "recentChatsLabel": "Recent chats",
-    "recentChatsEmptyLabel": "No recent chats yet",
+    "recentChatsEmptyLabel": "No local recent chats yet",
+    "latestChatLabel": "Load latest backend chat",
+    "loadingLatestChatLabel": "Loading latest chat...",
+    "latestChatEmptyLabel": "If a backend chat exists, this loads its session so you can continue it.",
     "deleteChatLabel": "Delete chat",
     "emptyState": "Hi, I'm Panyakorn's AI assistant. Ask me about his experience, projects, skills, or what he's looking for.",
     "starterConversation": [

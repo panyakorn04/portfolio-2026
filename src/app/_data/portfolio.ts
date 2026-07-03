@@ -143,6 +143,9 @@ export type PortfolioDictionary = {
     newChatLabel: string;
     recentChatsLabel: string;
     recentChatsEmptyLabel: string;
+    latestChatLabel: string;
+    loadingLatestChatLabel: string;
+    latestChatEmptyLabel: string;
     deleteChatLabel: string;
     emptyState: string;
     streamError: string;
