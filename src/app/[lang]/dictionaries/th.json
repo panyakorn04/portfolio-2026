@@ -322,6 +322,10 @@
     "sendLabel": "ส่ง",
     "assistantName": "Panyakorn AI",
     "userName": "คุณ",
+    "newChatLabel": "แชตใหม่",
+    "recentChatsLabel": "แชตล่าสุด",
+    "recentChatsEmptyLabel": "ยังไม่มีแชตล่าสุด",
+    "deleteChatLabel": "ลบแชต",
     "emptyState": "สวัสดีครับ ผมคือผู้ช่วย AI ของ Panyakorn ถามเกี่ยวกับประสบการณ์ โปรเจกต์ สกิล หรือสิ่งที่เขามองหาได้เลยครับ",
     "starterConversation": [
       {

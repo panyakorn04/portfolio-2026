@@ -20,6 +20,13 @@ export type ChatMessage = {
   text: string;
 };
 
+export type ChatRecentSession = {
+  id: string;
+  title: string;
+  preview: string;
+  updatedAt: string;
+};
+
 type PortfolioAssistantStreamEvent = {
   type?:
     | "RUN_STARTED"
@@ -36,6 +43,9 @@ type PortfolioAssistantStreamEvent = {
 type BackendChatSession = {
   id: string;
   threadId: string;
+  locale?: string;
+  title?: string | null;
+  updatedAt?: string;
 };
 
 type BackendChatMessage = {
@@ -55,13 +65,20 @@ type ApiEnvelope<T> = {
 };
 
 type StoredChatSession = {
+  id: string;
   messages: ChatMessage[];
+  sessionId: string | null;
   threadId: string;
+  title: string;
+  preview: string;
   updatedAt: string;
 };
 
 const closeDurMs = 150;
-const chatSessionStorageKey = "panyakorn:portfolio-chat-session:v1";
+const legacyChatSessionStorageKey = "panyakorn:portfolio-chat-session:v1";
+const chatRecentsStorageKey = "panyakorn:portfolio-chat-recents:v1";
+const chatSessionStoragePrefix = "panyakorn:portfolio-chat-session:v2:";
+const maxRecentSessions = 6;
 const apiBaseUrl = (
   process.env.NEXT_PUBLIC_API_URL ?? "https://api.panyakorn.com"
 ).replace(/\/+$/, "");
@@ -85,6 +102,9 @@ export function useChatDemo(copy: ChatCopy) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [hasLoadedSession, setHasLoadedSession] = useState(false);
   const [threadId, setThreadId] = useState(createChatSessionId);
+  const [recentSessions, setRecentSessions] = useState<ChatRecentSession[]>(() =>
+    readStoredRecentSessions(),
+  );
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatLogRef = useRef<HTMLDivElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -95,11 +115,21 @@ export function useChatDemo(copy: ChatCopy) {
   const [messages, setMessages] = useState<ChatMessage[]>(() =>
     createStarterMessages(copy),
   );
+
+  const activeSessionKey = getSessionStorageId(sessionId, threadId);
+
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
     }
+  }, []);
+
+  const replaceMessages = useCallback((nextMessages: ChatMessage[]) => {
+    messagesRef.current = nextMessages;
+    startTransition(() => {
+      setMessages(nextMessages);
+    });
   }, []);
 
   useEffect(() => {
@@ -118,12 +148,12 @@ export function useChatDemo(copy: ChatCopy) {
     const controller = new AbortController();
 
     function loadLocalStoredSessionFallback() {
-      const storedSession = readStoredChatSession();
+      const storedSession = readBestStoredChatSession();
 
       if (storedSession) {
-        setMessages(storedSession.messages);
+        setSessionId(storedSession.sessionId);
         setThreadId(storedSession.threadId);
-        messagesRef.current = storedSession.messages;
+        replaceMessages(storedSession.messages);
       }
     }
 
@@ -139,9 +169,6 @@ export function useChatDemo(copy: ChatCopy) {
           return;
         }
 
-        setSessionId(payload.session.id);
-        setThreadId(payload.session.threadId);
-
         const backendMessages = (payload.messages ?? [])
           .filter(isBackendChatMessage)
           .map((message) => ({
@@ -149,11 +176,21 @@ export function useChatDemo(copy: ChatCopy) {
             role: message.role,
             text: message.text,
           }));
+        const nextMessages =
+          backendMessages.length > 0 ? backendMessages : createStarterMessages(copy);
 
-        if (backendMessages.length > 0) {
-          setMessages(backendMessages);
-          messagesRef.current = backendMessages;
-        }
+        setSessionId(payload.session.id);
+        setThreadId(payload.session.threadId);
+        replaceMessages(nextMessages);
+        persistChatSession({
+          copy,
+          messages: nextMessages,
+          sessionId: payload.session.id,
+          threadId: payload.session.threadId,
+          title: payload.session.title ?? undefined,
+          updatedAt: payload.session.updatedAt,
+        });
+        setRecentSessions(readStoredRecentSessions());
       } catch {
         loadLocalStoredSessionFallback();
       } finally {
@@ -168,19 +205,21 @@ export function useChatDemo(copy: ChatCopy) {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [copy, replaceMessages]);
 
   useEffect(() => {
-    if (!hasLoadedSession || sessionId) {
+    if (!hasLoadedSession) {
       return;
     }
 
-    writeStoredChatSession({
+    persistChatSession({
+      copy,
       messages,
+      sessionId,
       threadId,
-      updatedAt: new Date().toISOString(),
     });
-  }, [hasLoadedSession, messages, sessionId, threadId]);
+    setRecentSessions(readStoredRecentSessions());
+  }, [copy, hasLoadedSession, messages, sessionId, threadId]);
 
   const startClose = useCallback(() => {
     clearCloseTimer();
@@ -286,13 +325,15 @@ export function useChatDemo(copy: ChatCopy) {
 
   function updateAssistantMessage(messageId: string, updater: (text: string) => string) {
     startTransition(() => {
-      setMessages((current) =>
-        current.map((message) =>
+      setMessages((current) => {
+        const nextMessages = current.map((message) =>
           message.id === messageId
             ? { ...message, text: updater(message.text) }
             : message,
-        ),
-      );
+        );
+        messagesRef.current = nextMessages;
+        return nextMessages;
+      });
     });
   }
 
@@ -375,12 +416,95 @@ export function useChatDemo(copy: ChatCopy) {
     };
     const nextMessages = [...messagesRef.current, userMessage];
 
-    startTransition(() => {
-      setMessages([...nextMessages, assistantMessage]);
-      setDraft("");
-    });
+    replaceMessages([...nextMessages, assistantMessage]);
+    setDraft("");
 
     await streamAssistantReply(nextMessages, assistantMessage.id, userMessage);
+  }
+
+  async function handleNewChat() {
+    if (isWaiting) {
+      return;
+    }
+
+    const fallbackThreadId = createChatSessionId();
+    const starterMessages = createStarterMessages(copy);
+
+    try {
+      const payload = await createPortfolioChatSession(currentLocale());
+      if (payload) {
+        setSessionId(payload.session.id);
+        setThreadId(payload.session.threadId);
+        replaceMessages(starterMessages);
+        persistChatSession({
+          copy,
+          messages: starterMessages,
+          sessionId: payload.session.id,
+          threadId: payload.session.threadId,
+          title: payload.session.title ?? copy.newChatLabel,
+          updatedAt: payload.session.updatedAt,
+        });
+        setRecentSessions(readStoredRecentSessions());
+        return;
+      }
+    } catch {
+      // Fall back to a browser-only session if the backend session API is unavailable.
+    }
+
+    setSessionId(null);
+    setThreadId(fallbackThreadId);
+    replaceMessages(starterMessages);
+    persistChatSession({
+      copy,
+      messages: starterMessages,
+      sessionId: null,
+      threadId: fallbackThreadId,
+      title: copy.newChatLabel,
+    });
+    setRecentSessions(readStoredRecentSessions());
+  }
+
+  function handleSelectRecentChat(recentId: string) {
+    if (isWaiting || recentId === activeSessionKey) {
+      return;
+    }
+
+    const storedSession = readStoredChatSession(recentId);
+    if (!storedSession) {
+      removeStoredRecentSession(recentId);
+      setRecentSessions(readStoredRecentSessions());
+      return;
+    }
+
+    setSessionId(storedSession.sessionId);
+    setThreadId(storedSession.threadId);
+    replaceMessages(storedSession.messages);
+  }
+
+  async function handleDeleteRecentChat(recentId: string) {
+    if (isWaiting) {
+      return;
+    }
+
+    const storedSession = readStoredChatSession(recentId);
+
+    try {
+      if (storedSession?.sessionId) {
+        await deletePortfolioChatSession(storedSession.sessionId);
+      }
+    } catch {
+      // Keep the UI responsive even if the backend delete fails.
+    }
+
+    removeStoredRecentSession(recentId);
+    setRecentSessions(readStoredRecentSessions());
+
+    if (recentId === activeSessionKey) {
+      const fallbackThreadId = createChatSessionId();
+      setSessionId(null);
+      setThreadId(fallbackThreadId);
+      replaceMessages(createStarterMessages(copy));
+    }
   }
 
   function handleSubmit() {
@@ -392,18 +516,23 @@ export function useChatDemo(copy: ChatCopy) {
   }
 
   return {
+    activeSessionKey,
     chatEndRef,
     chatLogRef,
     closeChat,
     draft,
+    handleDeleteRecentChat,
     handleDraftChange,
     handleDraftKeyDown,
+    handleNewChat,
     handleQuickPrompt,
+    handleSelectRecentChat,
     handleSubmit,
     isClosing,
     isOpen,
     isWaiting,
     messages,
+    recentSessions,
     textareaRef,
     toggleChat,
   };
@@ -447,6 +576,45 @@ async function fetchPortfolioChatSession(signal: AbortSignal) {
   return envelope.data;
 }
 
+async function createPortfolioChatSession(locale: string) {
+  const searchParams = new URLSearchParams({ locale });
+  const response = await fetch(
+    apiUrl(`/api/portfolio/assistant/sessions?${searchParams.toString()}`),
+    {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locale }),
+    },
+  );
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const envelope = (await response.json()) as ApiEnvelope<BackendChatSessionPayload>;
+
+  if (!envelope.ok || !envelope.data?.session?.id || !envelope.data.session.threadId) {
+    return null;
+  }
+
+  return envelope.data;
+}
+
+async function deletePortfolioChatSession(sessionId: string) {
+  const response = await fetch(
+    apiUrl(`/api/portfolio/assistant/sessions/${encodeURIComponent(sessionId)}`),
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Delete chat session failed (${response.status})`);
+  }
+}
+
 function currentLocale() {
   if (typeof window === "undefined") {
     return "en";
@@ -469,13 +637,71 @@ function isBackendChatMessage(message: unknown): message is BackendChatMessage {
   );
 }
 
-function readStoredChatSession(): StoredChatSession | null {
+function getSessionStorageId(sessionId: string | null, threadId: string) {
+  return sessionId ?? threadId;
+}
+
+function chatSessionStorageKey(sessionKey: string) {
+  return `${chatSessionStoragePrefix}${sessionKey}`;
+}
+
+function persistChatSession({
+  copy,
+  messages,
+  sessionId,
+  threadId,
+  title,
+  updatedAt,
+}: {
+  copy: ChatCopy;
+  messages: ChatMessage[];
+  sessionId: string | null;
+  threadId: string;
+  title?: string;
+  updatedAt?: string;
+}) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const id = getSessionStorageId(sessionId, threadId);
+  const storedSession: StoredChatSession = {
+    id,
+    messages,
+    sessionId,
+    threadId,
+    title: title?.trim() || deriveSessionTitle(messages, copy),
+    preview: deriveSessionPreview(messages, copy),
+    updatedAt: updatedAt ?? new Date().toISOString(),
+  };
+
+  try {
+    window.localStorage.setItem(chatSessionStorageKey(id), JSON.stringify(storedSession));
+    upsertStoredRecentSession(storedSession);
+  } catch {
+    // Ignore storage failures so the chat still works in private or constrained browsers.
+  }
+}
+
+function readBestStoredChatSession(): StoredChatSession | null {
+  const recents = readStoredRecentSessions();
+  for (const recent of recents) {
+    const session = readStoredChatSession(recent.id);
+    if (session) {
+      return session;
+    }
+  }
+
+  return readLegacyStoredChatSession();
+}
+
+function readStoredChatSession(sessionKey: string): StoredChatSession | null {
   if (typeof window === "undefined") {
     return null;
   }
 
   try {
-    const rawSession = window.localStorage.getItem(chatSessionStorageKey);
+    const rawSession = window.localStorage.getItem(chatSessionStorageKey(sessionKey));
 
     if (!rawSession) {
       return null;
@@ -484,11 +710,13 @@ function readStoredChatSession(): StoredChatSession | null {
     const parsedSession = JSON.parse(rawSession) as Partial<StoredChatSession>;
 
     if (
+      typeof parsedSession.id !== "string" ||
+      parsedSession.id.trim() === "" ||
       typeof parsedSession.threadId !== "string" ||
       parsedSession.threadId.trim() === "" ||
       !Array.isArray(parsedSession.messages)
     ) {
-      window.localStorage.removeItem(chatSessionStorageKey);
+      window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
       return null;
     }
 
@@ -501,34 +729,160 @@ function readStoredChatSession(): StoredChatSession | null {
       }));
 
     if (messages.length === 0) {
-      window.localStorage.removeItem(chatSessionStorageKey);
+      window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
       return null;
     }
 
     return {
+      id: parsedSession.id,
       messages,
+      sessionId:
+        typeof parsedSession.sessionId === "string" &&
+        parsedSession.sessionId.trim() !== ""
+          ? parsedSession.sessionId
+          : null,
       threadId: parsedSession.threadId,
+      title:
+        typeof parsedSession.title === "string" && parsedSession.title.trim() !== ""
+          ? parsedSession.title
+          : "Chat",
+      preview:
+        typeof parsedSession.preview === "string" && parsedSession.preview.trim() !== ""
+          ? parsedSession.preview
+          : (messages.at(-1)?.text ?? ""),
       updatedAt:
         typeof parsedSession.updatedAt === "string"
           ? parsedSession.updatedAt
           : new Date().toISOString(),
     };
   } catch {
-    window.localStorage.removeItem(chatSessionStorageKey);
+    window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
     return null;
   }
 }
 
-function writeStoredChatSession(session: StoredChatSession) {
+function readLegacyStoredChatSession(): StoredChatSession | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const rawSession = window.localStorage.getItem(legacyChatSessionStorageKey);
+
+    if (!rawSession) {
+      return null;
+    }
+
+    const parsedSession = JSON.parse(rawSession) as Partial<StoredChatSession>;
+
+    if (
+      typeof parsedSession.threadId !== "string" ||
+      parsedSession.threadId.trim() === "" ||
+      !Array.isArray(parsedSession.messages)
+    ) {
+      window.localStorage.removeItem(legacyChatSessionStorageKey);
+      return null;
+    }
+
+    const messages = parsedSession.messages.filter(isStoredChatMessage);
+
+    if (messages.length === 0) {
+      window.localStorage.removeItem(legacyChatSessionStorageKey);
+      return null;
+    }
+
+    return {
+      id: parsedSession.threadId,
+      messages,
+      sessionId: null,
+      threadId: parsedSession.threadId,
+      title: messages.find((message) => message.role === "user")?.text ?? "Chat",
+      preview: messages.at(-1)?.text ?? "",
+      updatedAt:
+        typeof parsedSession.updatedAt === "string"
+          ? parsedSession.updatedAt
+          : new Date().toISOString(),
+    };
+  } catch {
+    window.localStorage.removeItem(legacyChatSessionStorageKey);
+    return null;
+  }
+}
+
+function readStoredRecentSessions(): ChatRecentSession[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const rawRecents = window.localStorage.getItem(chatRecentsStorageKey);
+    if (!rawRecents) {
+      return [];
+    }
+
+    const parsedRecents = JSON.parse(rawRecents) as Partial<ChatRecentSession>[];
+    return parsedRecents
+      .filter(isStoredRecentSession)
+      .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+      .slice(0, maxRecentSessions);
+  } catch {
+    window.localStorage.removeItem(chatRecentsStorageKey);
+    return [];
+  }
+}
+
+function upsertStoredRecentSession(session: StoredChatSession) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const recents = readStoredRecentSessions();
+  const nextRecents = [
+    {
+      id: session.id,
+      title: session.title,
+      preview: session.preview,
+      updatedAt: session.updatedAt,
+    },
+    ...recents.filter((recent) => recent.id !== session.id),
+  ].slice(0, maxRecentSessions);
+
+  window.localStorage.setItem(chatRecentsStorageKey, JSON.stringify(nextRecents));
+}
+
+function removeStoredRecentSession(sessionKey: string) {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    window.localStorage.setItem(chatSessionStorageKey, JSON.stringify(session));
+    const recents = readStoredRecentSessions().filter(
+      (recent) => recent.id !== sessionKey,
+    );
+    window.localStorage.setItem(chatRecentsStorageKey, JSON.stringify(recents));
+    window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
   } catch {
-    // Ignore storage failures so the chat still works in private or constrained browsers.
+    // Ignore storage cleanup failures.
   }
+}
+
+function deriveSessionTitle(messages: ChatMessage[], copy: ChatCopy) {
+  const firstUserMessage = messages.find((message) => message.role === "user");
+  return truncateText(firstUserMessage?.text ?? copy.newChatLabel, 42);
+}
+
+function deriveSessionPreview(messages: ChatMessage[], copy: ChatCopy) {
+  const lastMessage = messages.findLast((message) => message.text.trim() !== "");
+  return truncateText(lastMessage?.text ?? copy.emptyState, 72);
+}
+
+function truncateText(value: string, maxLength: number) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, maxLength - 1).trim()}…`;
 }
 
 function isStoredChatMessage(message: unknown): message is ChatMessage {
@@ -542,6 +896,21 @@ function isStoredChatMessage(message: unknown): message is ChatMessage {
     typeof candidate.id === "string" &&
     (candidate.role === "assistant" || candidate.role === "user") &&
     typeof candidate.text === "string"
+  );
+}
+
+function isStoredRecentSession(value: unknown): value is ChatRecentSession {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<ChatRecentSession>;
+  return (
+    typeof candidate.id === "string" &&
+    candidate.id.trim() !== "" &&
+    typeof candidate.title === "string" &&
+    typeof candidate.preview === "string" &&
+    typeof candidate.updatedAt === "string"
   );
 }
 

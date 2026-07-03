@@ -322,6 +322,10 @@
     "sendLabel": "Send",
     "assistantName": "Panyakorn AI",
     "userName": "You",
+    "newChatLabel": "New chat",
+    "recentChatsLabel": "Recent chats",
+    "recentChatsEmptyLabel": "No recent chats yet",
+    "deleteChatLabel": "Delete chat",
     "emptyState": "Hi, I'm Panyakorn's AI assistant. Ask me about his experience, projects, skills, or what he's looking for.",
     "starterConversation": [
       {

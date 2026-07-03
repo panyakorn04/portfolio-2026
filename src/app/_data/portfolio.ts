@@ -140,6 +140,10 @@ export type PortfolioDictionary = {
     sendLabel: string;
     assistantName: string;
     userName: string;
+    newChatLabel: string;
+    recentChatsLabel: string;
+    recentChatsEmptyLabel: string;
+    deleteChatLabel: string;
     emptyState: string;
     streamError: string;
     starterConversation: Array<{

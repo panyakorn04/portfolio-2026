@@ -3,11 +3,12 @@
 import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from "react";
 
 import type { PortfolioDictionary } from "../_data/portfolio";
-import type { ChatMessage } from "../_hooks/use-chat-demo";
+import type { ChatMessage, ChatRecentSession } from "../_hooks/use-chat-demo";
 
 type ChatCopy = PortfolioDictionary["chat"];
 
 type ChatDemoViewProps = {
+  activeSessionKey: string;
   chatEndRef: RefObject<HTMLDivElement | null>;
   chatLogRef: RefObject<HTMLDivElement | null>;
   copy: ChatCopy;
@@ -17,11 +18,15 @@ type ChatDemoViewProps = {
   isWaiting: boolean;
   messages: ChatMessage[];
   onClose: () => void;
+  onDeleteRecentChat: (sessionId: string) => void;
   onDraftChange: (value: string) => void;
   onDraftKeyDown: (event: ReactKeyboardEvent<HTMLTextAreaElement>) => void;
+  onNewChat: () => void;
   onQuickPrompt: (prompt: string) => void;
+  onSelectRecentChat: (sessionId: string) => void;
   onSubmit: () => void;
   onToggle: () => void;
+  recentSessions: ChatRecentSession[];
   textareaRef: RefObject<HTMLTextAreaElement | null>;
 };
 
@@ -30,14 +35,17 @@ const widgetShellClass =
 const backdropClass =
   "fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(111,247,166,0.08),transparent_26%),rgba(5,11,8,0.24)] motion-reduce:transition-none";
 const flyoutClass =
-  "w-[min(calc(100vw-2rem),36rem)] max-h-[min(84svh,52rem)] origin-bottom-right overflow-hidden rounded-[1.6rem] border border-[rgba(111,247,166,0.12)] bg-[linear-gradient(180deg,rgba(8,16,12,0.98),rgba(4,10,7,0.98))] shadow-[0_28px_80px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(111,247,166,0.08)] backdrop-blur-[14px] motion-reduce:transition-none max-sm:w-[calc(100vw-2.75rem)] max-sm:max-h-[calc(100svh-5.5rem)]";
+  "w-[min(calc(100vw-2rem),38rem)] max-h-[min(84svh,52rem)] origin-bottom-right overflow-hidden rounded-[1.6rem] border border-[rgba(111,247,166,0.12)] bg-[linear-gradient(180deg,rgba(8,16,12,0.98),rgba(4,10,7,0.98))] shadow-[0_28px_80px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(111,247,166,0.08)] backdrop-blur-[14px] motion-reduce:transition-none max-sm:w-[calc(100vw-2.75rem)] max-sm:max-h-[calc(100svh-5.5rem)]";
 const chatLogClass =
   "flex min-h-64 max-h-[22rem] flex-col gap-3 overflow-y-auto rounded-[1.15rem] bg-[rgba(5,11,8,0.58)] p-3 [scrollbar-color:rgba(111,247,166,0.4)_transparent] [scrollbar-width:thin] max-sm:min-h-52 max-sm:max-h-[min(40svh,20rem)]";
+const recentButtonClass =
+  "group flex min-w-0 flex-1 items-start gap-2 rounded-xl border border-[var(--color-line)] bg-[rgba(10,20,16,0.52)] px-3 py-2 text-left transition-colors hover:border-[var(--color-line-strong)]";
 const typingClass = "flex items-center gap-1.5 px-1";
 const typingDotClass =
   "h-1.5 w-1.5 rounded-full bg-[var(--color-accent)] animate-bounce motion-reduce:animate-none";
 
 export default function ChatDemoView({
+  activeSessionKey,
   chatEndRef,
   chatLogRef,
   copy,
@@ -47,11 +55,15 @@ export default function ChatDemoView({
   isWaiting,
   messages,
   onClose,
+  onDeleteRecentChat,
   onDraftChange,
   onDraftKeyDown,
+  onNewChat,
   onQuickPrompt,
+  onSelectRecentChat,
   onSubmit,
   onToggle,
+  recentSessions,
   textareaRef,
 }: ChatDemoViewProps) {
   const show = isOpen || isClosing;
@@ -84,30 +96,114 @@ export default function ChatDemoView({
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex size-7 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
-              aria-label={copy.closeLabel}
-            >
-              <svg
-                aria-hidden="true"
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onNewChat}
+                disabled={isWaiting}
+                className="rounded-full border border-[var(--color-line)] px-3 py-1.5 font-mono text-[0.6rem] uppercase tracking-[0.05em] text-[var(--color-accent)] transition-colors hover:border-[var(--color-line-strong)] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <path
-                  d="M2 2L12 12M12 2L2 12"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
+                {copy.newChatLabel}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex size-7 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
+                aria-label={copy.closeLabel}
+              >
+                <svg
+                  aria-hidden="true"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                >
+                  <path
+                    d="M2 2L12 12M12 2L2 12"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-3 p-3">
+            <section className="rounded-[1.15rem] border border-[var(--color-line)] bg-[rgba(5,11,8,0.42)] p-3">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <p className="font-mono text-[0.58rem] uppercase tracking-[0.06em] text-[var(--color-soft)]">
+                  {copy.recentChatsLabel}
+                </p>
+                <span className="font-mono text-[0.58rem] text-[var(--color-soft)]">
+                  {recentSessions.length}/{6}
+                </span>
+              </div>
+
+              {recentSessions.length > 0 ? (
+                <div className="grid gap-1.5">
+                  {recentSessions.map((session) => {
+                    const isActive = session.id === activeSessionKey;
+
+                    return (
+                      <div
+                        key={session.id}
+                        className="flex min-w-0 items-stretch gap-1.5"
+                      >
+                        <button
+                          type="button"
+                          disabled={isWaiting || isActive}
+                          onClick={() => onSelectRecentChat(session.id)}
+                          className={`${recentButtonClass} ${
+                            isActive
+                              ? "border-[var(--color-line-strong)] bg-[rgba(111,247,166,0.08)]"
+                              : ""
+                          } disabled:cursor-default disabled:opacity-80`}
+                        >
+                          <span className="mt-1 size-1.5 shrink-0 rounded-full bg-[var(--color-accent)] opacity-70" />
+                          <span className="min-w-0">
+                            <span className="block truncate text-[0.72rem] font-medium text-[var(--color-text)]">
+                              {session.title}
+                            </span>
+                            <span className="mt-0.5 block truncate text-[0.64rem] text-[var(--color-soft)]">
+                              {session.preview}
+                            </span>
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isWaiting}
+                          onClick={() => onDeleteRecentChat(session.id)}
+                          className="flex w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--color-line)] text-[var(--color-soft)] transition-colors hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-40"
+                          aria-label={`${copy.deleteChatLabel}: ${session.title}`}
+                        >
+                          <svg
+                            aria-hidden="true"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                          >
+                            <path
+                              d="M3.5 4.5H10.5M5.5 4.5V3.25H8.5V4.5M5 5.75V10M9 5.75V10M4.25 4.5L4.7 11.25H9.3L9.75 4.5"
+                              stroke="currentColor"
+                              strokeWidth="1.2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-[0.68rem] text-[var(--color-soft)]">
+                  {copy.recentChatsEmptyLabel}
+                </p>
+              )}
+            </section>
+
             <div ref={chatLogRef} className={chatLogClass}>
               {messages.length === 0 ? (
                 <div className="flex flex-1 items-center justify-center p-4 text-center">
