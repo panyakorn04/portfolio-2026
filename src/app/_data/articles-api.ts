@@ -28,6 +28,13 @@ type RawArticleListResponse = {
   items?: unknown;
 };
 
+type NextFetchInit = RequestInit & {
+  next?: {
+    revalidate?: number;
+    tags?: string[];
+  };
+};
+
 function getApiBaseUrl() {
   return (
     process.env.BUILD_API_BASE_URL?.trim() ||
@@ -122,10 +129,13 @@ async function fetchApi<T>(path: string) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), getApiRequestTimeoutMs());
 
+  const fetchOptions: NextFetchInit = {
+    next: { revalidate: 300, tags: ["articles"] },
+    signal: controller.signal,
+  };
+
   try {
-    response = await fetch(`${getApiBaseUrl()}${path}`, {
-      signal: controller.signal,
-    });
+    response = await fetch(`${getApiBaseUrl()}${path}`, fetchOptions);
   } catch (error) {
     console.warn(
       `Portfolio API request skipped for ${path}: ${error instanceof Error ? error.message : "unknown error"}`,
