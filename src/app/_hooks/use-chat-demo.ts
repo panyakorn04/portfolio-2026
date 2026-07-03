@@ -102,9 +102,7 @@ export function useChatDemo(copy: ChatCopy) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [hasLoadedSession, setHasLoadedSession] = useState(false);
   const [threadId, setThreadId] = useState(createChatSessionId);
-  const [recentSessions, setRecentSessions] = useState<ChatRecentSession[]>(() =>
-    readStoredRecentSessions(),
-  );
+  const [recentSessions, setRecentSessions] = useState<ChatRecentSession[]>([]);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatLogRef = useRef<HTMLDivElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -143,6 +141,10 @@ export function useChatDemo(copy: ChatCopy) {
   useEffect(() => {
     threadIdRef.current = threadId;
   }, [threadId]);
+
+  useEffect(() => {
+    setRecentSessions(readStoredRecentSessions());
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -493,7 +495,7 @@ export function useChatDemo(copy: ChatCopy) {
         await deletePortfolioChatSession(storedSession.sessionId);
       }
     } catch {
-      // Keep the UI responsive even if the backend delete fails.
+      return;
     }
 
     removeStoredRecentSession(recentId);
