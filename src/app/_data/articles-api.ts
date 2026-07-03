@@ -111,18 +111,28 @@ function parseArticleDetail(value: unknown): ArticleDetail | null {
   };
 }
 
+function getApiRequestTimeoutMs() {
+  const timeoutMs = Number.parseInt(process.env.PORTFOLIO_API_TIMEOUT_MS ?? "3000", 10);
+
+  return Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 3000;
+}
+
 async function fetchApi<T>(path: string) {
   let response: Response;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), getApiRequestTimeoutMs());
 
   try {
     response = await fetch(`${getApiBaseUrl()}${path}`, {
-      next: { revalidate: 300, tags: ["articles"] },
+      signal: controller.signal,
     });
   } catch (error) {
     console.warn(
       `Portfolio API request skipped for ${path}: ${error instanceof Error ? error.message : "unknown error"}`,
     );
     return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   if (response.status === 404) {

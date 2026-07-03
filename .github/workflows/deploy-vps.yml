@@ -40,6 +40,7 @@ jobs:
           NEXT_PUBLIC_API_URL: https://api.panyakorn.com
           BUILD_API_BASE_URL: https://api.panyakorn.com
           FRONTEND_API_BASE_URL: http://backend:8888
+          PORTFOLIO_API_TIMEOUT_MS: 3000
         run: bun run build
 
       - name: Set up Docker Buildx
@@ -56,6 +57,7 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api.panyakorn.com
             BUILD_API_BASE_URL=https://api.panyakorn.com
             FRONTEND_API_BASE_URL=http://backend:8888
+            PORTFOLIO_API_TIMEOUT_MS=3000
           outputs: type=docker,dest=portfolio-2026-frontend.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
