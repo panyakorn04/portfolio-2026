@@ -93,6 +93,17 @@
           "Self-hosted n8n with Docker to connect LLM outputs into downstream workflow steps."
         ],
         "stack": ["Next.js", "CMS", "n8n", "Docker", "Open Graph", "Payments"]
+      },
+      {
+        "eyebrow": "Streaming platform",
+        "title": "Online course video streaming experience",
+        "description": "End-to-end video streaming platform features — HLS playback, adaptive bitrate, live classes, quizzes, certificates, subscription payments, and content protection.",
+        "bullets": [
+          "Built a video streaming player with HLS adaptive bitrate, play/pause/seek, playback speed, chapter navigation, and resume-watching across sessions.",
+          "Developed course catalog with search/filter, multi-level learning paths (chapter → lesson), live-class WebRTC streaming with real-time chat and Q&A, and quiz/certificate automation.",
+          "Implemented payment/subscription flows, coupon/promotion management, transaction handling, DRM-inspired content protection, and student/instructor dashboards."
+        ],
+        "stack": ["React", "Next.js", "HLS", "WebRTC", "WebSocket", "Payments"]
       }
     ],
     "ecosystemEyebrow": "Portfolio ecosystem",
@@ -191,26 +202,34 @@
       }
     ],
     "experienceEyebrow": "Experience",
-    "roleTitle": "Web Developer",
-    "company": "EdTech / Education Streaming Company",
-    "timeline": "Mar 2021 – Present · Bangkok, Thailand · Promoted from Junior Web Developer",
-    "experienceBullets": [
-      "Develop and maintain production web applications with React.js, Next.js, TypeScript, RESTful APIs, and responsive UI patterns across desktop and mobile experiences.",
-      "Build features from API integration through state management, validation, error handling, and reusable UI components using Redux, Zustand, React Query, Tailwind CSS, Material UI, and Ant Design.",
-      "Integrate LLM APIs and AI-assisted workflows including Claude and OpenAI API usage, prompt and data-flow design, n8n automation, and AI-assisted development tools."
+    "experienceRoles": [
+      {
+        "roleTitle": "Frontend Engineer",
+        "company": "DEV DOGDOG CO., LTD.",
+        "timeline": "2024 – Present · Bangkok, Thailand · Sole frontend engineer",
+        "bullets": [
+          "Sole frontend engineer responsible for architecture, development, and delivery of production Next.js/React applications across fintech, AI SaaS, and e-commerce product domains simultaneously.",
+          "Owned all frontend decision-making end-to-end — API integration, state management (Redux, Zustand, React Query), form validation, and reusable UI components — with no dedicated frontend team to delegate to.",
+          "Independently integrated Claude/OpenAI LLM APIs and built n8n automation pipelines, serving as the sole point of contact across design, backend, and product stakeholders for all frontend decisions."
+        ]
+      },
+      {
+        "roleTitle": "Frontend Engineer",
+        "company": "EDUCATION PLUS STREAMING AND SERVICE CO., LTD.",
+        "timeline": "2021 – 2024 · Bangkok, Thailand · Promoted from Junior Developer",
+        "bullets": [
+          "Built the video streaming player end-to-end (HLS playback, adaptive controls, resume-watching) and developed the course catalog, search/filtering, and multi-level learning paths with progress tracking.",
+          "Implemented live-class streaming with real-time chat and Q&A, quiz/assessment modules with automated certificate generation, and student/instructor dashboards.",
+          "Built payment and subscription flows for course purchases, including promotions and transaction handling."
+        ]
+      }
     ],
     "chatEyebrow": "Agent preview",
     "chatTitle": "A chat workspace is already staged for the AI agent layer.",
     "chatText": "This demo UI is intentionally local-first: the conversation flow, prompt composer, and quick actions are in place now, so the next step is wiring your chosen AI API without redesigning the experience.",
     "contactEyebrow": "Contact",
     "contactTitle": "Let’s build useful, secure, and polished web products.",
-    "contactText": "Open to frontend, full-stack, AI integration, and product-focused web development opportunities.",
-    "nextTitle": "Next improvements",
-    "roadmap": [
-      "Add a custom domain after Vercel deployment.",
-      "Replace confidential placeholders with approved screenshots or sanitized mockups.",
-      "Add measurable impact metrics such as performance, conversion, or delivery speed."
-    ]
+    "contactText": "Open to frontend, full-stack, AI integration, and product-focused web development opportunities."
   },
   "legal": {
     "shared": {

@@ -93,6 +93,17 @@
           "Self-host n8n ด้วย Docker เพื่อเชื่อมผลลัพธ์จาก LLM เข้ากับ workflow ขั้นถัดไป"
         ],
         "stack": ["Next.js", "CMS", "n8n", "Docker", "Open Graph", "Payments"]
+      },
+      {
+        "eyebrow": "แพลตฟอร์มสตรีมมิง",
+        "title": "ระบบเรียนออนไลน์แบบ Video Streaming",
+        "description": "ฟีเจอร์ครบวงจรสำหรับแพลตฟอร์มวิดีโอสตรีมมิง — HLS playback, adaptive bitrate, live class, quiz, ใบ certificate, จ่ายเงิน/ subscription และป้องกันคอนเทนต์",
+        "bullets": [
+          "สร้าง video streaming player พร้อม HLS adaptive bitrate, play/pause/seek, ปรับspeed, ปุ่มข้ามบท และ resume-watching ข้าม session",
+          "พัฒนาระบบค้นหา/กรองคอร์ส, learning path แบบหลายระดับ (บท → บทย่อย), live-class ผ่าน WebRTC พร้อมแชทและ Q&A แบบเรียลไทม์, ระบบ quiz และใบ certificate อัตโนมัติ",
+          "implement ระบบ payment/subscription, คูปอง/โปรโมชั่น, การจัดการธุรกรรม, content protection แบบ DRM, และ dashboard สำหรับนักเรียน/ผู้สอน"
+        ],
+        "stack": ["React", "Next.js", "HLS", "WebRTC", "WebSocket", "Payments"]
       }
     ],
     "ecosystemEyebrow": "ระบบพอร์ตโฟลิโอ",
@@ -191,26 +202,34 @@
       }
     ],
     "experienceEyebrow": "ประสบการณ์",
-    "roleTitle": "Web Developer",
-    "company": "บริษัทด้าน EdTech / Education Streaming",
-    "timeline": "มี.ค. 2021 – ปัจจุบัน · กรุงเทพฯ · เติบโตจากตำแหน่ง Junior Web Developer",
-    "experienceBullets": [
-      "พัฒนาและดูแล production web applications ด้วย React.js, Next.js, TypeScript, RESTful APIs และ responsive UI patterns สำหรับ desktop และ mobile",
-      "สร้างฟีเจอร์ตั้งแต่ API integration, state management, validation, error handling ไปจนถึง reusable UI components ด้วย Redux, Zustand, React Query, Tailwind CSS, Material UI และ Ant Design",
-      "เชื่อมต่อ LLM APIs และ AI-assisted workflows เช่น Claude/OpenAI API, prompt/data-flow design, n8n automation และเครื่องมือ AI-assisted development"
+    "experienceRoles": [
+      {
+        "roleTitle": "Frontend Engineer",
+        "company": "DEV DOGDOG CO., LTD.",
+        "timeline": "2024 – ปัจจุบัน · กรุงเทพฯ · วิศวกร frontend คนเดียวในทีม",
+        "bullets": [
+          "รับผิดชอบ architecture, development และ delivery ของ Next.js/React applications ในระบบ production ครอบคลุมทั้ง fintech, AI SaaS และ e-commerce ไปพร้อมกัน",
+          "ตัดสินใจด้าน frontend ทุกอย่างเอง end-to-end ตั้งแต่ API integration, state management (Redux, Zustand, React Query), form validation และ reusable UI components",
+          "เชื่อมต่อ Claude/OpenAI LLM APIs และสร้าง n8n automation pipelines ด้วยตัวเอง พร้อมเป็นจุดเชื่อมต่อระหว่าง design, backend และ product stakeholders"
+        ]
+      },
+      {
+        "roleTitle": "Frontend Engineer",
+        "company": "EDUCATION PLUS STREAMING AND SERVICE CO., LTD.",
+        "timeline": "2021 – 2024 · กรุงเทพฯ · เติบโตจาก Junior Developer",
+        "bullets": [
+          "สร้าง video streaming player เอง end-to-end (HLS playback, adaptive controls, resume-watching) พร้อมพัฒนา course catalog, search/filtering และ multi-level learning paths",
+          "พัฒนา live-class streaming พร้อม real-time chat และ Q&A, quiz/assessment modules พร้อมระบบสร้าง certificate อัตโนมัติ และ dashboard สำหรับนักเรียน/ผู้สอน",
+          "สร้าง payment และ subscription flows สำหรับการซื้อคอร์ส รวมถึงระบบโปรโมชั่นและการจัดการธุรกรรม"
+        ]
+      }
     ],
     "chatEyebrow": "ตัวอย่าง Agent",
     "chatTitle": "เตรียมพื้นที่ chat workspace ไว้รอชั้น AI agent แล้ว",
     "chatText": "UI ชุดนี้ตั้งใจทำแบบ local-first ก่อน ทั้ง flow การคุย กล่องพิมพ์ และ quick actions พร้อมใช้งานแล้ว ขั้นถัดไปคือเชื่อม API ของ agent ที่คุณเลือกโดยไม่ต้องรื้อประสบการณ์ใหม่",
     "contactEyebrow": "ติดต่อ",
     "contactTitle": "มาสร้างเว็บโปรดักต์ที่มีประโยชน์ ปลอดภัย และใช้งานดีร่วมกันครับ",
-    "contactText": "เปิดรับโอกาสด้าน frontend, full-stack, AI integration และการพัฒนาเว็บที่เน้นคุณค่าของโปรดักต์",
-    "nextTitle": "สิ่งที่ควรต่อยอด",
-    "roadmap": [
-      "เพิ่ม custom domain หลังจาก deploy ขึ้น Vercel",
-      "แทนที่ placeholder ด้วย screenshot ที่อนุมัติแล้ว หรือ mockup ที่ไม่เปิดเผยข้อมูลลับ",
-      "เพิ่มตัวเลข impact เช่น performance, conversion หรือความเร็วในการส่งมอบงาน"
-    ]
+    "contactText": "เปิดรับโอกาสด้าน frontend, full-stack, AI integration และการพัฒนาเว็บที่เน้นคุณค่าของโปรดักต์"
   },
   "legal": {
     "shared": {

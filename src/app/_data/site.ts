@@ -11,7 +11,7 @@ export const contacts = [
   },
   {
     key: "linkedin",
-    href: "https://www.linkedin.com/in/eee-panyakorn-512b17304/",
+    href: "https://www.linkedin.com/in/panyakorn-boonyong",
     value: "Panyakorn Boonyong",
   },
   {
@@ -30,6 +30,6 @@ export const socialLinks = [
   { key: "github", href: "https://github.com/panyakorn04" },
   {
     key: "linkedin",
-    href: "https://www.linkedin.com/in/eee-panyakorn-512b17304/",
+    href: "https://www.linkedin.com/in/panyakorn-boonyong",
   },
 ] as const;

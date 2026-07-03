@@ -80,18 +80,18 @@ export type PortfolioDictionary = {
     skillsText: string;
     skills: Array<{ group: string; list: string }>;
     experienceEyebrow: string;
-    roleTitle: string;
-    company: string;
-    timeline: string;
-    experienceBullets: string[];
+    experienceRoles: Array<{
+      roleTitle: string;
+      company: string;
+      timeline: string;
+      bullets: string[];
+    }>;
     chatEyebrow: string;
     chatTitle: string;
     chatText: string;
     contactEyebrow: string;
     contactTitle: string;
     contactText: string;
-    nextTitle: string;
-    roadmap: string[];
   };
   legal: {
     shared: {
