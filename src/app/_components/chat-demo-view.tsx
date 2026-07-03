@@ -92,7 +92,7 @@ export default function ChatDemoView({
 
       {show ? (
         <section id="portfolio-chat-widget" className={flyoutClass}>
-            <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
             <div className="flex items-center gap-2.5">
               <span className="flex size-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-[0.6rem] font-bold text-[#041009]">
                 P
