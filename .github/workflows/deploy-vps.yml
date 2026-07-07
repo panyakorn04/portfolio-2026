@@ -109,36 +109,32 @@ jobs:
         run: |
           set -euo pipefail
 
-          SHORT_SHA="${GITHUB_SHA:0:7}"
-          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          COMMIT_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+          cat > /tmp/analyze.sh << 'ANALYZE'
+#!/bin/bash
+set -euo pipefail
 
-          echo "=== Collecting failure logs ==="
-          FAIL_LOGS=$(gh run view "$GITHUB_RUN_ID" --log-failed 2>/dev/null | tail -90 || echo "Logs unavailable")
-          FAIL_LOGS=$(printf "%s" "$FAIL_LOGS" | head -c 5200)
+SHORT_SHA="${GITHUB_SHA:0:7}"
+RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+COMMIT_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
 
-          # Quick classification (from skill reference)
-          if echo "$FAIL_LOGS" | grep -qiE "timeout|connection refused|ssh: connect|dial tcp.*22"; then
-            echo "Note: Possible transient network/SSH issue detected"
-            FAIL_LOGS="TRANSIENT? ${FAIL_LOGS}"
-          fi
+echo "=== Collecting failure logs ==="
+FAIL_LOGS=$(gh run view "$GITHUB_RUN_ID" --log-failed 2>/dev/null | tail -90 || echo "Logs unavailable")
+FAIL_LOGS=$(printf "%s" "$FAIL_LOGS" | head -c 5200)
 
-          echo "=== Finding or creating issue ==="
-          EXISTING=$(gh issue list \
-            --repo "${GITHUB_REPOSITORY}" \
-            --state open \
-            --label "deploy-failure,agent-loop" \
-            --json number,title \
-            --jq ".[] | select(.title | contains(\"${SHORT_SHA}\")) | .number" | head -1 || true)
+if echo "$FAIL_LOGS" | grep -qiE "timeout|connection refused|ssh: connect|dial tcp.*22"; then
+  echo "Note: Possible transient network/SSH issue detected"
+  FAIL_LOGS="TRANSIENT? ${FAIL_LOGS}"
+fi
 
-          if [ -n "$EXISTING" ]; then
-            ISSUE_NUMBER="$EXISTING"
-            echo "Reusing issue #$ISSUE_NUMBER"
-          else
-            ISSUE_NUMBER=$(gh issue create \
-              --repo "${GITHUB_REPOSITORY}" \
-              --title "🚨 Deploy Frontend failed: ${SHORT_SHA}" \
-              --body "## Deploy Failure — Agent Loop Feedback
+echo "=== Finding or creating issue ==="
+EXISTING=$(gh issue list   --repo "${GITHUB_REPOSITORY}"   --state open   --label "deploy-failure,agent-loop"   --json number,title   --jq ".[] | select(.title | contains(\"${SHORT_SHA}\")) | .number" | head -1 || true)
+
+if [ -n "$EXISTING" ]; then
+  ISSUE_NUMBER="$EXISTING"
+  echo "Reusing issue #$ISSUE_NUMBER"
+else
+  ISSUE_BODY=$(cat << 'ISSUEBODY'
+## Deploy Failure — Agent Loop Feedback
 
 **Commit:** [${SHORT_SHA}](${COMMIT_URL})
 **Run:** [Open logs & jobs](${RUN_URL})
@@ -151,117 +147,92 @@ jobs:
 2. Apply the smallest possible fix.
 3. Commit and push.
 4. The workflow will run again automatically.
-5. Repeat until the deploy is green." \
-              --label "deploy-failure,agent-loop,needs-fix" \
-              --json number --jq '.number')
-            echo "Created issue #$ISSUE_NUMBER"
-          fi
+5. Repeat until the deploy is green.
+ISSUEBODY
+)
 
-          echo "=== Calling backend with qwen2.5-coder:7b (with retry) ==="
+  ISSUE_NUMBER=$(gh issue create     --repo "${GITHUB_REPOSITORY}"     --title "🚨 Deploy Frontend failed: ${SHORT_SHA}"     --body "$ISSUE_BODY"     --label "deploy-failure,agent-loop,needs-fix"     --json number --jq '.number')
+  echo "Created issue #$ISSUE_NUMBER"
+fi
 
-          # === STRICT SYSTEM PROMPT (from github-operations skill) ===
-          SYSTEM='You are a strict, precise DevOps + software engineer.
+echo "=== Calling backend with qwen2.5-coder:7b ==="
+
+SYSTEM='You are a strict, precise DevOps + software engineer.
 
 MANDATORY RULES:
 - Output MUST start exactly with the four headings below and contain NOTHING before the first heading.
-- Output MUST contain ONLY these four sections. No intro, no closing text, no extra paragraphs.
-- Be extremely concise. Max 2 sentences per section.
-- Always recommend the smallest change first (YAML/build args > code).
-- If low confidence: explicitly write "Low confidence - logs are insufficient".
-- No hedging language. Be direct.
-- This analysis is ADVISORY ONLY. Human/agent must review full logs.
-
-REQUIRED FORMAT (exact):
+- Output MUST contain ONLY these four sections.
+- Be extremely concise.
+- Always recommend the smallest change first.
+- If low confidence write exactly "Low confidence - logs are insufficient".
+- This analysis is ADVISORY ONLY.
 
 ### Root Cause
-(1-2 sentences citing the specific error)
+(1-2 sentences)
 
 ### Recommended Fix
-(smallest change + minimal diff if needed)
+(smallest change)
 
 ### Files / Steps
-- exact paths or steps
+- paths
 
 ### How to Verify
 ```bash
-commands
+command
 ```'
 
-          USER_BASE="The Next.js frontend deploy to VPS using GHCR just failed.
+USER_BASE="The Next.js frontend deploy to VPS using GHCR just failed.
 
 Run URL: ${RUN_URL}
 Commit: ${SHORT_SHA}
 
-Here are the truncated failure logs:
-
+Logs:
 ${FAIL_LOGS}
 
-Analyze strictly according to the rules and output format above."
+Analyze strictly."
 
-          MAX_RETRIES=3
-          ATTEMPT=1
-          ANALYSIS=""
+MAX_RETRIES=3
+ATTEMPT=1
+ANALYSIS=""
 
-          while [ $ATTEMPT -le $MAX_RETRIES ]; do
-            echo "=== LLM attempt ${ATTEMPT}/${MAX_RETRIES} ==="
+while [ $ATTEMPT -le $MAX_RETRIES ]; do
+  echo "=== Attempt ${ATTEMPT}/${MAX_RETRIES} ==="
+  USER_MSG="$USER_BASE"
+  if [ $ATTEMPT -gt 1 ]; then
+    USER_MSG="$USER_MSG
 
-            USER_MSG="$USER_BASE"
+Retry ${ATTEMPT}: Follow the exact format."
+  fi
 
-            if [ $ATTEMPT -gt 1 ]; then
-              USER_MSG="${USER_MSG}
+  jq -n --arg model "qwen2.5-coder:7b" --arg sys "$SYSTEM" --arg usr "$USER_MSG"     '{ model: $model, messages: [{role:"system", content:$sys}, {role:"user", content:$usr}] }' > /tmp/llm.json
 
-This is retry attempt ${ATTEMPT}. Previous response was invalid or incomplete. Please follow the exact format strictly this time."
-            fi
+  RESPONSE=$(curl -s --max-time 90 -X POST https://api.panyakorn.com/api/ai/chat     -H "Content-Type: application/json" -d @/tmp/llm.json || echo '{}')
 
-            jq -n \
-              --arg model "qwen2.5-coder:7b" \
-              --arg sys "$SYSTEM" \
-              --arg usr "$USER_MSG" \
-              '{ model: $model, messages: [ {role:"system", content:$sys}, {role:"user", content:$usr} ] }' \
-              > /tmp/llm.json
+  ANALYSIS=$(echo "$RESPONSE" | jq -r '.data.message.content // ""' 2>/dev/null || echo "")
 
-            RESPONSE=$(curl -s --max-time 100 -X POST https://api.panyakorn.com/api/ai/chat \
-              -H "Content-Type: application/json" \
-              -d @/tmp/llm.json || echo '{"data":{"message":{"content":""}}}')
+  if echo "$ANALYSIS" | grep -q "### Root Cause" && echo "$ANALYSIS" | grep -q "### Recommended Fix"; then
+    echo "✓ Good response"
+    break
+  fi
 
-            ANALYSIS=$(echo "$RESPONSE" | jq -r '.data.message.content // ""' 2>/dev/null || echo "")
+  ATTEMPT=$((ATTEMPT + 1))
+  sleep 2
+done
 
-            # Validation: require all 4 headings + substance (from skill)
-            if echo "$ANALYSIS" | grep -q "### Root Cause" && \
-               echo "$ANALYSIS" | grep -q "### Recommended Fix" && \
-               echo "$ANALYSIS" | grep -q "### Files / Steps" && \
-               echo "$ANALYSIS" | grep -q "### How to Verify" && \
-               [ ${#ANALYSIS} -gt 220 ]; then
-              echo "✓ Valid structured response received on attempt ${ATTEMPT}"
-              break
-            else
-              echo "✗ Invalid or incomplete response on attempt ${ATTEMPT}"
-              ATTEMPT=$((ATTEMPT + 1))
-              sleep 3
-            fi
-          done
+if [ -z "$ANALYSIS" ] || ! echo "$ANALYSIS" | grep -q "### Root Cause"; then
+  ANALYSIS="**LLM did not return valid structured output after ${MAX_RETRIES} attempts.** (ADVISORY ONLY)"
+fi
 
-          if [ -z "$ANALYSIS" ] || ! echo "$ANALYSIS" | grep -q "### Root Cause"; then
-            ANALYSIS="**LLM did not produce a valid structured response after ${MAX_RETRIES} attempts.**
+echo "=== Posting comment to issue #$ISSUE_NUMBER ==="
+gh issue comment "$ISSUE_NUMBER"   --repo "${GITHUB_REPOSITORY}"   --body "## 🤖 Analysis (qwen2.5-coder:7b)
 
-This analysis is ADVISORY ONLY. Please review the full logs yourself and do not blindly apply changes."
-          else
-            ANALYSIS="${ANALYSIS}
-
----
-*Attempts used: ${ATTEMPT}/${MAX_RETRIES}*"
-          fi
-
-          echo "=== Posting analysis as comment to issue #$ISSUE_NUMBER ==="
-          gh issue comment "$ISSUE_NUMBER" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --body "## 🤖 Analysis from qwen2.5-coder:7b (via backend)
-
-> **ADVISORY ONLY** — LLM output is for guidance. Always cross-check against the full logs.
+> ADVISORY ONLY
 
 $ANALYSIS
 
 ---
-*Auto-generated • Model: qwen2.5-coder:7b • Retries enabled • See skill: github-actions-agent-loop-deploy-reporter.md*"
+Auto-generated"
+echo "✅ Done"
+ANALYZE
 
-          echo "✅ Analysis posted to issue #$ISSUE_NUMBER (after ${ATTEMPT} attempt(s))"
+          bash /tmp/analyze.sh
