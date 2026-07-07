@@ -15,6 +15,7 @@ concurrency:
 
 permissions:
   contents: read
+  issues: write
   packages: write
 
 jobs:
@@ -85,3 +86,58 @@ jobs:
             FRONTEND_IMAGE="$FRONTEND_IMAGE" docker compose up -d frontend caddy
             docker exec caddy caddy reload --config /etc/caddy/Caddyfile
             docker image prune -f
+
+  report-deploy-failure:
+    name: Report failure to Agent Loop
+    needs: build-test-deploy
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create agent feedback issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          COMMIT_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+          TITLE="🚨 Deploy Frontend failed: ${SHORT_SHA}"
+
+          EXISTING=$(gh issue list             --repo "${GITHUB_REPOSITORY}"             --state open             --label "deploy-failure,agent-loop"             --json title             --jq ".[] | select(.title | contains(\"${SHORT_SHA}\")) | .title" | head -1 || true)
+
+          if [ -n "$EXISTING" ]; then
+            echo "Open issue for ${SHORT_SHA} already exists. Skipping."
+            exit 0
+          fi
+
+          cat > /tmp/body.md << 'BODYEOF'
+## Deploy Failure — Agent Loop Feedback
+
+**Status:** The deploy job failed.
+
+**Commit:** `SHORT_SHA_PLACEHOLDER` ([view](COMMIT_URL_PLACEHOLDER))
+**Workflow Run:** [Open full logs](RUN_URL_PLACEHOLDER)
+**Event:** EVENT_PLACEHOLDER
+
+### Agent Instructions (repeat until success)
+1. Open the Workflow Run link above.
+2. Analyze the logs of "Build and deploy" job.
+3. Identify root cause.
+4. Make the smallest fix.
+5. Push the fix — workflow will run again.
+6. Loop until deploy is green.
+
+When fixed, comment "Deploy succeeded" and close this issue.
+
+BODYEOF
+
+          sed -i.bak "s|SHORT_SHA_PLACEHOLDER|${SHORT_SHA}|g" /tmp/body.md
+          sed -i.bak "s|COMMIT_URL_PLACEHOLDER|${COMMIT_URL}|g" /tmp/body.md
+          sed -i.bak "s|RUN_URL_PLACEHOLDER|${RUN_URL}|g" /tmp/body.md
+          sed -i.bak "s|EVENT_PLACEHOLDER|${GITHUB_EVENT_NAME}|g" /tmp/body.md
+          rm -f /tmp/body.md.bak 2>/dev/null || true
+
+          gh issue create             --repo "${GITHUB_REPOSITORY}"             --title "$TITLE"             --body-file /tmp/body.md             --label "deploy-failure,agent-loop,needs-fix"
+
+          echo "Agent loop feedback issue created."
