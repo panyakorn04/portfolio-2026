@@ -135,7 +135,7 @@ jobs:
             ISSUE_NUMBER="$EXISTING"
             echo "Reusing issue #$ISSUE_NUMBER"
           else
-            ISSUE_URL=$(gh issue create \
+            ISSUE_NUMBER=$(gh issue create \
               --repo "${GITHUB_REPOSITORY}" \
               --title "🚨 Deploy Frontend failed: ${SHORT_SHA}" \
               --body "## Deploy Failure — Agent Loop Feedback
@@ -151,8 +151,11 @@ jobs:
 2. Apply the smallest possible fix.
 3. Commit and push.
 4. The workflow will run again automatically.
-5. Repeat until the deploy is green.
-
+5. Repeat until the deploy is green." \
+              --label "deploy-failure,agent-loop,needs-fix" \
+              --json number --jq '.number')
+            echo "Created issue #$ISSUE_NUMBER"
+          fi
 
           echo "=== Calling backend with qwen2.5-coder:7b (with retry) ==="
 
