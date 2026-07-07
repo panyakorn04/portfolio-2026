@@ -143,57 +143,113 @@ jobs:
             echo "Created issue #$ISSUE_NUMBER"
           fi
 
-          echo "=== Calling backend with qwen2.5-coder:7b ==="
+          echo "=== Calling backend with qwen2.5-coder:7b (with retry) ==="
 
-          SYSTEM='You are a senior DevOps engineer expert in Next.js 16, Bun, Docker, GitHub Actions, GHCR, and VPS docker-compose deployments.
+          # === STRICT SYSTEM PROMPT ===
+          SYSTEM='You are a strict and precise DevOps + software engineer.
 
-Analyze the CI failure logs and respond with exactly these headings:
+MANDATORY RULES (you will be judged on these):
+- Output MUST start with exactly these 4 headings and NOTHING before them.
+- Output MUST end after the last heading. No extra paragraphs, no "In conclusion", no "Hope this helps".
+- Be extremely concise. One or two sentences per section max unless a diff is needed.
+- Always prefer the smallest possible change (workflow YAML > docker args > code change).
+- If you cannot identify the root cause with high confidence from the provided logs, explicitly write: "Low confidence - logs are insufficient".
+- Never use vague language like "probably", "might be", "I think". Be direct.
+- Use proper markdown code blocks for any commands or file edits.
+
+EXACT OUTPUT FORMAT REQUIRED (copy this structure exactly):
 
 ### Root Cause
-(1-2 sentences max)
+(1-2 sentences. Be specific about the error.)
 
 ### Recommended Fix
-(Smallest change. Show code snippet or exact edit if possible)
+(Describe the smallest change. If code change, show a minimal diff or exact replacement.)
 
 ### Files / Steps
-- file or action
+- List exact file paths or workflow steps to edit
 
 ### How to Verify
 ```bash
-command
+exact commands to run
 ```'
 
-          USER_MSG="The frontend deploy workflow failed.
+          USER_BASE="The Next.js frontend deploy to VPS using GHCR just failed.
 
-Run: ${RUN_URL}
+Run URL: ${RUN_URL}
 Commit: ${SHORT_SHA}
 
-Truncated logs:
+Here are the truncated failure logs:
+
 ${FAIL_LOGS}
 
-Give analysis in the exact format requested."
+Analyze strictly according to the rules and output format above."
 
-          jq -n \
-            --arg model "qwen2.5-coder:7b" \
-            --arg sys "$SYSTEM" \
-            --arg usr "$USER_MSG" \
-            '{ model: $model, messages: [ {role:"system", content:$sys}, {role:"user", content:$usr} ] }' \
-            > /tmp/llm.json
+          MAX_RETRIES=3
+          ATTEMPT=1
+          ANALYSIS=""
 
-          RESPONSE=$(curl -s --max-time 90 -X POST https://api.panyakorn.com/api/ai/chat \
-            -H "Content-Type: application/json" \
-            -d @/tmp/llm.json || echo '{"data":{"message":{"content":"Failed to reach LLM or rate limited."}}}')
+          while [ $ATTEMPT -le $MAX_RETRIES ]; do
+            echo "=== LLM attempt ${ATTEMPT}/${MAX_RETRIES} ==="
 
-          ANALYSIS=$(echo "$RESPONSE" | jq -r '.data.message.content // "No content from model."')
+            USER_MSG="$USER_BASE"
 
-          echo "=== Posting analysis as comment ==="
+            if [ $ATTEMPT -gt 1 ]; then
+              USER_MSG="${USER_MSG}
+
+This is retry attempt ${ATTEMPT}. Previous response was invalid or incomplete. Please follow the exact format strictly this time."
+            fi
+
+            jq -n \
+              --arg model "qwen2.5-coder:7b" \
+              --arg sys "$SYSTEM" \
+              --arg usr "$USER_MSG" \
+              '{ model: $model, messages: [ {role:"system", content:$sys}, {role:"user", content:$usr} ] }' \
+              > /tmp/llm.json
+
+            RESPONSE=$(curl -s --max-time 100 -X POST https://api.panyakorn.com/api/ai/chat \
+              -H "Content-Type: application/json" \
+              -d @/tmp/llm.json || echo '{"data":{"message":{"content":""}}}')
+
+            ANALYSIS=$(echo "$RESPONSE" | jq -r '.data.message.content // ""' 2>/dev/null || echo "")
+
+            # Validation: must contain the 3 critical headings + reasonable length
+            if echo "$ANALYSIS" | grep -q "### Root Cause" && \
+               echo "$ANALYSIS" | grep -q "### Recommended Fix" && \
+               echo "$ANALYSIS" | grep -q "### How to Verify" && \
+               [ ${#ANALYSIS} -gt 180 ]; then
+              echo "✓ Valid structured response received on attempt ${ATTEMPT}"
+              break
+            else
+              echo "✗ Invalid or incomplete response on attempt ${ATTEMPT}"
+              ATTEMPT=$((ATTEMPT + 1))
+              sleep 3
+            fi
+          done
+
+          if [ -z "$ANALYSIS" ] || ! echo "$ANALYSIS" | grep -q "### Root Cause"; then
+            ANALYSIS="**LLM did not return a valid structured response after ${MAX_RETRIES} attempts.**
+
+Last raw output:
+\`\`\`
+${ANALYSIS:-<empty>}
+\`\`\`
+
+Please check the full logs in the workflow run and analyze manually."
+          else
+            ANALYSIS="${ANALYSIS}
+
+---
+*Attempts used: ${ATTEMPT}/${MAX_RETRIES}*"
+          fi
+
+          echo "=== Posting analysis as comment to issue #$ISSUE_NUMBER ==="
           gh issue comment "$ISSUE_NUMBER" \
             --repo "${GITHUB_REPOSITORY}" \
-            --body "## 🤖 Analysis from qwen2.5-coder:7b
+            --body "## 🤖 Analysis from qwen2.5-coder:7b (via backend)
 
 $ANALYSIS
 
 ---
-*Posted automatically by the Deploy Agent Loop (workflow calls backend using qwen2.5-coder:7b)*"
+*Auto-generated by Deploy Agent Loop • Model: qwen2.5-coder:7b • Retries enabled*"
 
-          echo "✅ Done. Analysis posted to issue #$ISSUE_NUMBER"
+          echo "✅ Analysis posted to issue #$ISSUE_NUMBER (after ${ATTEMPT} attempt(s))"
