@@ -75,6 +75,14 @@ type StoredChatSession = {
   updatedAt: string;
 };
 
+export type AgentLoopState = {
+  trace: Array<{
+    id: string;
+    label: string;
+    status: "active" | "done" | "error" | "pending";
+  }>;
+};
+
 const closeDurMs = 150;
 const legacyChatSessionStorageKey = "panyakorn:portfolio-chat-session:v1";
 const chatRecentsStorageKey = "panyakorn:portfolio-chat-recents:v1";
@@ -85,6 +93,19 @@ const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
 function apiUrl(path: string) {
   return `${apiBaseUrl}${path}`;
 }
+
+function safeRandomId(prefix: string): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    try {
+      return `${prefix}-${crypto.randomUUID()}`;
+    } catch {
+      // fall through to timestamp fallback
+    }
+  }
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
+const CHAT_STREAM_TIMEOUT_MS = 120_000; // 2 minutes for LLM streaming
 
 export function useChatDemo(copy: ChatCopy) {
   const [draft, setDraft] = useState("");
@@ -360,9 +381,12 @@ export function useChatDemo(copy: ChatCopy) {
     assistantMessageId: string,
     userMessage: ChatMessage,
   ) {
-    const runId = `run-${crypto.randomUUID()}`;
+    const runId = safeRandomId("run");
 
     setIsWaiting(true);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), CHAT_STREAM_TIMEOUT_MS);
 
     try {
       const currentSessionId = sessionIdRef.current;
@@ -370,6 +394,7 @@ export function useChatDemo(copy: ChatCopy) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify(
           currentSessionId
             ? {
@@ -410,9 +435,19 @@ export function useChatDemo(copy: ChatCopy) {
           throw new Error(event.message ?? "Assistant stream error");
         }
       });
-    } catch {
-      updateAssistantMessage(assistantMessageId, () => copy.streamError);
+    } catch (_err) {
+      const fallbackText = await tryNonStreamFallback(
+        nextMessages,
+        userMessage,
+        controller.signal,
+      );
+      if (fallbackText?.trim()) {
+        updateAssistantMessage(assistantMessageId, () => fallbackText);
+      } else {
+        updateAssistantMessage(assistantMessageId, () => copy.streamError);
+      }
     } finally {
+      clearTimeout(timeoutId);
       setIsWaiting(false);
     }
   }
@@ -425,12 +460,12 @@ export function useChatDemo(copy: ChatCopy) {
     }
 
     const userMessage: ChatMessage = {
-      id: `user-${crypto.randomUUID()}`,
+      id: safeRandomId("user"),
       role: "user",
       text: normalizedPrompt,
     };
     const assistantMessage: ChatMessage = {
-      id: `assistant-${crypto.randomUUID()}`,
+      id: safeRandomId("assistant"),
       role: "assistant",
       text: "",
     };
@@ -534,6 +569,8 @@ export function useChatDemo(copy: ChatCopy) {
     void submitPrompt(prompt);
   }
 
+  const agentLoopState: AgentLoopState = { trace: [] };
+
   return {
     activeSessionKey,
     chatEndRef,
@@ -556,6 +593,7 @@ export function useChatDemo(copy: ChatCopy) {
     recentSessions,
     textareaRef,
     toggleChat,
+    agentLoopState,
   };
 }
 
@@ -640,6 +678,42 @@ async function deletePortfolioChatSession(sessionId: string) {
 
   if (!response.ok) {
     throw new Error(`Delete chat session failed (${response.status})`);
+  }
+}
+
+async function tryNonStreamFallback(
+  nextMessages: ChatMessage[],
+  userMessage: ChatMessage,
+  signal?: AbortSignal,
+): Promise<string | null> {
+  try {
+    const messagesForApi = [
+      ...nextMessages
+        .filter((m) => m.text.trim() !== "")
+        .map((m) => ({ role: m.role, content: m.text })),
+      { role: "user", content: userMessage.text },
+    ].slice(-12);
+
+    const res = await fetch(apiUrl("/api/portfolio/assistant/chat"), {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      signal,
+      body: JSON.stringify({ messages: messagesForApi }),
+    });
+
+    if (!res.ok) return null;
+    const env = (await res.json()) as {
+      data?: {
+        message?: { content?: unknown };
+        content?: unknown;
+        text?: unknown;
+      };
+    };
+    const content = env?.data?.message?.content ?? env?.data?.content ?? env?.data?.text;
+    return typeof content === "string" ? content : null;
+  } catch {
+    return null;
   }
 }
 
@@ -998,5 +1072,9 @@ function dispatchPortfolioAssistantStreamEvent(
     return;
   }
 
-  onEvent(JSON.parse(data) as PortfolioAssistantStreamEvent);
+  try {
+    onEvent(JSON.parse(data) as PortfolioAssistantStreamEvent);
+  } catch {
+    // Ignore malformed event frames so one bad chunk does not kill the whole reply
+  }
 }
