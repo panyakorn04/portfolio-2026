@@ -40,7 +40,7 @@ jobs:
       - name: Build Next.js app
         env:
           NEXT_PUBLIC_SITE_URL: https://panyakorn.com
-          NEXT_PUBLIC_API_URL: ""
+          NEXT_PUBLIC_API_URL: https://api.panyakorn.com
           BUILD_API_BASE_URL: https://api.panyakorn.com
           FRONTEND_API_BASE_URL: http://backend:8888
           PORTFOLIO_API_TIMEOUT_MS: 3000
@@ -67,7 +67,7 @@ jobs:
             ${{ env.IMAGE_REPO }}:${{ github.sha:0:7 }}
           build-args: |
             NEXT_PUBLIC_SITE_URL=https://panyakorn.com
-            NEXT_PUBLIC_API_URL=
+            NEXT_PUBLIC_API_URL=https://api.panyakorn.com
             BUILD_API_BASE_URL=https://api.panyakorn.com
             FRONTEND_API_BASE_URL=http://backend:8888
             PORTFOLIO_API_TIMEOUT_MS=3000
@@ -78,18 +78,24 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           FRONTEND_IMAGE: ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: FRONTEND_IMAGE
+          envs: FRONTEND_IMAGE,GHCR_TOKEN
           script: |
             set -euo pipefail
             cd /opt/apps
+            echo "=== Logging into GHCR ==="
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u panyakorn04 --password-stdin || echo "GHCR login warning (may be public)"
+            echo "=== Pulling image: $FRONTEND_IMAGE ==="
             docker pull "$FRONTEND_IMAGE"
+            echo "=== Restarting services ==="
             FRONTEND_IMAGE="$FRONTEND_IMAGE" docker compose up -d frontend caddy
-            docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+            docker exec caddy caddy reload --config /etc/caddy/Caddyfile || true
             docker image prune -f
+            echo "=== Deploy step completed ==="
 
   report-deploy-failure:
     name: Report failure to Agent Loop (qwen2.5-coder)
