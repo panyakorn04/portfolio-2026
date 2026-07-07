@@ -7,17 +7,12 @@ import {
 } from "react";
 
 import type { PortfolioDictionary } from "../_data/portfolio";
-import type {
-  AgentLoopState,
-  ChatMessage,
-  ChatRecentSession,
-} from "../_hooks/use-chat-demo";
+import type { ChatMessage, ChatRecentSession } from "../_hooks/use-chat-demo";
 
 type ChatCopy = PortfolioDictionary["chat"];
 
 type ChatDemoViewProps = {
   activeSessionKey: string;
-  agentLoopState: AgentLoopState;
   chatEndRef: RefObject<HTMLDivElement | null>;
   chatLogRef: RefObject<HTMLDivElement | null>;
   copy: ChatCopy;
@@ -57,7 +52,6 @@ const typingDotClass =
 
 export default function ChatDemoView({
   activeSessionKey,
-  agentLoopState,
   chatEndRef,
   chatLogRef,
   copy,
@@ -180,10 +174,6 @@ export default function ChatDemoView({
           </div>
 
           <div className="grid gap-3 p-3">
-            {activeTab === "new" && isWaiting ? (
-              <AgentLoopStatus state={agentLoopState} />
-            ) : null}
-
             <div ref={chatLogRef} className={chatLogClass}>
               {activeTab === "recent" ? (
                 titledSessions.length > 0 ? (
@@ -443,101 +433,6 @@ export default function ChatDemoView({
         </span>
         <span className="sm:hidden">{isOpen ? copy.closeLabel : copy.openLabel}</span>
       </button>
-    </div>
-  );
-}
-
-function AgentLoopStatus({ state }: { state: AgentLoopState }) {
-  const activeItem =
-    state.trace.find((item) => item.status === "active") ?? state.trace.at(-1);
-
-  if (!activeItem) {
-    return null;
-  }
-
-  const visibleTrace = state.trace.slice(-5);
-
-  return (
-    <div className="rounded-2xl border border-[rgba(111,247,166,0.18)] bg-[rgba(6,12,9,0.82)] px-3.5 py-2.5 transition-all duration-200">
-      <div className="mb-2.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <div className="flex size-5 items-center justify-center rounded-full bg-[var(--color-accent)]/10 ring-1 ring-[rgba(111,247,166,0.2)]">
-            <span className="font-mono text-[9px] font-semibold text-[var(--color-accent)]">
-              AI
-            </span>
-          </div>
-          <div className="min-w-0">
-            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-[var(--color-accent)]">
-              Agent Loop
-            </p>
-            <p className="mt-0.5 truncate text-[0.73rem] leading-tight text-[var(--color-text)]">
-              {activeItem.label}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5 rounded-full border border-[rgba(111,247,166,0.25)] bg-[rgba(111,247,166,0.1)] px-2 py-0.5">
-          <span className="size-1.5 animate-pulse rounded-full bg-[var(--color-accent)] motion-reduce:animate-none" />
-          <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--color-soft)]">
-            thinking
-          </span>
-        </div>
-      </div>
-
-      {visibleTrace.length > 1 && (
-        <div className="flex items-center gap-1 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {visibleTrace.map((item, idx) => {
-            const isActive = item.status === "active";
-            const isDone = item.status === "done";
-            const isError = item.status === "error";
-            const showLine = idx < visibleTrace.length - 1;
-
-            return (
-              <div key={item.id} className="flex items-center gap-1">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`flex size-3 items-center justify-center rounded-full border transition-all duration-300 ${
-                      isActive
-                        ? "border-[var(--color-accent)] bg-[var(--color-accent)] scale-110 shadow-[0_0_0_3px_rgba(111,247,166,0.15)]"
-                        : isDone
-                          ? "border-[var(--color-accent)] bg-[var(--color-accent)]"
-                          : isError
-                            ? "border-red-400 bg-red-500/70"
-                            : "border-[rgba(111,247,166,0.35)] bg-transparent"
-                    }`}
-                  >
-                    <div
-                      className={`size-1 rounded-full transition-all duration-300 ${
-                        isActive
-                          ? "bg-[#041009] animate-[ping_1.5s_cubic-bezier(0,0,0.2,1)_infinite]"
-                          : isDone
-                            ? "bg-[#041009]"
-                            : isError
-                              ? "bg-white"
-                              : "bg-[rgba(111,247,166,0.5)]"
-                      }`}
-                    />
-                  </div>
-                  <span
-                    className={`mt-1.5 max-w-[68px] truncate text-center text-[9px] leading-none transition-colors ${
-                      isActive
-                        ? "text-[var(--color-accent)] font-medium"
-                        : isDone
-                          ? "text-[var(--color-accent)]"
-                          : isError
-                            ? "text-red-400"
-                            : "text-[var(--color-soft)]"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                </div>
-
-                {showLine && <div className="h-[1px] w-3 bg-[rgba(111,247,166,0.25)]" />}
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }
