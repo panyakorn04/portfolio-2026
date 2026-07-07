@@ -88,12 +88,12 @@ jobs:
             docker image prune -f
 
   report-deploy-failure:
-    name: Report failure to Agent Loop
+    name: Report failure to Agent Loop (qwen2.5-coder)
     needs: build-test-deploy
     if: failure()
     runs-on: ubuntu-latest
     steps:
-      - name: Create agent feedback issue
+      - name: Analyze failure with qwen2.5-coder:7b
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -102,42 +102,98 @@ jobs:
           SHORT_SHA="${GITHUB_SHA:0:7}"
           RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           COMMIT_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
-          TITLE="🚨 Deploy Frontend failed: ${SHORT_SHA}"
 
-          EXISTING=$(gh issue list             --repo "${GITHUB_REPOSITORY}"             --state open             --label "deploy-failure,agent-loop"             --json title             --jq ".[] | select(.title | contains(\"${SHORT_SHA}\")) | .title" | head -1 || true)
+          echo "=== Collecting failure logs ==="
+          FAIL_LOGS=$(gh run view "$GITHUB_RUN_ID" --log-failed 2>/dev/null | tail -90 || echo "Logs unavailable")
+          FAIL_LOGS=$(printf "%s" "$FAIL_LOGS" | head -c 5200)
+
+          echo "=== Finding or creating issue ==="
+          EXISTING=$(gh issue list \
+            --repo "${GITHUB_REPOSITORY}" \
+            --state open \
+            --label "deploy-failure,agent-loop" \
+            --json number,title \
+            --jq ".[] | select(.title | contains(\"${SHORT_SHA}\")) | .number" | head -1 || true)
 
           if [ -n "$EXISTING" ]; then
-            echo "Open issue for ${SHORT_SHA} already exists. Skipping."
-            exit 0
+            ISSUE_NUMBER="$EXISTING"
+            echo "Reusing issue #$ISSUE_NUMBER"
+          else
+            ISSUE_URL=$(gh issue create \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "🚨 Deploy Frontend failed: ${SHORT_SHA}" \
+              --body "## Deploy Failure — Agent Loop Feedback
+
+**Commit:** [${SHORT_SHA}](${COMMIT_URL})
+**Run:** [Open logs & jobs](${RUN_URL})
+**Triggered by:** ${GITHUB_EVENT_NAME}
+
+**Model used for analysis:** qwen2.5-coder:7b (via backend /api/ai/chat)
+
+### Instructions for the agent
+1. Read the AI analysis comment that will be posted below.
+2. Apply the smallest possible fix.
+3. Commit and push.
+4. The workflow will run again automatically.
+5. Repeat until the deploy is green.
+
+" \
+              --label "deploy-failure,agent-loop,needs-fix")
+            ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -o '[0-9]*$')
+            echo "Created issue #$ISSUE_NUMBER"
           fi
 
-          cat > /tmp/body.md << 'BODYEOF'
-## Deploy Failure — Agent Loop Feedback
+          echo "=== Calling backend with qwen2.5-coder:7b ==="
 
-**Status:** The deploy job failed.
+          SYSTEM='You are a senior DevOps engineer expert in Next.js 16, Bun, Docker, GitHub Actions, GHCR, and VPS docker-compose deployments.
 
-**Commit:** `SHORT_SHA_PLACEHOLDER` ([view](COMMIT_URL_PLACEHOLDER))
-**Workflow Run:** [Open full logs](RUN_URL_PLACEHOLDER)
-**Event:** EVENT_PLACEHOLDER
+Analyze the CI failure logs and respond with exactly these headings:
 
-### Agent Instructions (repeat until success)
-1. Open the Workflow Run link above.
-2. Analyze the logs of "Build and deploy" job.
-3. Identify root cause.
-4. Make the smallest fix.
-5. Push the fix — workflow will run again.
-6. Loop until deploy is green.
+### Root Cause
+(1-2 sentences max)
 
-When fixed, comment "Deploy succeeded" and close this issue.
+### Recommended Fix
+(Smallest change. Show code snippet or exact edit if possible)
 
-BODYEOF
+### Files / Steps
+- file or action
 
-          sed -i.bak "s|SHORT_SHA_PLACEHOLDER|${SHORT_SHA}|g" /tmp/body.md
-          sed -i.bak "s|COMMIT_URL_PLACEHOLDER|${COMMIT_URL}|g" /tmp/body.md
-          sed -i.bak "s|RUN_URL_PLACEHOLDER|${RUN_URL}|g" /tmp/body.md
-          sed -i.bak "s|EVENT_PLACEHOLDER|${GITHUB_EVENT_NAME}|g" /tmp/body.md
-          rm -f /tmp/body.md.bak 2>/dev/null || true
+### How to Verify
+```bash
+command
+```'
 
-          gh issue create             --repo "${GITHUB_REPOSITORY}"             --title "$TITLE"             --body-file /tmp/body.md             --label "deploy-failure,agent-loop,needs-fix"
+          USER_MSG="The frontend deploy workflow failed.
 
-          echo "Agent loop feedback issue created."
+Run: ${RUN_URL}
+Commit: ${SHORT_SHA}
+
+Truncated logs:
+${FAIL_LOGS}
+
+Give analysis in the exact format requested."
+
+          jq -n \
+            --arg model "qwen2.5-coder:7b" \
+            --arg sys "$SYSTEM" \
+            --arg usr "$USER_MSG" \
+            '{ model: $model, messages: [ {role:"system", content:$sys}, {role:"user", content:$usr} ] }' \
+            > /tmp/llm.json
+
+          RESPONSE=$(curl -s --max-time 90 -X POST https://api.panyakorn.com/api/ai/chat \
+            -H "Content-Type: application/json" \
+            -d @/tmp/llm.json || echo '{"data":{"message":{"content":"Failed to reach LLM or rate limited."}}}')
+
+          ANALYSIS=$(echo "$RESPONSE" | jq -r '.data.message.content // "No content from model."')
+
+          echo "=== Posting analysis as comment ==="
+          gh issue comment "$ISSUE_NUMBER" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --body "## 🤖 Analysis from qwen2.5-coder:7b
+
+$ANALYSIS
+
+---
+*Posted automatically by the Deploy Agent Loop (workflow calls backend using qwen2.5-coder:7b)*"
+
+          echo "✅ Done. Analysis posted to issue #$ISSUE_NUMBER"
