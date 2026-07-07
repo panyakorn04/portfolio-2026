@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 import { Button } from "./button";
+import { submitContact } from "./contact-actions";
+import { initialContactState } from "./contact-form-state";
 
 type ContactFormCopy = PortfolioDictionary["contactForm"];
 
@@ -12,130 +15,31 @@ type ContactFormProps = {
   copy: ContactFormCopy;
 };
 
-type FormState = {
-  name: string;
-  email: string;
-  company: string;
-  subject: string;
-  message: string;
-};
+const inputClass =
+  "mt-2 w-full rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.82)] px-3.5 py-3 text-sm text-[var(--color-text)] outline-none transition-colors placeholder:text-[var(--color-soft)] focus:border-[var(--color-line-strong)]";
+const labelClass =
+  "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
 
-type FieldErrors = Partial<Record<keyof FormState, string>>;
+function SubmitButton({ copy }: { copy: ContactFormCopy }) {
+  const { pending } = useFormStatus();
 
-const initialFormState: FormState = {
-  name: "",
-  email: "",
-  company: "",
-  subject: "",
-  message: "",
-};
-
-type ApiErrorResponse = {
-  ok: false;
-  error: {
-    message: string;
-    details?: Array<{
-      field: string;
-      message: string;
-    }>;
-  };
-};
-
-type ApiSuccessResponse = {
-  ok: true;
-  data: {
-    message: string;
-    deliveryMode: string;
-    submittedAt: string;
-  };
-};
-
-const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending ? copy.submittingLabel : copy.submitLabel}
+    </Button>
+  );
+}
 
 export default function ContactForm({ locale, copy }: ContactFormProps) {
-  const [form, setForm] = useState<FormState>(initialFormState);
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [serverMessage, setServerMessage] = useState<string | null>(null);
-  const [serverTone, setServerTone] = useState<"success" | "error">("success");
-  const [isPending, startTransition] = useTransition();
+  const [state, formAction] = useActionState(submitContact, initialContactState);
+  const { fieldErrors } = state;
 
-  function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
-    setForm((current) => ({
-      ...current,
-      [field]: value,
-    }));
-
-    setFieldErrors((current) => {
-      if (!current[field]) {
-        return current;
-      }
-
-      return {
-        ...current,
-        [field]: undefined,
-      };
-    });
-  }
-
-  async function submitForm(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setServerMessage(null);
-
-    startTransition(async () => {
-      try {
-        const response = await fetch(`${apiBaseUrl}/api/contact`, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({
-            ...form,
-            locale,
-          }),
-        });
-
-        const data = (await response.json()) as ApiSuccessResponse | ApiErrorResponse;
-
-        if (!response.ok || !data.ok) {
-          const nextFieldErrors =
-            (data as ApiErrorResponse).error.details?.reduce<FieldErrors>(
-              (result, detail) => {
-                if (
-                  detail.field === "name" ||
-                  detail.field === "email" ||
-                  detail.field === "company" ||
-                  detail.field === "subject" ||
-                  detail.field === "message"
-                ) {
-                  result[detail.field] = detail.message;
-                }
-
-                return result;
-              },
-              {},
-            ) ?? {};
-
-          setFieldErrors(nextFieldErrors);
-          setServerTone("error");
-          setServerMessage((data as ApiErrorResponse).error.message ?? copy.submitError);
-          return;
-        }
-
-        setFieldErrors({});
-        setForm(initialFormState);
-        setServerTone("success");
-        setServerMessage(copy.submitSuccess);
-      } catch {
-        setServerTone("error");
-        setServerMessage(copy.submitError);
-      }
-    });
-  }
-
-  const inputClass =
-    "mt-2 w-full rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.82)] px-3.5 py-3 text-sm text-[var(--color-text)] outline-none transition-colors placeholder:text-[var(--color-soft)] focus:border-[var(--color-line-strong)]";
-  const labelClass =
-    "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
+  const serverMessage =
+    state.status === "success"
+      ? copy.submitSuccess
+      : state.status === "error"
+        ? (state.message ?? copy.submitError)
+        : null;
 
   return (
     <div className="rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-5 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-6">
@@ -155,7 +59,8 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
         </p>
       </div>
 
-      <form className="mt-6 space-y-4" onSubmit={submitForm}>
+      <form className="mt-6 space-y-4" action={formAction}>
+        <input type="hidden" name="locale" value={locale} />
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="contact-name" className={labelClass}>
@@ -167,10 +72,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
               autoComplete="name"
               required
               minLength={2}
-              disabled={isPending}
               aria-invalid={fieldErrors.name ? "true" : "false"}
-              value={form.name}
-              onChange={(event) => updateField("name", event.target.value)}
               placeholder={copy.namePlaceholder}
               className={inputClass}
             />
@@ -189,10 +91,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
               type="email"
               autoComplete="email"
               required
-              disabled={isPending}
               aria-invalid={fieldErrors.email ? "true" : "false"}
-              value={form.email}
-              onChange={(event) => updateField("email", event.target.value)}
               placeholder={copy.emailPlaceholder}
               className={inputClass}
             />
@@ -211,9 +110,6 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
               id="contact-company"
               name="company"
               autoComplete="organization"
-              disabled={isPending}
-              value={form.company}
-              onChange={(event) => updateField("company", event.target.value)}
               placeholder={copy.companyPlaceholder}
               className={inputClass}
             />
@@ -228,10 +124,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
               name="subject"
               required
               minLength={3}
-              disabled={isPending}
               aria-invalid={fieldErrors.subject ? "true" : "false"}
-              value={form.subject}
-              onChange={(event) => updateField("subject", event.target.value)}
               placeholder={copy.subjectPlaceholder}
               className={inputClass}
             />
@@ -251,10 +144,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
             rows={7}
             required
             minLength={20}
-            disabled={isPending}
             aria-invalid={fieldErrors.message ? "true" : "false"}
-            value={form.message}
-            onChange={(event) => updateField("message", event.target.value)}
             placeholder={copy.messagePlaceholder}
             className={`${inputClass} min-h-[10.5rem] resize-y`}
           />
@@ -273,7 +163,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
                 role="status"
                 aria-live="polite"
                 className={`text-sm ${
-                  serverTone === "success"
+                  state.status === "success"
                     ? "text-[var(--color-accent)]"
                     : "text-[#ff9a9a]"
                 }`}
@@ -283,9 +173,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
             ) : null}
           </div>
 
-          <Button type="submit" disabled={isPending}>
-            {isPending ? copy.submittingLabel : copy.submitLabel}
-          </Button>
+          <SubmitButton copy={copy} />
         </div>
       </form>
     </div>

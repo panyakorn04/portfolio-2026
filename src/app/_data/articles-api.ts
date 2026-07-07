@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 type ArticleLocale = "en" | "th";
 
 type ArticleSection = {
@@ -137,9 +139,11 @@ async function fetchApi<T>(path: string) {
   try {
     response = await fetch(`${getApiBaseUrl()}${path}`, fetchOptions);
   } catch (error) {
-    console.warn(
-      `Portfolio API request skipped for ${path}: ${error instanceof Error ? error.message : "unknown error"}`,
-    );
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        `Portfolio API request skipped for ${path}: ${error instanceof Error ? error.message : "unknown error"}`,
+      );
+    }
     return null;
   } finally {
     clearTimeout(timeoutId);
@@ -162,30 +166,32 @@ async function fetchApi<T>(path: string) {
   return payload.data;
 }
 
-export async function listArticles(locale: ArticleLocale, limit?: number | null) {
-  const searchParams = new URLSearchParams({ lang: locale });
-  if (typeof limit === "number") {
-    searchParams.set("limit", String(limit));
-  }
+export const listArticles = cache(
+  async (locale: ArticleLocale, limit?: number | null) => {
+    const searchParams = new URLSearchParams({ lang: locale });
+    if (typeof limit === "number") {
+      searchParams.set("limit", String(limit));
+    }
 
-  const data = await fetchApi<RawArticleListResponse>(
-    `/api/articles?${searchParams.toString()}`,
-  );
-  const items = Array.isArray(data?.items) ? data.items : [];
+    const data = await fetchApi<RawArticleListResponse>(
+      `/api/articles?${searchParams.toString()}`,
+    );
+    const items = Array.isArray(data?.items) ? data.items : [];
 
-  return items
-    .map(parseListItem)
-    .filter((item): item is ArticleListItem => item !== null);
-}
+    return items
+      .map(parseListItem)
+      .filter((item): item is ArticleListItem => item !== null);
+  },
+);
 
-export async function findArticle(locale: ArticleLocale, slug: string) {
+export const findArticle = cache(async (locale: ArticleLocale, slug: string) => {
   const searchParams = new URLSearchParams({ lang: locale });
   const data = await fetchApi<unknown>(
     `/api/articles/${encodeURIComponent(slug)}?${searchParams.toString()}`,
   );
 
   return parseArticleDetail(data);
-}
+});
 
 export async function getArticleSlugs(locale: ArticleLocale = "en") {
   const articles = await listArticles(locale);
