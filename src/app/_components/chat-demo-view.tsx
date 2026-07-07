@@ -44,11 +44,11 @@ type ChatDemoViewProps = {
 const widgetShellClass =
   "fixed bottom-4 right-4 z-40 grid justify-items-end gap-3 max-sm:bottom-3 max-sm:right-3";
 const backdropClass =
-  "fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(111,247,166,0.08),transparent_26%),rgba(5,11,8,0.24)] motion-reduce:transition-none";
+  "fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(111,247,166,0.06),transparent_30%),rgba(3,8,6,0.38)] motion-reduce:transition-none";
 const flyoutClass =
-  "w-[min(calc(100vw-2rem),38rem)] max-h-[min(84svh,52rem)] origin-bottom-right overflow-hidden rounded-[1.6rem] border border-[rgba(111,247,166,0.12)] bg-[linear-gradient(180deg,rgba(8,16,12,0.98),rgba(4,10,7,0.98))] shadow-[0_28px_80px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(111,247,166,0.08)] backdrop-blur-[14px] motion-reduce:transition-none max-sm:w-[calc(100vw-2.75rem)] max-sm:max-h-[calc(100svh-5.5rem)]";
+  "w-[min(calc(100vw-2rem),38rem)] max-h-[min(84svh,52rem)] origin-bottom-right overflow-hidden rounded-[1.6rem] border border-[rgba(111,247,166,0.14)] bg-[linear-gradient(180deg,rgba(5,11,8,0.96),rgba(3,8,6,0.96))] shadow-[0_28px_80px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(111,247,166,0.1)] backdrop-blur-[18px] motion-reduce:transition-none max-sm:w-[calc(100vw-2.75rem)] max-sm:max-h-[calc(100svh-5.5rem)]";
 const chatLogClass =
-  "flex min-h-64 max-h-[22rem] flex-col gap-3 overflow-y-auto rounded-[1.15rem] bg-[rgba(5,11,8,0.58)] p-3 [scrollbar-color:rgba(111,247,166,0.4)_transparent] [scrollbar-width:thin] max-sm:min-h-52 max-sm:max-h-[min(40svh,20rem)]";
+  "flex min-h-64 max-h-[22rem] flex-col gap-3 overflow-y-auto rounded-[1.15rem] bg-[rgba(4,9,7,0.72)] p-3 [scrollbar-color:rgba(111,247,166,0.35)_transparent] [scrollbar-width:thin] max-sm:min-h-52 max-sm:max-h-[min(40svh,20rem)]";
 const recentButtonClass =
   "group flex min-w-0 flex-1 items-start gap-2 rounded-xl border border-[var(--color-line)] bg-[rgba(10,20,16,0.52)] px-3 py-2 text-left transition-colors hover:border-[var(--color-line-strong)]";
 const typingClass = "flex items-center gap-1.5 px-1";
@@ -285,8 +285,13 @@ export default function ChatDemoView({
                   </div>
                 )
               ) : messages.length === 0 ? (
-                <div className="flex flex-1 items-center justify-center p-4 text-center">
-                  <p className="text-pretty text-[0.82rem] leading-relaxed text-[var(--color-muted)]">
+                <div className="flex flex-1 flex-col items-center justify-center gap-2 p-4 text-center">
+                  <div className="flex size-7 items-center justify-center rounded-full bg-[var(--color-accent)]/10 ring-1 ring-[rgba(111,247,166,0.2)]">
+                    <span className="font-mono text-[10px] text-[var(--color-accent)]">
+                      AI
+                    </span>
+                  </div>
+                  <p className="max-w-[26ch] text-pretty text-[0.82rem] leading-relaxed text-[var(--color-muted)]">
                     {copy.emptyState}
                   </p>
                 </div>
@@ -298,13 +303,19 @@ export default function ChatDemoView({
                     return (
                       <div
                         key={message.id}
-                        className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}
+                        className={`flex gap-2 ${isAssistant ? "justify-start" : "justify-end"}`}
                       >
+                        {isAssistant && (
+                          <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-[9px] font-bold text-[#041009]">
+                            P
+                          </div>
+                        )}
+
                         <div
-                          className={`max-w-[86%] rounded-2xl px-3.5 py-2.5 ${
+                          className={`max-w-[84%] rounded-2xl px-3.5 py-2.5 ${
                             isAssistant
-                              ? "rounded-tl-sm border border-[var(--color-line)] bg-[rgba(10,20,16,0.8)]"
-                              : "rounded-br-sm border border-[rgba(111,247,166,0.2)] bg-[rgba(111,247,166,0.1)]"
+                              ? "rounded-tl-sm border border-[var(--color-line)] bg-[rgba(10,20,16,0.85)]"
+                              : "rounded-br-sm border border-[rgba(111,247,166,0.22)] bg-[rgba(111,247,166,0.12)]"
                           }`}
                         >
                           <p className="whitespace-pre-wrap text-pretty text-[0.82rem] leading-relaxed text-[var(--color-text)]">
@@ -354,8 +365,11 @@ export default function ChatDemoView({
                     key={prompt}
                     type="button"
                     onClick={() => onQuickPrompt(prompt)}
-                    className="rounded-full border border-[var(--color-line)] bg-[rgba(10,20,16,0.6)] px-3 py-1.5 text-left text-[0.7rem] leading-snug text-[var(--color-muted)] transition-colors hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
+                    className="group rounded-full border border-[rgba(111,247,166,0.18)] bg-[rgba(8,14,11,0.6)] px-3.5 py-1.5 text-left text-[0.7rem] leading-snug text-[var(--color-muted)] transition-all hover:border-[var(--color-accent)] hover:bg-[rgba(111,247,166,0.1)] hover:text-[var(--color-text)] active:scale-[0.985]"
                   >
+                    <span className="group-hover:text-[var(--color-accent)] transition-colors">
+                      →
+                    </span>{" "}
                     {prompt}
                   </button>
                 ))}
@@ -378,7 +392,7 @@ export default function ChatDemoView({
                 value={draft}
                 rows={1}
                 placeholder={copy.inputPlaceholder}
-                className="min-h-10 max-h-28 flex-1 resize-none rounded-xl border border-[var(--color-line)] bg-[rgba(5,11,8,0.7)] px-3 py-2.5 text-[0.82rem] leading-relaxed text-[var(--color-text)] outline-none focus:ring-0 placeholder:text-[var(--color-soft)] transition-colors"
+                className="min-h-[42px] max-h-28 flex-1 resize-none rounded-xl border border-[var(--color-line)] bg-[rgba(5,11,8,0.72)] px-3.5 py-[9px] text-[0.82rem] leading-relaxed text-[var(--color-text)] outline-none focus:border-[var(--color-line-strong)] placeholder:text-[var(--color-soft)] transition-all"
                 onChange={(event) => onDraftChange(event.target.value)}
                 onKeyDown={onDraftKeyDown}
               />
@@ -441,47 +455,89 @@ function AgentLoopStatus({ state }: { state: AgentLoopState }) {
     return null;
   }
 
-  const visibleTrace = state.trace.slice(-4);
+  const visibleTrace = state.trace.slice(-5);
 
   return (
-    <div className="rounded-2xl border border-[rgba(111,247,166,0.16)] bg-[rgba(111,247,166,0.06)] px-3 py-2.5">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-mono text-[0.56rem] uppercase tracking-[0.08em] text-[var(--color-accent)]">
-            Agent loop
-          </p>
-          <p className="mt-1 truncate text-[0.72rem] text-[var(--color-text)]">
-            {activeItem.label}
-          </p>
+    <div className="rounded-2xl border border-[rgba(111,247,166,0.18)] bg-[rgba(6,12,9,0.82)] px-3.5 py-2.5 transition-all duration-200">
+      <div className="mb-2.5 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <div className="flex size-5 items-center justify-center rounded-full bg-[var(--color-accent)]/10 ring-1 ring-[rgba(111,247,166,0.2)]">
+            <span className="font-mono text-[9px] font-semibold text-[var(--color-accent)]">
+              AI
+            </span>
+          </div>
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-[var(--color-accent)]">
+              Agent Loop
+            </p>
+            <p className="mt-0.5 truncate text-[0.73rem] leading-tight text-[var(--color-text)]">
+              {activeItem.label}
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5" aria-hidden="true">
+        <div className="flex items-center gap-1.5 rounded-full border border-[rgba(111,247,166,0.25)] bg-[rgba(111,247,166,0.1)] px-2 py-0.5">
           <span className="size-1.5 animate-pulse rounded-full bg-[var(--color-accent)] motion-reduce:animate-none" />
-          <span className="font-mono text-[0.56rem] uppercase tracking-[0.08em] text-[var(--color-soft)]">
-            live
+          <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--color-soft)]">
+            thinking
           </span>
         </div>
       </div>
-      {visibleTrace.length > 1 ? (
-        <ol className="mt-2 grid gap-1">
-          {visibleTrace.map((item) => (
-            <li
-              key={item.id}
-              className="flex min-w-0 items-center gap-2 text-[0.65rem] text-[var(--color-soft)]"
-            >
-              <span
-                className={`size-1.5 shrink-0 rounded-full ${
-                  item.status === "done"
-                    ? "bg-[var(--color-accent)] opacity-70"
-                    : item.status === "error"
-                      ? "bg-red-400"
-                      : "bg-[var(--color-accent)] shadow-[0_0_12px_var(--accent-glow)]"
-                }`}
-              />
-              <span className="truncate">{item.label}</span>
-            </li>
-          ))}
-        </ol>
-      ) : null}
+
+      {visibleTrace.length > 1 && (
+        <div className="flex items-center gap-1 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {visibleTrace.map((item, idx) => {
+            const isActive = item.status === "active";
+            const isDone = item.status === "done";
+            const isError = item.status === "error";
+            const showLine = idx < visibleTrace.length - 1;
+
+            return (
+              <div key={item.id} className="flex items-center gap-1">
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`flex size-3 items-center justify-center rounded-full border transition-all duration-300 ${
+                      isActive
+                        ? "border-[var(--color-accent)] bg-[var(--color-accent)] scale-110 shadow-[0_0_0_3px_rgba(111,247,166,0.15)]"
+                        : isDone
+                          ? "border-[var(--color-accent)] bg-[var(--color-accent)]"
+                          : isError
+                            ? "border-red-400 bg-red-500/70"
+                            : "border-[rgba(111,247,166,0.35)] bg-transparent"
+                    }`}
+                  >
+                    <div
+                      className={`size-1 rounded-full transition-all duration-300 ${
+                        isActive
+                          ? "bg-[#041009] animate-[ping_1.5s_cubic-bezier(0,0,0.2,1)_infinite]"
+                          : isDone
+                            ? "bg-[#041009]"
+                            : isError
+                              ? "bg-white"
+                              : "bg-[rgba(111,247,166,0.5)]"
+                      }`}
+                    />
+                  </div>
+                  <span
+                    className={`mt-1.5 max-w-[68px] truncate text-center text-[9px] leading-none transition-colors ${
+                      isActive
+                        ? "text-[var(--color-accent)] font-medium"
+                        : isDone
+                          ? "text-[var(--color-accent)]"
+                          : isError
+                            ? "text-red-400"
+                            : "text-[var(--color-soft)]"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </div>
+
+                {showLine && <div className="h-[1px] w-3 bg-[rgba(111,247,166,0.25)]" />}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
