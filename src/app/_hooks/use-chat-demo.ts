@@ -27,14 +27,48 @@ export type ChatRecentSession = {
   updatedAt: string;
 };
 
+export type AgentLoopStage =
+  | "idle"
+  | "observing"
+  | "classifying"
+  | "planning"
+  | "retrieving_context"
+  | "drafting"
+  | "evaluating"
+  | "finalizing"
+  | "failed";
+
+export type AgentLoopTraceItem = {
+  id: string;
+  stage: AgentLoopStage;
+  label: string;
+  detail?: string;
+  status: "active" | "done" | "error";
+  createdAt: string;
+};
+
+export type AgentLoopState = {
+  runId: string | null;
+  currentStage: AgentLoopStage;
+  trace: AgentLoopTraceItem[];
+};
+
 type PortfolioAssistantStreamEvent = {
   type?:
     | "RUN_STARTED"
+    | "LOOP_STAGE"
+    | "LOOP_DECISION"
     | "TEXT_MESSAGE_START"
     | "TEXT_MESSAGE_CONTENT"
     | "TEXT_MESSAGE_END"
     | "RUN_FINISHED"
     | "RUN_ERROR";
+  runId?: string;
+  stage?: AgentLoopStage;
+  label?: string;
+  detail?: string;
+  key?: string;
+  value?: string;
   delta?: string;
   content?: string;
   message?: string;
@@ -95,6 +129,9 @@ export function useChatDemo(copy: ChatCopy) {
   const [isLoadingLatest, setIsLoadingLatest] = useState(false);
   const [threadId, setThreadId] = useState(createChatSessionId);
   const [recentSessions, setRecentSessions] = useState<ChatRecentSession[]>([]);
+  const [agentLoopState, setAgentLoopState] = useState<AgentLoopState>(
+    createIdleAgentLoopState,
+  );
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatLogRef = useRef<HTMLDivElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -354,12 +391,87 @@ export function useChatDemo(copy: ChatCopy) {
     });
   }
 
+  function startAgentLoopTrace(runId: string) {
+    setAgentLoopState({
+      runId,
+      currentStage: "observing",
+      trace: [createAgentLoopTraceItem("observing")],
+    });
+  }
+
+  function applyAgentLoopStage(event: PortfolioAssistantStreamEvent) {
+    const stage = normalizeAgentLoopStage(event.stage);
+
+    if (!stage) {
+      return;
+    }
+
+    setAgentLoopState((current) => {
+      const nextItem = createAgentLoopTraceItem(stage, event.label, event.detail);
+      const existingIndex = current.trace.findIndex((item) => item.stage === stage);
+      const trace = current.trace.map((item) =>
+        item.status === "active" ? { ...item, status: "done" as const } : item,
+      );
+
+      if (existingIndex === -1) {
+        trace.push(nextItem);
+      } else {
+        trace[existingIndex] = {
+          ...trace[existingIndex],
+          label: nextItem.label,
+          detail: nextItem.detail,
+          status: "active",
+        };
+      }
+
+      return {
+        runId: event.runId ?? current.runId,
+        currentStage: stage,
+        trace,
+      };
+    });
+  }
+
+  function finishAgentLoopTrace() {
+    setAgentLoopState((current) => ({
+      ...current,
+      currentStage: "finalizing",
+      trace: current.trace.map((item) =>
+        item.status === "active" ? { ...item, status: "done" } : item,
+      ),
+    }));
+  }
+
+  function failAgentLoopTrace(message?: string) {
+    setAgentLoopState((current) => {
+      const hasActiveTrace = current.trace.some((item) => item.status === "active");
+      const trace = current.trace.map((item) =>
+        item.status === "active"
+          ? { ...item, status: "error" as const, detail: message ?? item.detail }
+          : item,
+      );
+
+      if (!hasActiveTrace) {
+        trace.push(createAgentLoopTraceItem("failed", undefined, message, "error"));
+      }
+
+      return {
+        ...current,
+        currentStage: "failed",
+        trace,
+      };
+    });
+  }
+
   async function streamAssistantReply(
     nextMessages: ChatMessage[],
     assistantMessageId: string,
     userMessage: ChatMessage,
   ) {
+    const runId = `run-${crypto.randomUUID()}`;
+
     setIsWaiting(true);
+    startAgentLoopTrace(runId);
 
     try {
       const currentSessionId = sessionIdRef.current;
@@ -371,7 +483,7 @@ export function useChatDemo(copy: ChatCopy) {
           currentSessionId
             ? {
                 sessionId: currentSessionId,
-                runId: `run-${crypto.randomUUID()}`,
+                runId,
                 message: {
                   role: userMessage.role,
                   content: userMessage.text,
@@ -379,7 +491,7 @@ export function useChatDemo(copy: ChatCopy) {
               }
             : {
                 threadId: threadIdRef.current,
-                runId: `run-${crypto.randomUUID()}`,
+                runId,
                 messages: nextMessages
                   .filter((message) => message.text.trim() !== "")
                   .map((message) => ({
@@ -396,6 +508,17 @@ export function useChatDemo(copy: ChatCopy) {
       }
 
       await readPortfolioAssistantStream(response.body, (event) => {
+        if (event.type === "RUN_STARTED") {
+          setAgentLoopState((current) => ({
+            ...current,
+            runId: event.runId ?? current.runId,
+          }));
+        }
+
+        if (event.type === "LOOP_STAGE") {
+          applyAgentLoopStage(event);
+        }
+
         if (event.type === "TEXT_MESSAGE_CONTENT") {
           const delta = event.delta ?? event.content ?? "";
           if (delta) {
@@ -403,11 +526,18 @@ export function useChatDemo(copy: ChatCopy) {
           }
         }
 
+        if (event.type === "RUN_FINISHED") {
+          finishAgentLoopTrace();
+        }
+
         if (event.type === "RUN_ERROR") {
+          failAgentLoopTrace(event.message);
           throw new Error(event.message ?? "Assistant stream error");
         }
       });
+      finishAgentLoopTrace();
     } catch {
+      failAgentLoopTrace(copy.streamError);
       updateAssistantMessage(assistantMessageId, () => copy.streamError);
     } finally {
       setIsWaiting(false);
@@ -533,6 +663,7 @@ export function useChatDemo(copy: ChatCopy) {
 
   return {
     activeSessionKey,
+    agentLoopState,
     chatEndRef,
     chatLogRef,
     closeChat,
@@ -570,6 +701,67 @@ function createChatSessionId() {
   }
 
   return `portfolio-widget-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function createIdleAgentLoopState(): AgentLoopState {
+  return {
+    runId: null,
+    currentStage: "idle",
+    trace: [],
+  };
+}
+
+function createAgentLoopTraceItem(
+  stage: AgentLoopStage,
+  label = agentLoopStageLabel(stage),
+  detail?: string,
+  status: AgentLoopTraceItem["status"] = "active",
+): AgentLoopTraceItem {
+  return {
+    id: `${stage}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    stage,
+    label,
+    detail,
+    status,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function normalizeAgentLoopStage(stage: AgentLoopStage | undefined) {
+  if (!stage || stage === "idle" || stage === "failed") {
+    return null;
+  }
+
+  return stage;
+}
+
+function agentLoopStageLabel(stage: AgentLoopStage) {
+  const isThai = currentLocale() === "th";
+  const labels: Record<AgentLoopStage, string> = isThai
+    ? {
+        idle: "พร้อมตอบคำถาม",
+        observing: "กำลังอ่านคำถามของคุณ",
+        classifying: "กำลังแยกประเภทคำถาม",
+        planning: "กำลังวางแผนคำตอบ",
+        retrieving_context: "กำลังตรวจข้อมูลโปรไฟล์ที่เปิดเผยได้",
+        drafting: "กำลังร่างคำตอบ",
+        evaluating: "กำลังตรวจความถูกต้อง",
+        finalizing: "กำลังสรุปคำตอบ",
+        failed: "ตอบกลับไม่สำเร็จ",
+      }
+    : {
+        idle: "Ready to help",
+        observing: "Understanding your question",
+        classifying: "Detecting intent",
+        planning: "Planning a useful answer",
+        retrieving_context: "Checking public portfolio context",
+        drafting: "Drafting the response",
+        evaluating: "Reviewing for accuracy",
+        finalizing: "Finalizing answer",
+        failed: "Response failed",
+      };
+
+  return labels[stage];
 }
 
 async function fetchPortfolioChatSession(signal?: AbortSignal) {

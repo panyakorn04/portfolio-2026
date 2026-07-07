@@ -7,12 +7,17 @@ import {
 } from "react";
 
 import type { PortfolioDictionary } from "../_data/portfolio";
-import type { ChatMessage, ChatRecentSession } from "../_hooks/use-chat-demo";
+import type {
+  AgentLoopState,
+  ChatMessage,
+  ChatRecentSession,
+} from "../_hooks/use-chat-demo";
 
 type ChatCopy = PortfolioDictionary["chat"];
 
 type ChatDemoViewProps = {
   activeSessionKey: string;
+  agentLoopState: AgentLoopState;
   chatEndRef: RefObject<HTMLDivElement | null>;
   chatLogRef: RefObject<HTMLDivElement | null>;
   copy: ChatCopy;
@@ -52,6 +57,7 @@ const typingDotClass =
 
 export default function ChatDemoView({
   activeSessionKey,
+  agentLoopState,
   chatEndRef,
   chatLogRef,
   copy,
@@ -174,6 +180,10 @@ export default function ChatDemoView({
           </div>
 
           <div className="grid gap-3 p-3">
+            {activeTab === "new" && isWaiting ? (
+              <AgentLoopStatus state={agentLoopState} />
+            ) : null}
+
             <div ref={chatLogRef} className={chatLogClass}>
               {activeTab === "recent" ? (
                 titledSessions.length > 0 ? (
@@ -419,6 +429,59 @@ export default function ChatDemoView({
         </span>
         <span className="sm:hidden">{isOpen ? copy.closeLabel : copy.openLabel}</span>
       </button>
+    </div>
+  );
+}
+
+function AgentLoopStatus({ state }: { state: AgentLoopState }) {
+  const activeItem =
+    state.trace.find((item) => item.status === "active") ?? state.trace.at(-1);
+
+  if (!activeItem) {
+    return null;
+  }
+
+  const visibleTrace = state.trace.slice(-4);
+
+  return (
+    <div className="rounded-2xl border border-[rgba(111,247,166,0.16)] bg-[rgba(111,247,166,0.06)] px-3 py-2.5">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-mono text-[0.56rem] uppercase tracking-[0.08em] text-[var(--color-accent)]">
+            Agent loop
+          </p>
+          <p className="mt-1 truncate text-[0.72rem] text-[var(--color-text)]">
+            {activeItem.label}
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5" aria-hidden="true">
+          <span className="size-1.5 animate-pulse rounded-full bg-[var(--color-accent)] motion-reduce:animate-none" />
+          <span className="font-mono text-[0.56rem] uppercase tracking-[0.08em] text-[var(--color-soft)]">
+            live
+          </span>
+        </div>
+      </div>
+      {visibleTrace.length > 1 ? (
+        <ol className="mt-2 grid gap-1">
+          {visibleTrace.map((item) => (
+            <li
+              key={item.id}
+              className="flex min-w-0 items-center gap-2 text-[0.65rem] text-[var(--color-soft)]"
+            >
+              <span
+                className={`size-1.5 shrink-0 rounded-full ${
+                  item.status === "done"
+                    ? "bg-[var(--color-accent)] opacity-70"
+                    : item.status === "error"
+                      ? "bg-red-400"
+                      : "bg-[var(--color-accent)] shadow-[0_0_12px_var(--accent-glow)]"
+                }`}
+              />
+              <span className="truncate">{item.label}</span>
+            </li>
+          ))}
+        </ol>
+      ) : null}
     </div>
   );
 }

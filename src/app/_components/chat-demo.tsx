@@ -29,11 +29,13 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
     textareaRef,
     toggleChat,
     activeSessionKey,
+    agentLoopState,
   } = useChatDemo(copy);
 
   return (
     <ChatDemoView
       activeSessionKey={activeSessionKey}
+      agentLoopState={agentLoopState}
       chatLogRef={chatLogRef}
       chatEndRef={chatEndRef}
       copy={copy}
