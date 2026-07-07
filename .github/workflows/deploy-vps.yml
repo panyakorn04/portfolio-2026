@@ -107,6 +107,12 @@ jobs:
           FAIL_LOGS=$(gh run view "$GITHUB_RUN_ID" --log-failed 2>/dev/null | tail -90 || echo "Logs unavailable")
           FAIL_LOGS=$(printf "%s" "$FAIL_LOGS" | head -c 5200)
 
+          # Quick classification (from skill reference)
+          if echo "$FAIL_LOGS" | grep -qiE "timeout|connection refused|ssh: connect|dial tcp.*22"; then
+            echo "Note: Possible transient network/SSH issue detected"
+            FAIL_LOGS="TRANSIENT? ${FAIL_LOGS}"
+          fi
+
           echo "=== Finding or creating issue ==="
           EXISTING=$(gh issue list \
             --repo "${GITHUB_REPOSITORY}" \
@@ -128,49 +134,44 @@ jobs:
 **Run:** [Open logs & jobs](${RUN_URL})
 **Triggered by:** ${GITHUB_EVENT_NAME}
 
-**Model used for analysis:** qwen2.5-coder:7b (via backend /api/ai/chat)
+**Analysis model:** qwen2.5-coder:7b
 
-### Instructions for the agent
+### Agent Loop Instructions
 1. Read the AI analysis comment that will be posted below.
 2. Apply the smallest possible fix.
 3. Commit and push.
 4. The workflow will run again automatically.
 5. Repeat until the deploy is green.
 
-" \
-              --label "deploy-failure,agent-loop,needs-fix")
-            ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -o '[0-9]*$')
-            echo "Created issue #$ISSUE_NUMBER"
-          fi
 
           echo "=== Calling backend with qwen2.5-coder:7b (with retry) ==="
 
-          # === STRICT SYSTEM PROMPT ===
-          SYSTEM='You are a strict and precise DevOps + software engineer.
+          # === STRICT SYSTEM PROMPT (from github-operations skill) ===
+          SYSTEM='You are a strict, precise DevOps + software engineer.
 
-MANDATORY RULES (you will be judged on these):
-- Output MUST start with exactly these 4 headings and NOTHING before them.
-- Output MUST end after the last heading. No extra paragraphs, no "In conclusion", no "Hope this helps".
-- Be extremely concise. One or two sentences per section max unless a diff is needed.
-- Always prefer the smallest possible change (workflow YAML > docker args > code change).
-- If you cannot identify the root cause with high confidence from the provided logs, explicitly write: "Low confidence - logs are insufficient".
-- Never use vague language like "probably", "might be", "I think". Be direct.
-- Use proper markdown code blocks for any commands or file edits.
+MANDATORY RULES:
+- Output MUST start exactly with the four headings below and contain NOTHING before the first heading.
+- Output MUST contain ONLY these four sections. No intro, no closing text, no extra paragraphs.
+- Be extremely concise. Max 2 sentences per section.
+- Always recommend the smallest change first (YAML/build args > code).
+- If low confidence: explicitly write "Low confidence - logs are insufficient".
+- No hedging language. Be direct.
+- This analysis is ADVISORY ONLY. Human/agent must review full logs.
 
-EXACT OUTPUT FORMAT REQUIRED (copy this structure exactly):
+REQUIRED FORMAT (exact):
 
 ### Root Cause
-(1-2 sentences. Be specific about the error.)
+(1-2 sentences citing the specific error)
 
 ### Recommended Fix
-(Describe the smallest change. If code change, show a minimal diff or exact replacement.)
+(smallest change + minimal diff if needed)
 
 ### Files / Steps
-- List exact file paths or workflow steps to edit
+- exact paths or steps
 
 ### How to Verify
 ```bash
-exact commands to run
+commands
 ```'
 
           USER_BASE="The Next.js frontend deploy to VPS using GHCR just failed.
@@ -212,11 +213,12 @@ This is retry attempt ${ATTEMPT}. Previous response was invalid or incomplete. P
 
             ANALYSIS=$(echo "$RESPONSE" | jq -r '.data.message.content // ""' 2>/dev/null || echo "")
 
-            # Validation: must contain the 3 critical headings + reasonable length
+            # Validation: require all 4 headings + substance (from skill)
             if echo "$ANALYSIS" | grep -q "### Root Cause" && \
                echo "$ANALYSIS" | grep -q "### Recommended Fix" && \
+               echo "$ANALYSIS" | grep -q "### Files / Steps" && \
                echo "$ANALYSIS" | grep -q "### How to Verify" && \
-               [ ${#ANALYSIS} -gt 180 ]; then
+               [ ${#ANALYSIS} -gt 220 ]; then
               echo "✓ Valid structured response received on attempt ${ATTEMPT}"
               break
             else
@@ -227,14 +229,9 @@ This is retry attempt ${ATTEMPT}. Previous response was invalid or incomplete. P
           done
 
           if [ -z "$ANALYSIS" ] || ! echo "$ANALYSIS" | grep -q "### Root Cause"; then
-            ANALYSIS="**LLM did not return a valid structured response after ${MAX_RETRIES} attempts.**
+            ANALYSIS="**LLM did not produce a valid structured response after ${MAX_RETRIES} attempts.**
 
-Last raw output:
-\`\`\`
-${ANALYSIS:-<empty>}
-\`\`\`
-
-Please check the full logs in the workflow run and analyze manually."
+This analysis is ADVISORY ONLY. Please review the full logs yourself and do not blindly apply changes."
           else
             ANALYSIS="${ANALYSIS}
 
@@ -247,9 +244,11 @@ Please check the full logs in the workflow run and analyze manually."
             --repo "${GITHUB_REPOSITORY}" \
             --body "## 🤖 Analysis from qwen2.5-coder:7b (via backend)
 
+> **ADVISORY ONLY** — LLM output is for guidance. Always cross-check against the full logs.
+
 $ANALYSIS
 
 ---
-*Auto-generated by Deploy Agent Loop • Model: qwen2.5-coder:7b • Retries enabled*"
+*Auto-generated • Model: qwen2.5-coder:7b • Retries enabled • See skill: github-actions-agent-loop-deploy-reporter.md*"
 
           echo "✅ Analysis posted to issue #$ISSUE_NUMBER (after ${ATTEMPT} attempt(s))"
