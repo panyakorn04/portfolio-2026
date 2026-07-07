@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: ghcr.io/panyakorn04/portfolio-2026:latest
+  IMAGE_REPO: ghcr.io/panyakorn04/portfolio-2026
+  IMAGE_TAG: ${{ github.sha }}
 
 concurrency:
   group: deploy-frontend-production
@@ -60,7 +61,10 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE_NAME }}
+          tags: |
+            ${{ env.IMAGE_REPO }}:latest
+            ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_REPO }}:${{ github.sha:0:7 }}
           build-args: |
             NEXT_PUBLIC_SITE_URL=https://panyakorn.com
             NEXT_PUBLIC_API_URL=
@@ -73,7 +77,7 @@ jobs:
       - name: Deploy frontend service
         uses: appleboy/ssh-action@v1.0.3
         env:
-          FRONTEND_IMAGE: ${{ env.IMAGE_NAME }}
+          FRONTEND_IMAGE: ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
