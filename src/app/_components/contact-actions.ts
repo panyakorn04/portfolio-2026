@@ -57,40 +57,47 @@ export async function submitContact(
     locale: String(formData.get("locale") ?? "en") as Locale,
   };
 
-  let response: Response;
-
   try {
-    response = await fetch(`${getApiBaseUrl()}/api/contact`, {
+    const response = await fetch(`${getApiBaseUrl()}/api/contact`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(10_000),
     });
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      return {
+        status: "error",
+        message: null,
+        fieldErrors: {},
+      };
+    }
+
+    const data = (await response.json()) as ApiSuccessResponse | ApiErrorResponse;
+
+    if (!response.ok || !data.ok) {
+      const errorData = data as ApiErrorResponse;
+      const fieldErrors = (errorData.error.details ?? []).reduce<ContactFieldErrors>(
+        (result, detail) => {
+          if (isContactField(detail.field)) {
+            result[detail.field] = detail.message;
+          }
+          return result;
+        },
+        {},
+      );
+
+      return {
+        status: "error",
+        message: errorData.error.message ?? null,
+        fieldErrors,
+      };
+    }
   } catch {
     return {
       status: "error",
       message: null,
       fieldErrors: {},
-    };
-  }
-
-  const data = (await response.json()) as ApiSuccessResponse | ApiErrorResponse;
-
-  if (!response.ok || !data.ok) {
-    const errorData = data as ApiErrorResponse;
-    const fieldErrors = (errorData.error.details ?? []).reduce<ContactFieldErrors>(
-      (result, detail) => {
-        if (isContactField(detail.field)) {
-          result[detail.field] = detail.message;
-        }
-        return result;
-      },
-      {},
-    );
-
-    return {
-      status: "error",
-      message: errorData.error.message ?? null,
-      fieldErrors,
     };
   }
 

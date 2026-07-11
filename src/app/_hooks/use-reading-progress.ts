@@ -6,6 +6,8 @@ export function useReadingProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    let animationFrame: number | null = null;
+
     function updateProgress() {
       const documentElement = document.documentElement;
       const scrollTop = documentElement.scrollTop || document.body.scrollTop;
@@ -20,13 +22,22 @@ export function useReadingProgress() {
       setProgress(nextProgress);
     }
 
+    function scheduleUpdate() {
+      if (animationFrame !== null) return;
+      animationFrame = window.requestAnimationFrame(() => {
+        animationFrame = null;
+        updateProgress();
+      });
+    }
+
     updateProgress();
-    window.addEventListener("scroll", updateProgress, { passive: true });
-    window.addEventListener("resize", updateProgress, { passive: true });
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate, { passive: true });
 
     return () => {
-      window.removeEventListener("scroll", updateProgress);
-      window.removeEventListener("resize", updateProgress);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
     };
   }, []);
 

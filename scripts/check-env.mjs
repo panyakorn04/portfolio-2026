@@ -8,7 +8,7 @@ if (existsSync(".env.local")) {
   process.loadEnvFile?.(".env.local");
 }
 
-const requiredEnv = ["NEXT_PUBLIC_SITE_URL", "NEXT_PUBLIC_API_URL"];
+const requiredEnv = ["NEXT_PUBLIC_SITE_URL", "FRONTEND_API_BASE_URL"];
 const missing = requiredEnv.filter((key) => {
   const value = process.env[key];
   return !value || value.trim().length === 0;

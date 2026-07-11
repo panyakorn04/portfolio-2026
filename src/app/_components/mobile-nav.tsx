@@ -108,6 +108,7 @@ export default function MobileNav({
         {/* Backdrop */}
         <button
           type="button"
+          hidden={!isOpen}
           aria-label={ui.closeMenuLabel}
           className={`fixed inset-0 z-20 cursor-default border-0 bg-[rgba(5,11,8,0.72)] transition-opacity duration-180 ease-in-out motion-reduce:transition-none ${
             isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -118,6 +119,10 @@ export default function MobileNav({
         {/* Drawer — slides in from the left */}
         <div
           id="mobile-menu"
+          hidden={!isOpen}
+          role="dialog"
+          aria-modal="true"
+          aria-label={ui.menuLabel}
           className={`absolute right-0 top-full z-30 mt-3 min-w-50 rounded-[1.35rem] border border-(--color-line-strong) bg-(--color-panel) py-[0.85rem] px-[0.9rem] shadow-[0_16px_48px_rgba(0,0,0,0.32)] transition-all duration-220 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             isOpen
               ? "opacity-100 pointer-events-auto translate-x-0"

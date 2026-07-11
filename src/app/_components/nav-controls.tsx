@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 
 import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
@@ -25,7 +26,8 @@ export default function NavControls({
   navItems,
   ui,
 }: NavControlsProps) {
-  const activeSectionId = useActiveSection(navItems.map((item) => item.id));
+  const sectionIds = useMemo(() => navItems.map((item) => item.id), [navItems]);
+  const activeSectionId = useActiveSection(sectionIds);
   const articleLabel = articleDirectoryCopy[locale].navLabel;
 
   return (

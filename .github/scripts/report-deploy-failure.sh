@@ -37,7 +37,7 @@ if [ -n "$EXISTING" ]; then
   ISSUE_NUMBER="$EXISTING"
   echo "Reusing existing issue #$ISSUE_NUMBER"
 else
-  ISSUE_BODY=$(cat << 'ISSUEBODY'
+  ISSUE_BODY=$(cat <<ISSUEBODY
 ## Deploy Failure — Agent Loop Feedback
 
 **Commit:** [${SHORT_SHA}](${COMMIT_URL})
@@ -177,6 +177,3 @@ $ANALYSIS
 *Auto-generated • Model: qwen2.5-coder:7b • Retries enabled*"
 
 echo "✅ Analysis posted to issue #$ISSUE_NUMBER (after ${ATTEMPT} attempt(s))"
-SCRIPT
-chmod +x /Users/panyakornboonyong/portfolio-2026/.github/scripts/report-deploy-failure.sh
-echo "Created .github/scripts/report-deploy-failure.sh"

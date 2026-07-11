@@ -443,7 +443,7 @@ export default function AdminContactInquiries({
           return;
         }
 
-        fetchSessions();
+        setSessions((current) => current.filter((session) => session.id !== sessionId));
         setStatusMessage(copy.sessionsUpdatedMessage);
       } catch {
         setStatusMessage(copy.requestFailedLabel);
@@ -638,9 +638,11 @@ export default function AdminContactInquiries({
         setInquiries((current) =>
           current.map((item) => (item.id === payload.data.id ? payload.data : item)),
         );
-        if (selectedInquiryDetail?.id === payload.data.id) {
-          fetchInquiryDetail(payload.data.id);
-        }
+        setSelectedInquiryDetail((current) =>
+          current?.id === payload.data.id
+            ? { ...current, ...payload.data, activities: current.activities }
+            : current,
+        );
         setStatusMessage(copy.savedChangesMessage);
       } catch {
         setStatusMessage(copy.requestFailedLabel);

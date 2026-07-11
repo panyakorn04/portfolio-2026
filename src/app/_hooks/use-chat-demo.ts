@@ -11,6 +11,11 @@ import {
 } from "react";
 
 import type { PortfolioDictionary } from "../_data/portfolio";
+import {
+  buildFallbackMessages,
+  extractSseData,
+  extractSseFrames,
+} from "./chat-stream-utils";
 
 type ChatCopy = PortfolioDictionary["chat"];
 
@@ -192,6 +197,10 @@ export function useChatDemo(copy: ChatCopy) {
   }, []);
 
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
     const controller = new AbortController();
 
     function loadLocalStoredSessionFallback() {
@@ -236,7 +245,7 @@ export function useChatDemo(copy: ChatCopy) {
     return () => {
       controller.abort();
     };
-  }, [applyBackendSession, replaceMessages]);
+  }, [applyBackendSession, isOpen, replaceMessages]);
 
   useEffect(() => {
     if (!hasLoadedSession) {
@@ -436,11 +445,8 @@ export function useChatDemo(copy: ChatCopy) {
         }
       });
     } catch (_err) {
-      const fallbackText = await tryNonStreamFallback(
-        nextMessages,
-        userMessage,
-        controller.signal,
-      );
+      clearTimeout(timeoutId);
+      const fallbackText = await tryNonStreamFallback(nextMessages);
       if (fallbackText?.trim()) {
         updateAssistantMessage(assistantMessageId, () => fallbackText);
       } else {
@@ -681,24 +687,18 @@ async function deletePortfolioChatSession(sessionId: string) {
   }
 }
 
-async function tryNonStreamFallback(
-  nextMessages: ChatMessage[],
-  userMessage: ChatMessage,
-  signal?: AbortSignal,
-): Promise<string | null> {
+async function tryNonStreamFallback(nextMessages: ChatMessage[]): Promise<string | null> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60_000);
+
   try {
-    const messagesForApi = [
-      ...nextMessages
-        .filter((m) => m.text.trim() !== "")
-        .map((m) => ({ role: m.role, content: m.text })),
-      { role: "user", content: userMessage.text },
-    ].slice(-12);
+    const messagesForApi = buildFallbackMessages(nextMessages);
 
     const res = await fetch(apiUrl("/api/portfolio/assistant/chat"), {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      signal,
+      signal: controller.signal,
       body: JSON.stringify({ messages: messagesForApi }),
     });
 
@@ -714,6 +714,8 @@ async function tryNonStreamFallback(
     return typeof content === "string" ? content : null;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -1044,10 +1046,10 @@ async function readPortfolioAssistantStream(
     }
 
     buffer += decoder.decode(value, { stream: true });
-    const parts = buffer.split("\n\n");
-    buffer = parts.pop() ?? "";
+    const { frames, remainder } = extractSseFrames(buffer);
+    buffer = remainder;
 
-    for (const part of parts) {
+    for (const part of frames) {
       dispatchPortfolioAssistantStreamEvent(part, onEvent);
     }
   }
@@ -1062,11 +1064,7 @@ function dispatchPortfolioAssistantStreamEvent(
   rawEvent: string,
   onEvent: (event: PortfolioAssistantStreamEvent) => void,
 ) {
-  const data = rawEvent
-    .split("\n")
-    .filter((line) => line.startsWith("data:"))
-    .map((line) => line.slice(5).trimStart())
-    .join("\n");
+  const data = extractSseData(rawEvent);
 
   if (!data) {
     return;
