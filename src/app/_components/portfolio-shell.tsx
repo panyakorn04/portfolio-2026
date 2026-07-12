@@ -7,6 +7,7 @@ import { getAbsoluteSiteUrl, getLocalizedSitePath } from "../_data/site-url";
 import { buttonBase, buttonSizes, buttonVariants } from "./button";
 import ChatDemo from "./chat-demo";
 import ContactForm from "./contact-form";
+import { FlagshipCaseStudy } from "./flagship-case-study";
 import MotionReveal from "./motion-reveal";
 import Navbar from "./navbar";
 
@@ -245,6 +246,7 @@ export function PortfolioShell({
           index={2}
           total={sectionTotal}
         >
+          <FlagshipCaseStudy study={sections.flagshipCaseStudy} />
           <div className="grid gap-4 md:grid-cols-2">
             {sections.featuredWork.map((project, index) => (
               <article
