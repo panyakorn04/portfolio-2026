@@ -57,12 +57,17 @@ else
 ISSUEBODY
 )
 
-  ISSUE_NUMBER=$(gh issue create \
+  ISSUE_URL=$(gh issue create \
     --repo "${GITHUB_REPOSITORY}" \
     --title "🚨 Deploy Frontend failed: ${SHORT_SHA}" \
     --body "$ISSUE_BODY" \
-    --label "deploy-failure,agent-loop,needs-fix" \
-    --json number --jq '.number')
+    --label "deploy-failure,agent-loop,needs-fix")
+  ISSUE_NUMBER="${ISSUE_URL##*/}"
+
+  if ! [[ "$ISSUE_NUMBER" =~ ^[0-9]+$ ]]; then
+    echo "Unable to parse issue number from: $ISSUE_URL" >&2
+    exit 1
+  fi
 
   echo "Created new issue #$ISSUE_NUMBER"
 fi

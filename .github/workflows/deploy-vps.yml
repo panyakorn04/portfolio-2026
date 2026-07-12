@@ -82,28 +82,93 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Deploy frontend service
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Prepare pinned SSH client
         env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy frontend service
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
           FRONTEND_IMAGE: ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          envs: FRONTEND_IMAGE,GHCR_TOKEN
-          script: |
-            set -euo pipefail
-            cd /opt/apps
-            echo "=== Logging into GHCR ==="
-            echo "$GHCR_TOKEN" | docker login ghcr.io -u panyakorn04 --password-stdin || echo "GHCR login warning (may be public)"
-            echo "=== Pulling image: $FRONTEND_IMAGE ==="
-            docker pull "$FRONTEND_IMAGE"
-            echo "=== Restarting services ==="
-            FRONTEND_IMAGE="$FRONTEND_IMAGE" docker compose up -d frontend caddy
-            docker exec caddy caddy reload --config /etc/caddy/Caddyfile || true
-            docker image prune -f
-            echo "=== Deploy step completed ==="
+        run: |
+          set -euo pipefail
+          ssh_opts=(
+            -i "$HOME/.ssh/deploy_key"
+            -o BatchMode=yes
+            -o StrictHostKeyChecking=yes
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts"
+            -o ConnectTimeout=30
+            -o ServerAliveInterval=15
+            -o ServerAliveCountMax=4
+          )
+
+          for attempt in 1 2 3; do
+            echo "Deploy SSH attempt ${attempt}/3"
+            if {
+              printf '%s\n' "$GHCR_TOKEN"
+              printf '%s\n' "$FRONTEND_IMAGE"
+              cat <<'REMOTE_SCRIPT'
+          set -euo pipefail
+          cd /opt/apps
+          exec 9>/opt/apps/.production-deploy.lock
+          flock -w 600 9
+
+          docker_config=$(mktemp -d)
+          cleanup() {
+            rm -rf "$docker_config"
+          }
+          trap cleanup EXIT
+          export DOCKER_CONFIG="$docker_config"
+
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u panyakorn04 --password-stdin >/dev/null
+          previous_image=$(docker inspect frontend --format '{{.Config.Image}}' 2>/dev/null || true)
+          docker pull "$FRONTEND_IMAGE"
+          FRONTEND_IMAGE="$FRONTEND_IMAGE" docker compose up -d --no-deps frontend
+
+          for health_attempt in $(seq 1 20); do
+            if curl -fsS --max-time 10 https://panyakorn.com/th >/dev/null; then
+              docker image prune -f >/dev/null
+              echo "Frontend deployment healthy: $FRONTEND_IMAGE"
+              exit 0
+            fi
+            sleep 3
+          done
+
+          echo "Frontend health gate failed" >&2
+          if [ -n "$previous_image" ] && [ "$previous_image" != "$FRONTEND_IMAGE" ]; then
+            echo "Rolling back frontend to $previous_image" >&2
+            FRONTEND_IMAGE="$previous_image" docker compose up -d --no-deps frontend
+            for rollback_attempt in $(seq 1 10); do
+              if curl -fsS --max-time 10 https://panyakorn.com/th >/dev/null; then
+                echo "Frontend rollback healthy: $previous_image" >&2
+                break
+              fi
+              sleep 3
+            done
+          fi
+          exit 1
+          REMOTE_SCRIPT
+            } | ssh "${ssh_opts[@]}" "$VPS_USER@$VPS_HOST" \
+              'read -r GHCR_TOKEN; read -r FRONTEND_IMAGE; export GHCR_TOKEN FRONTEND_IMAGE; bash -s'; then
+              exit 0
+            fi
+
+            if [ "$attempt" -lt 3 ]; then
+              sleep $((attempt * 15))
+            fi
+          done
+
+          echo "Deployment failed after 3 SSH attempts" >&2
+          exit 1
 
   report-deploy-failure:
     name: Report failure to Agent Loop (qwen2.5-coder)
