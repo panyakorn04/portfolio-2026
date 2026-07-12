@@ -11,9 +11,8 @@ import { getLocalizedSitePath, getMetadataBase } from "../../_data/site-url";
 export const revalidate = 300;
 
 const pageShellClass =
-  "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";
-const panelClass =
-  "rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-5 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-6";
+  "min-h-screen bg-[var(--color-bg)] px-5 py-14 text-[var(--color-text)] sm:px-8 sm:py-20";
+const panelClass = "border-t border-[var(--color-line)] py-8 sm:py-12";
 const titleClass =
   '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2rem,4vw,3.8rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance';
 const bodyClass =
@@ -89,7 +88,7 @@ export default async function ArticlesPage({ params }: PageProps<"/[lang]/articl
           </div>
 
           {featuredArticle ? (
-            <article className="mt-6 grid gap-5 rounded-[1.35rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-5 lg:grid-cols-[minmax(0,1.25fr)_14rem]">
+            <article className="mt-6 grid gap-8 border-b border-[var(--color-line)] py-8 lg:grid-cols-[minmax(0,1.25fr)_14rem]">
               <div>
                 <p className={labelClass}>{copy.featuredLabel}</p>
                 <h2 className="mt-3 text-[1.5rem] font-semibold leading-tight text-[var(--color-text)]">
@@ -103,7 +102,7 @@ export default async function ArticlesPage({ params }: PageProps<"/[lang]/articl
                 </p>
               </div>
 
-              <div className="rounded-[1.2rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.88)] p-4">
+              <div className="border-l border-[var(--color-line)] p-4">
                 <dl className="space-y-4">
                   <div>
                     <dt className={labelClass}>{copy.publishedLabel}</dt>
@@ -151,7 +150,7 @@ export default async function ArticlesPage({ params }: PageProps<"/[lang]/articl
               {restArticles.map((article) => (
                 <article
                   key={article.slug}
-                  className="rounded-[1.3rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.65)] p-5 transition-colors duration-150 hover:border-[var(--color-line-strong)]"
+                  className="border-t border-[var(--color-line)] py-6 transition-colors duration-150 hover:border-[var(--color-accent)]"
                 >
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-full border border-[var(--color-line)] px-2.5 py-1 font-mono text-[0.62rem] uppercase text-[var(--color-accent)]">

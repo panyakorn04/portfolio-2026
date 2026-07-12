@@ -42,7 +42,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
         : null;
 
   return (
-    <div className="rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-5 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-6">
+    <div className="border-t border-[var(--color-line)] py-6 sm:py-8">
       <div className="flex items-center justify-between gap-3">
         <p className={labelClass}>{copy.panelLabel}</p>
         <span className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[0.62rem] uppercase text-[var(--color-accent)]">

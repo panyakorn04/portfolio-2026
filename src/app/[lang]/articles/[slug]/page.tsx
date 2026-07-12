@@ -25,9 +25,8 @@ export async function generateStaticParams() {
 }
 
 const pageShellClass =
-  "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";
-const panelClass =
-  "rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-5 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-6";
+  "min-h-screen bg-[var(--color-bg)] px-5 py-14 text-[var(--color-text)] sm:px-8 sm:py-20";
+const panelClass = "border-t border-[var(--color-line)] py-8 sm:py-12";
 const titleClass =
   '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance';
 const bodyClass = "text-[0.96rem] leading-[1.9] text-[var(--color-muted)] sm:text-[1rem]";

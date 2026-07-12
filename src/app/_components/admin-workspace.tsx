@@ -26,32 +26,49 @@ export default function AdminWorkspace({
   return (
     <main
       lang={locale}
-      className="relative min-h-screen overflow-x-clip bg-[var(--color-bg)] text-[var(--color-text)]"
+      className="relative min-h-dvh overflow-x-clip bg-[#070908] text-[var(--color-text)] [&_button]:min-h-11 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-2 [&_button]:focus-visible:outline-[var(--color-accent)]"
     >
       <div className="ambient" aria-hidden="true" />
-      <div className="relative z-10 mx-auto max-w-7xl space-y-6 px-5 py-8 sm:px-8 sm:py-10">
+      <div className="relative z-10 mx-auto max-w-[92rem] space-y-5 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
         <section className={glassPanelClass}>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full border border-[var(--color-line-strong)] bg-[var(--accent-dim)] px-3 py-1 font-mono text-[0.66rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-accent)]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-line)] pb-4">
+            <span className="border-l-2 border-[var(--color-accent)] pl-3 font-mono text-[0.66rem] uppercase tracking-[0.12em] tabular-nums text-[var(--color-accent)]">
               /admin
             </span>
+            <a
+              href={`/${locale}`}
+              className="font-mono text-[0.66rem] uppercase tracking-[0.1em] text-[var(--color-soft)] transition-colors hover:text-[var(--color-accent)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
+            >
+              {contactCopy.backToPortfolioLabel}
+            </a>
           </div>
 
-          <div className="mt-6 max-w-4xl space-y-4 border-b border-[var(--color-line)] pb-6">
-            <p className={eyeClass}>{contactCopy.eyebrow}</p>
-            <h1 className="[font-family:var(--font-display),sans-serif] text-[clamp(1.8rem,3.5vw,2.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance text-[var(--color-text)]">
-              {contactCopy.title}
-            </h1>
-            <p className={`${bodyClass} max-w-3xl text-pretty`}>
+          <div className="mt-7 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
+            <div className="space-y-3">
+              <p className={eyeClass}>{contactCopy.eyebrow}</p>
+              <h1 className="[font-family:var(--font-display),sans-serif] text-[clamp(2rem,4vw,3.75rem)] font-medium leading-[0.98] tracking-[-0.05em] text-balance text-[var(--color-text)]">
+                {contactCopy.title}
+              </h1>
+            </div>
+            <p
+              className={`${bodyClass} text-pretty lg:border-l lg:border-[var(--color-line)] lg:pl-6`}
+            >
               {contactCopy.description}
             </p>
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div
+            role="tablist"
+            aria-label={contactCopy.navLabel}
+            className="mt-7 flex border-t border-[var(--color-line)] pt-4"
+          >
             <Button
               variant={tab === "inquiries" ? "primary" : "ghost"}
               size="sm"
               onClick={() => setTab("inquiries")}
+              role="tab"
+              aria-selected={tab === "inquiries"}
+              className="min-h-11 rounded-[0.25rem]"
             >
               {articlesCopy.tabContactLabel}
             </Button>
@@ -59,6 +76,9 @@ export default function AdminWorkspace({
               variant={tab === "articles" ? "primary" : "ghost"}
               size="sm"
               onClick={() => setTab("articles")}
+              role="tab"
+              aria-selected={tab === "articles"}
+              className="min-h-11 rounded-[0.25rem]"
             >
               {articlesCopy.tabArticlesLabel}
             </Button>

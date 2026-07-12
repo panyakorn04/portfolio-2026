@@ -3,87 +3,67 @@ import Link from "next/link";
 import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 import { contacts, socialLinks } from "../_data/site";
-import { getAbsoluteSiteUrl, getLocalizedSitePath } from "../_data/site-url";
-import { buttonBase, buttonSizes, buttonVariants } from "./button";
+import { getLocalizedSitePath } from "../_data/site-url";
 import ChatDemo from "./chat-demo";
 import ContactForm from "./contact-form";
 import { FlagshipCaseStudy } from "./flagship-case-study";
 import MotionReveal from "./motion-reveal";
 import Navbar from "./navbar";
 
-const surfaceClass =
-  "border border-[var(--color-line)] bg-[linear-gradient(158deg,rgba(255,255,255,0.065),rgba(255,255,255,0.025))] shadow-[var(--shadow-panel)] backdrop-blur-[24px] backdrop-saturate-[1.6]";
-const panelClass = `${surfaceClass} rounded-[var(--radius-lg)]`;
-const compactPanelClass = `${surfaceClass} rounded-[var(--radius)]`;
-const eyebrowClass =
-  "font-mono text-[0.58rem] uppercase tracking-[0.11em] tabular-nums text-[var(--color-soft)] sm:text-[0.62rem]";
-const copyClass =
-  "text-[0.88rem] leading-[1.78] text-[var(--color-muted)] sm:text-[0.92rem]";
-const smallCopyClass = "text-[0.78rem] leading-[1.65] text-[var(--color-muted)]";
-const chipClass = `${buttonBase} ${buttonVariants.chip} ${buttonSizes.sm}`;
-const primaryButtonClass = `${buttonBase} ${buttonSizes.lg} bg-[linear-gradient(135deg,var(--color-accent),#16a34a)] text-[#05070a] shadow-[var(--shadow-btn)] font-semibold tracking-[0.06em] hover:-translate-y-0.5 active:translate-y-0`;
-const secondaryButtonClass = `${buttonBase} ${buttonSizes.lg} border border-[var(--color-line-strong)] bg-[var(--surface)] text-[var(--color-text)] font-semibold tracking-[0.06em] hover:-translate-y-0.5 hover:border-[var(--color-accent)] hover:bg-[var(--surface-hover)] hover:text-[var(--color-accent)] active:translate-y-0`;
+const eyebrow =
+  "font-mono text-[.68rem] uppercase tracking-[.14em] text-[var(--color-soft)]";
+const body = "text-[.95rem] leading-[1.8] text-[var(--color-muted)] sm:text-base";
+const button =
+  "inline-flex min-h-11 items-center justify-center border px-5 py-2.5 text-sm font-semibold transition-colors";
+const primary = `${button} border-[var(--color-accent)] bg-[var(--color-accent)] text-[#07110d] hover:bg-[#75e4ae]`;
+const secondary = `${button} border-[var(--color-line-strong)] text-[var(--color-text)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]`;
 
-type SectionBlockProps = {
-  id: string;
-  kicker: string;
-  title: string;
-  text?: string;
-  index: number;
-  total: number;
-  children: React.ReactNode;
-};
-
-function SectionBlock({
+function Section({
   id,
+  index,
   kicker,
   title,
   text,
-  index,
-  total,
   children,
-}: SectionBlockProps) {
+}: {
+  id: string;
+  index: string;
+  kicker: string;
+  title: string;
+  text?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section id={id} className="scroll-mt-28 py-8 sm:py-10">
-      <MotionReveal className="rounded-[var(--radius-lg)]">
-        <div className={`${panelClass} overflow-hidden`}>
-          <div className="border-b border-[var(--color-line)] bg-[rgba(255,255,255,0.025)] px-5 py-5 sm:px-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className={eyebrowClass}>{kicker}</p>
-              <span className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-dim)] px-3 py-1 font-mono text-[0.6rem] uppercase tabular-nums tracking-[0.08em] text-[var(--color-accent)]">
-                {String(index).padStart(2, "0")} / {String(total).padStart(2, "0")}
-              </span>
-            </div>
-            <h2 className="mt-4 max-w-3xl text-balance [font-family:var(--font-display),sans-serif] text-[clamp(1.3rem,3.2vw,2.25rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-[var(--color-text)]">
+    <section
+      id={id}
+      className="scroll-mt-24 border-t border-[var(--color-line)] py-20 sm:py-28"
+    >
+      <MotionReveal>
+        <header className="grid gap-5 lg:grid-cols-[8rem_minmax(0,1fr)_minmax(16rem,.55fr)] lg:items-start">
+          <p className={`${eyebrow} text-[var(--color-accent)]`}>{index}</p>
+          <div>
+            <p className={eyebrow}>{kicker}</p>
+            <h2 className="mt-4 max-w-3xl text-balance text-[clamp(2rem,5vw,4.4rem)] font-semibold leading-[.98] tracking-[-.055em]">
               {title}
             </h2>
-            {text ? (
-              <p className={`${copyClass} mt-4 max-w-3xl text-pretty`}>{text}</p>
-            ) : null}
           </div>
-          <div className="p-5 sm:p-6">{children}</div>
-        </div>
+          {text ? <p className={`${body} text-pretty lg:pt-7`}>{text}</p> : null}
+        </header>
+        <div className="mt-12 sm:mt-16">{children}</div>
       </MotionReveal>
     </section>
   );
 }
 
-function MiniTerminalLine({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex min-w-0 flex-wrap items-center gap-2 font-mono text-[0.72rem] leading-6">
-      <span className="text-[var(--color-accent)]">$</span>
-      <span className="text-[var(--color-soft)]">{label}</span>
-      <span className="min-w-0 text-pretty text-[var(--color-text)]">{value}</span>
-    </div>
-  );
-}
-
-function LocalizedBullets({ items }: { items: string[] }) {
+function Bullets({ items }: { items: string[] }) {
   return (
     <ul className="grid gap-3">
       {items.map((item) => (
-        <li key={item} className={`${smallCopyClass} flex gap-3 text-pretty`}>
-          <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-[var(--color-accent)] shadow-[0_0_16px_var(--accent-glow)]" />
+        <li key={item} className={`${body} flex gap-4 text-pretty`}>
+          <span
+            aria-hidden
+            className="mt-[.75em] h-px w-5 shrink-0 bg-[var(--color-accent)]"
+          />
           <span>{item}</span>
         </li>
       ))}
@@ -111,421 +91,298 @@ export function PortfolioShell({
   articles: PortfolioArticleSummary[];
   appVersion: string;
 }) {
-  const hero = dictionary.hero;
-  const sections = dictionary.sections;
-  const ui = dictionary.ui;
+  const { hero, sections, ui } = dictionary;
   const articleCopy = articleDirectoryCopy[locale];
-  const commands = ui.commands;
-  const legal = dictionary.legal.directory;
-  const termsUrl = getAbsoluteSiteUrl(getLocalizedSitePath(locale, "/terms"));
-  const privacyUrl = getAbsoluteSiteUrl(getLocalizedSitePath(locale, "/privacy"));
-  const hasArticles = articles.length > 0;
-  const sectionTotal = hasArticles ? 7 : 6;
-  const contactIndex = hasArticles ? 7 : 6;
-
   return (
-    <main
-      lang={locale}
-      className="relative min-h-screen overflow-x-clip text-[var(--color-text)]"
-    >
-      <div className="ambient" aria-hidden="true" />
+    <main lang={locale} className="min-h-screen overflow-x-clip text-[var(--color-text)]">
       <Navbar locale={locale} dictionary={dictionary} />
-
-      <div className="mx-auto max-w-[92rem] px-4 py-4 sm:px-6 lg:py-6">
-        <section id="top" className="scroll-mt-28">
-          <MotionReveal className="rounded-[var(--radius-lg)]">
-            <div className={`${panelClass} overflow-hidden`}>
-              <div className="flex items-center justify-between gap-4 border-b border-[var(--color-line)] bg-[rgba(255,255,255,0.025)] px-4 py-3 font-mono text-[0.62rem] uppercase tracking-[0.08em] text-[var(--color-soft)]">
-                <div className="flex items-center gap-2.5">
-                  <span className="size-2.5 rounded-full bg-[#ff5f56]" />
-                  <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
-                  <span className="size-2.5 rounded-full bg-[#27c93f]" />
-                  <span className="ml-3">
-                    {ui.sessionLabel}/{locale}
+      <div className="mx-auto max-w-[88rem] px-5 sm:px-8 lg:px-12">
+        <section
+          id="top"
+          className="grid min-h-[calc(100svh-4.5rem)] items-center gap-12 py-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,.65fr)] lg:py-24"
+        >
+          <MotionReveal>
+            <p className={`${eyebrow} text-[var(--color-accent)]`}>
+              {hero.heroKicker} · Bangkok
+            </p>
+            <h1 className="mt-7 max-w-5xl text-balance text-[clamp(3rem,7.8vw,7.4rem)] font-semibold leading-[.88] tracking-[-.075em]">
+              {hero.heroTitle}
+            </h1>
+            <div className="mt-9 grid gap-7 border-t border-[var(--color-line)] pt-7 md:grid-cols-[minmax(0,1fr)_15rem]">
+              <p className={`${body} max-w-2xl text-pretty`}>{hero.heroText}</p>
+              <div>
+                <p className={eyebrow}>{hero.badge}</p>
+                <p className="mt-3 text-sm leading-6 text-[var(--color-accent)]">
+                  {hero.heroNote}
+                </p>
+              </div>
+            </div>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <a href="#work" className={primary}>
+                {hero.viewWork} ↓
+              </a>
+              <Link href="/Panyakorn_Boonyong_Resume.pdf" className={secondary}>
+                {hero.downloadResume}
+              </Link>
+              <a href="#contact" className={secondary}>
+                {hero.contactMe}
+              </a>
+            </div>
+          </MotionReveal>
+          <MotionReveal className="relative lg:justify-self-end">
+            <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden bg-[var(--color-panel)]">
+              <Image
+                src="/assets/profile.jpg"
+                fill
+                sizes="(max-width:1024px) 90vw, 420px"
+                priority
+                alt={ui.profileImageAlt}
+                className="object-cover grayscale-[.15]"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0d0c] to-transparent p-6 pt-24">
+                <p className={eyebrow}>Panyakorn Boonyong</p>
+                <p className="mt-2 text-sm text-[var(--color-muted)]">
+                  {hero.focusedText}
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 border-x border-b border-[var(--color-line)]">
+              {dictionary.stats.map((s) => (
+                <div
+                  key={s.value}
+                  className="border-r border-[var(--color-line)] p-4 last:border-r-0"
+                >
+                  <strong className="block text-xl text-[var(--color-accent)]">
+                    {s.value}
+                  </strong>
+                  <span className="mt-1 block text-[.68rem] leading-4 text-[var(--color-soft)]">
+                    {s.label}
                   </span>
                 </div>
-                <span className="hidden sm:inline">v{appVersion}</span>
-              </div>
-
-              <div className="grid gap-6 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_17rem]">
-                <div className="min-w-0 space-y-5">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-dim)] px-3 py-1.5 font-mono text-[0.64rem] uppercase tracking-[0.08em] text-[var(--color-accent)]">
-                    <span className="size-1.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_14px_var(--accent-glow)]" />
-                    {hero.heroKicker}
-                  </div>
-                  <h1 className="max-w-4xl text-balance [font-family:var(--font-display),sans-serif] text-[clamp(1.8rem,5.5vw,4.2rem)] font-semibold leading-[1] tracking-[-0.075em]">
-                    <span className="bg-[linear-gradient(135deg,#fff_18%,#d7ffe5_52%,var(--color-accent)_100%)] bg-clip-text text-transparent ">
-                      {hero.heroTitle}
-                    </span>
-                  </h1>
-                  <p
-                    className={`${copyClass} max-w-2xl text-pretty text-base sm:text-lg`}
-                  >
-                    {hero.heroText}
-                  </p>
-                  <div className="grid gap-2 rounded-[var(--radius)] border border-[var(--color-line)] bg-[rgba(0,0,0,0.18)] p-4">
-                    <MiniTerminalLine
-                      label={commands.whoami}
-                      value="Panyakorn Boonyong"
-                    />
-                    <MiniTerminalLine label={commands.role} value={hero.badge} />
-                    <MiniTerminalLine label={commands.focus} value={hero.focusedText} />
-                    <MiniTerminalLine label={commands.status} value={hero.heroNote} />
-                  </div>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                    <a href="#work" className={primaryButtonClass}>
-                      {hero.viewWork}
-                    </a>
-                    <Link
-                      href="/Panyakorn_Boonyong_Resume.pdf"
-                      className={secondaryButtonClass}
-                    >
-                      {hero.downloadResume}
-                    </Link>
-                    <a href="#contact" className={secondaryButtonClass}>
-                      {hero.contactMe}
-                    </a>
-                  </div>
-                </div>
-
-                <div className="grid content-start gap-4">
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius)] border border-[var(--color-line)] bg-[var(--surface)]">
-                    <Image
-                      src="/assets/profile.jpg"
-                      fill
-                      sizes="(max-width: 767px) 92vw, 272px"
-                      alt={ui.profileImageAlt}
-                      priority
-                      className="object-cover object-center saturate-[0.95] transition-transform duration-500 hover:scale-[1.03]"
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_42%,rgba(2,2,3,0.76))]" />
-                    <div className="absolute inset-x-3 bottom-3 rounded-[var(--radius-sm)] border border-[var(--color-line)] bg-[rgba(2,2,3,0.58)] p-3 backdrop-blur-xl">
-                      <p className={eyebrowClass}>{ui.profilePreviewLabel}</p>
-                      <p className="mt-1 text-sm font-semibold">Panyakorn Boonyong</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 xl:grid-cols-1">
-                    {dictionary.stats.map((stat) => (
-                      <div key={stat.value} className={`${compactPanelClass} p-4`}>
-                        <p className="text-2xl font-semibold tracking-[-0.05em] text-[var(--color-accent)]">
-                          {stat.value}
-                        </p>
-                        <p className={`${smallCopyClass} mt-1`}>{stat.label}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </MotionReveal>
         </section>
 
-        <SectionBlock
-          id="about"
-          kicker={commands.about}
-          title={sections.aboutTitle}
-          text={sections.aboutText}
-          index={1}
-          total={sectionTotal}
-        >
-          <div className="grid gap-3 md:grid-cols-2">
-            {sections.principles.map((item, index) => (
-              <article key={item} className={`${compactPanelClass} p-4`}>
-                <p className={eyebrowClass}>principle_0{index + 1}</p>
-                <p className={`${smallCopyClass} mt-3 text-pretty`}>{item}</p>
-              </article>
-            ))}
-          </div>
-        </SectionBlock>
-
-        <SectionBlock
+        <Section
           id="work"
-          kicker={commands.work}
+          index="01"
+          kicker={sections.workEyebrow}
           title={sections.workTitle}
           text={sections.workText}
-          index={2}
-          total={sectionTotal}
         >
           <FlagshipCaseStudy study={sections.flagshipCaseStudy} />
-          <div className="grid gap-4 md:grid-cols-2">
-            {sections.featuredWork.map((project, index) => (
+          <div className="mt-20 border-t border-[var(--color-line)]">
+            {sections.featuredWork.map((project, i) => (
               <article
                 key={project.title}
-                className={`${compactPanelClass} flex h-full flex-col p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)]`}
+                className="group grid gap-5 border-b border-[var(--color-line)] py-10 md:grid-cols-[5rem_minmax(14rem,.7fr)_minmax(0,1fr)]"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <p className={eyebrowClass}>case_0{index + 1}</p>
-                  <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-accent)]">
-                    {project.eyebrow}
+                <p className={`${eyebrow} text-[var(--color-accent)]`}>
+                  {String(i + 2).padStart(2, "0")}
+                </p>
+                <div>
+                  <p className={eyebrow}>{project.eyebrow}</p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">
+                    {project.title}
+                  </h3>
+                  <p className={`${body} mt-4`}>{project.description}</p>
+                </div>
+                <div>
+                  <Bullets items={project.bullets} />
+                  <p className="mt-6 font-mono text-[.68rem] leading-6 text-[var(--color-soft)]">
+                    {project.stack.join(" · ")}
                   </p>
-                </div>
-                <h3 className="mt-3 text-balance text-xl font-semibold tracking-[-0.035em] sm:text-2xl">
-                  {project.title}
-                </h3>
-                <p className={`${copyClass} mt-3 text-pretty`}>{project.description}</p>
-                <div className="mt-5">
-                  <LocalizedBullets items={project.bullets} />
-                </div>
-                <div className="mt-5 flex flex-wrap gap-2 border-t border-[var(--color-line)] pt-4">
-                  {project.stack.map((item) => (
-                    <span key={item} className={chipClass}>
-                      {item}
-                    </span>
-                  ))}
                 </div>
               </article>
             ))}
           </div>
-        </SectionBlock>
+        </Section>
 
-        <SectionBlock
+        <Section
+          id="about"
+          index="02"
+          kicker={sections.aboutEyebrow}
+          title={sections.aboutTitle}
+          text={sections.aboutText}
+        >
+          <div className="grid border-t border-[var(--color-line)] md:grid-cols-2">
+            {sections.principles.map((item, i) => (
+              <div
+                key={item}
+                className="border-b border-[var(--color-line)] py-8 md:odd:pr-10 md:even:border-l md:even:pl-10"
+              >
+                <p className={`${eyebrow} text-[var(--color-accent)]`}>0{i + 1}</p>
+                <p className="mt-5 max-w-xl text-xl leading-snug tracking-[-.025em]">
+                  {item}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section
           id="ecosystem"
+          index="03"
           kicker={sections.ecosystemEyebrow}
           title={sections.ecosystemTitle}
           text={sections.ecosystemText}
-          index={3}
-          total={sectionTotal}
         >
-          <div className="grid gap-4 md:grid-cols-2">
-            {sections.ecosystemRepositories.map((repo, index) => (
+          <div className="grid gap-px bg-[var(--color-line)] border border-[var(--color-line)] lg:grid-cols-2">
+            {sections.ecosystemRepositories.map((repo, i) => (
               <a
                 key={repo.href}
                 href={repo.href}
                 target="_blank"
                 rel="noreferrer"
-                className={`${compactPanelClass} flex h-full flex-col p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)]`}
+                className="group bg-[var(--color-bg)] p-7 transition-colors hover:bg-[var(--color-panel)] sm:p-9"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <p className={eyebrowClass}>repo_0{index + 1}</p>
-                  <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-accent)]">
-                    {repo.eyebrow}
-                  </p>
+                <div className="flex justify-between">
+                  <p className={eyebrow}>{repo.eyebrow}</p>
+                  <span className="text-[var(--color-accent)]">↗</span>
                 </div>
-                <h3 className="mt-3 text-balance text-xl font-semibold tracking-[-0.035em] sm:text-2xl">
+                <h3 className="mt-5 text-2xl font-semibold tracking-[-.04em]">
                   {repo.title}
                 </h3>
-                <p className={`${copyClass} mt-3 text-pretty`}>{repo.description}</p>
-                <div className="mt-5">
-                  <LocalizedBullets items={repo.bullets} />
-                </div>
-                <div className="mt-5 flex flex-wrap gap-2 border-t border-[var(--color-line)] pt-4">
-                  {repo.stack.map((item) => (
-                    <span key={item} className={chipClass}>
-                      {item}
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-4 break-all font-mono text-[0.68rem] text-[var(--color-accent)]">
-                  {repo.href.replace(
-                    "https://github.com/panyakorn04/",
-                    "github.com/panyakorn04/",
-                  )}
+                <p className={`${body} mt-4`}>{repo.description}</p>
+                <p className="mt-7 font-mono text-[.65rem] text-[var(--color-soft)]">
+                  0{i + 1} / {repo.stack.join(" · ")}
                 </p>
               </a>
             ))}
           </div>
-        </SectionBlock>
+        </Section>
 
-        <SectionBlock
-          id="skills"
-          kicker={commands.skills}
-          title={sections.skillsTitle}
-          text={sections.skillsText}
-          index={4}
-          total={sectionTotal}
+        <Section
+          id="experience"
+          index="04"
+          kicker={sections.experienceEyebrow}
+          title={sections.experienceRoles[0]?.roleTitle ?? ""}
         >
-          <div className="grid gap-3 md:grid-cols-2">
-            {sections.skills.map((item) => (
-              <article key={item.group} className={`${compactPanelClass} p-4`}>
-                <p className={eyebrowClass}>{item.group}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {item.list.split(", ").map((skill) => (
-                    <span key={skill} className={chipClass}>
-                      {skill.trim()}
-                    </span>
-                  ))}
+          <div className="border-t border-[var(--color-line)]">
+            {sections.experienceRoles.map((role) => (
+              <article
+                key={role.company}
+                className="grid gap-7 border-b border-[var(--color-line)] py-10 lg:grid-cols-[minmax(16rem,.65fr)_minmax(0,1fr)]"
+              >
+                <div>
+                  <h3 className="text-xl font-semibold">{role.company}</h3>
+                  <p className={`${eyebrow} mt-3`}>
+                    {role.roleTitle}
+                    <br />
+                    {role.timeline}
+                  </p>
                 </div>
+                <Bullets items={role.bullets} />
               </article>
             ))}
           </div>
-        </SectionBlock>
+        </Section>
 
-        <SectionBlock
-          id="experience"
-          kicker={commands.experience}
-          title={sections.experienceRoles[0]?.roleTitle ?? ""}
-          text={sections.experienceRoles
-            .map((r) => `${r.company} · ${r.timeline}`)
-            .join("\n")}
-          index={5}
-          total={sectionTotal}
+        <Section
+          id="skills"
+          index="05"
+          kicker={sections.skillsEyebrow}
+          title={sections.skillsTitle}
+          text={sections.skillsText}
         >
-          <div className="grid gap-6">
-            {sections.experienceRoles.map((role, i) => (
+          <dl className="border-t border-[var(--color-line)]">
+            {sections.skills.map((item) => (
               <div
-                key={role.company}
-                className="grid gap-4 lg:grid-cols-[16rem_minmax(0,1fr)]"
+                key={item.group}
+                className="grid gap-3 border-b border-[var(--color-line)] py-6 sm:grid-cols-[12rem_1fr]"
               >
-                <div className={`${compactPanelClass} p-4`}>
-                  <p className={eyebrowClass}>{ui.currentRoleLabel}</p>
-                  <p className="mt-3 text-lg font-semibold tracking-[-0.04em]">
-                    {role.company}
-                  </p>
-                  <p className={`${smallCopyClass} mt-1`}>{role.roleTitle}</p>
-                  <p className={`${smallCopyClass} mt-1`}>{role.timeline}</p>
-                  {i === 0 ? (
-                    <div className="mt-4 flex items-center gap-2 border-t border-[var(--color-line)] pt-4">
-                      <span className="size-2 rounded-full bg-[var(--color-accent)] shadow-[0_0_14px_var(--accent-glow)]" />
-                      <span className={eyebrowClass}>{ui.availabilityLabel}</span>
-                    </div>
-                  ) : null}
-                </div>
-                <div className={`${compactPanelClass} p-4`}>
-                  <LocalizedBullets items={role.bullets} />
-                </div>
+                <dt className={`${eyebrow} text-[var(--color-accent)]`}>{item.group}</dt>
+                <dd className="text-lg leading-relaxed text-[var(--color-muted)]">
+                  {item.list}
+                </dd>
               </div>
             ))}
-          </div>
-        </SectionBlock>
+          </dl>
+        </Section>
 
-        {hasArticles ? (
-          <SectionBlock
+        {articles.length ? (
+          <Section
             id="articles"
-            kicker="cat ./articles"
+            index="06"
+            kicker={articleCopy.eyebrow}
             title={articleCopy.title}
             text={articleCopy.description}
-            index={6}
-            total={sectionTotal}
           >
-            <div className="grid gap-4 md:grid-cols-2">
-              {articles.map((article) => (
+            <div className="border-t border-[var(--color-line)]">
+              {articles.map((article, i) => (
                 <Link
                   key={article.slug}
                   href={getLocalizedSitePath(locale, `/articles/${article.slug}`)}
-                  className={`${compactPanelClass} block p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)]`}
+                  className="group grid gap-4 border-b border-[var(--color-line)] py-8 md:grid-cols-[4rem_1fr_auto] md:items-center"
                 >
-                  <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-dim)] px-3 py-1 font-mono text-[0.58rem] uppercase text-[var(--color-accent)]">
-                      {article.category}
-                    </span>
-                    <span className="rounded-full border border-[var(--color-line)] bg-[var(--surface)] px-3 py-1 font-mono text-[0.58rem] uppercase text-[var(--color-soft)]">
-                      {article.readingTime}
-                    </span>
+                  <span className={eyebrow}>{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <p className={`${eyebrow} text-[var(--color-accent)]`}>
+                      {article.category} · {article.readingTime}
+                    </p>
+                    <h3 className="mt-2 text-2xl font-semibold tracking-[-.04em] group-hover:text-[var(--color-accent)]">
+                      {article.title}
+                    </h3>
+                    <p className={`${body} mt-2 max-w-3xl`}>{article.summary}</p>
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold leading-snug tracking-[-0.035em]">
-                    {article.title}
-                  </h3>
-                  <p className={`${smallCopyClass} mt-3 text-pretty`}>
-                    {article.summary}
-                  </p>
+                  <span className="text-2xl">↗</span>
                 </Link>
               ))}
-              <Link
-                href={getLocalizedSitePath(locale, "/articles")}
-                className={secondaryButtonClass}
-              >
-                {articleCopy.listLabel}
-              </Link>
             </div>
-          </SectionBlock>
+            <Link
+              href={getLocalizedSitePath(locale, "/articles")}
+              className={`${secondary} mt-8`}
+            >
+              {articleCopy.listLabel}
+            </Link>
+          </Section>
         ) : null}
 
-        <SectionBlock
+        <Section
           id="contact"
-          kicker={commands.contact}
+          index={articles.length ? "07" : "06"}
+          kicker={sections.contactEyebrow}
           title={sections.contactTitle}
           text={sections.contactText}
-          index={contactIndex}
-          total={sectionTotal}
         >
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
             <ContactForm locale={locale} copy={dictionary.contactForm} />
-            <div className="grid gap-4">
-              <div className={`${compactPanelClass} p-4`}>
-                <p className={eyebrowClass}>{ui.channelsLabel}</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                  {contacts.map((contact) => (
-                    <a
-                      key={contact.key}
-                      href={contact.href}
-                      target={contact.href.startsWith("http") ? "_blank" : undefined}
-                      rel={contact.href.startsWith("http") ? "noreferrer" : undefined}
-                      className="rounded-[var(--radius-sm)] border border-[var(--color-line)] bg-[var(--surface)] p-3 transition-colors hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)]"
-                    >
-                      <span className={eyebrowClass}>
-                        {dictionary.contactLabels[contact.key]}
-                      </span>
-                      <span className="mt-2 block break-words text-sm text-[var(--color-text)]">
-                        {contact.value}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-              <div className={`${compactPanelClass} p-4`}>
-                <p className={eyebrowClass}>{ui.legalLabel}</p>
-                <p className="mt-3 text-sm font-semibold">{legal.title}</p>
-                <p className={`${smallCopyClass} mt-2 text-pretty`}>{legal.text}</p>
-                <div className="mt-4 grid gap-3">
-                  {[
-                    {
-                      label: legal.termsLabel,
-                      help: legal.termsHelp,
-                      href: termsUrl,
-                      path: "/terms",
-                    },
-                    {
-                      label: legal.privacyLabel,
-                      help: legal.privacyHelp,
-                      href: privacyUrl,
-                      path: "/privacy",
-                    },
-                  ].map((item) => (
-                    <Link
-                      key={item.label}
-                      href={getLocalizedSitePath(locale, item.path)}
-                      className="rounded-[var(--radius-sm)] border border-[var(--color-line)] bg-[var(--surface)] p-3 transition-colors hover:border-[var(--color-line-strong)] hover:bg-[var(--surface-hover)]"
-                    >
-                      <p className={eyebrowClass}>{item.label}</p>
-                      <p className={`${smallCopyClass} mt-2 text-pretty`}>{item.help}</p>
-                      <p className="mt-3 break-all font-mono text-[0.68rem] text-[var(--color-accent)]">
-                        {item.href}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </SectionBlock>
-
-        <footer className="py-10">
-          <div
-            className={`${panelClass} flex flex-col items-center justify-between gap-4 p-5 text-center sm:flex-row sm:text-left`}
-          >
-            <div>
-              <p className={eyebrowClass}>system status</p>
-              <p className="mt-1 text-sm text-[var(--color-muted)]">
-                © {new Date().getFullYear()} Panyakorn Boonyong · v{appVersion}
-              </p>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2">
-              {socialLinks.map((link) => (
+            <div className="border-t border-[var(--color-line)]">
+              {contacts.map((c) => (
                 <a
-                  key={link.key}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`${chipClass} min-h-11`}
+                  key={c.key}
+                  href={c.href}
+                  target={c.href.startsWith("http") ? "_blank" : undefined}
+                  rel={c.href.startsWith("http") ? "noreferrer" : undefined}
+                  className="block border-b border-[var(--color-line)] py-5"
                 >
-                  {dictionary.socialLinks[link.key]}
+                  <span className={eyebrow}>{dictionary.contactLabels[c.key]}</span>
+                  <span className="mt-2 block break-words text-sm">{c.value}</span>
                 </a>
               ))}
             </div>
           </div>
+        </Section>
+        <footer className="flex flex-col justify-between gap-5 border-t border-[var(--color-line)] py-10 sm:flex-row">
+          <p className={eyebrow}>
+            © {new Date().getFullYear()} Panyakorn Boonyong · v{appVersion}
+          </p>
+          <div className="flex gap-5">
+            {socialLinks.map((l) => (
+              <a
+                key={l.key}
+                href={l.href}
+                target="_blank"
+                rel="noreferrer"
+                className={`${eyebrow} min-h-11 py-3 hover:text-[var(--color-accent)]`}
+              >
+                {dictionary.socialLinks[l.key]}
+              </a>
+            ))}
+          </div>
         </footer>
       </div>
-
       <ChatDemo copy={dictionary.chat} />
     </main>
   );

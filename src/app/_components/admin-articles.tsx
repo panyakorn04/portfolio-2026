@@ -59,7 +59,7 @@ type DraftArticle = {
   translations: Record<"en" | "th", DraftTranslation>;
 };
 
-const panelClass = `${glassCompactPanelClass} p-5 sm:p-6`;
+const panelClass = `${glassCompactPanelClass} p-4 sm:p-5 lg:p-6`;
 const inputClass = sharedInputClass;
 
 function emptyTranslation(): DraftTranslation {
@@ -324,12 +324,12 @@ export default function AdminArticles({
   const activeTranslation = draft?.translations[activeLocale] ?? null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <section className={panelClass}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className={labelClass}>{copy.panelLabel}</p>
-            <h2 className="mt-2 text-[1.4rem] font-semibold text-[var(--color-text)]">
+            <h2 className="mt-2 [font-family:var(--font-display),sans-serif] text-[clamp(1.5rem,3vw,2.35rem)] font-medium tracking-[-0.035em] text-[var(--color-text)]">
               {copy.title}
             </h2>
             <p className="mt-2 max-w-2xl text-[0.86rem] leading-relaxed text-[var(--color-muted)]">
@@ -351,7 +351,10 @@ export default function AdminArticles({
         </div>
 
         {statusMessage ? (
-          <p className="mt-4 rounded-[0.85rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.7)] px-3 py-2 text-[0.8rem] text-[var(--color-accent)]">
+          <p
+            role="status"
+            className="mt-4 border-l-2 border-[var(--color-accent)] bg-[var(--accent-dim)] px-3 py-2 text-[0.8rem] text-[var(--color-text)]"
+          >
             {statusMessage}
           </p>
         ) : null}
@@ -402,7 +405,7 @@ export default function AdminArticles({
             {isLoading ? copy.loadingLabel : copy.emptyLabel}
           </p>
         ) : (
-          <div className="mt-5 space-y-3">
+          <div className="mt-5 divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
             {articles.map((article) => {
               const headline =
                 article.translations.find((item) => item.locale === locale)?.title ??
@@ -412,15 +415,15 @@ export default function AdminArticles({
               return (
                 <article
                   key={article.id}
-                  className="rounded-[1.2rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.6)] p-4"
+                  className="bg-[#090b0a] px-3 py-4 transition-colors hover:bg-[#0c100d] sm:px-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span
-                          className={`rounded-full border px-2.5 py-1 font-mono text-[0.6rem] uppercase ${
+                          className={`border-l-2 px-2 py-1 font-mono text-[0.6rem] uppercase ${
                             article.status === "published"
-                              ? "border-[var(--color-line-strong)] text-[var(--color-accent)]"
+                              ? "border-[var(--color-accent)] text-[var(--color-accent)]"
                               : "border-[var(--color-line)] text-[var(--color-soft)]"
                           }`}
                         >
@@ -428,11 +431,11 @@ export default function AdminArticles({
                             ? copy.statusPublishedLabel
                             : copy.statusDraftLabel}
                         </span>
-                        <span className="rounded-full border border-[var(--color-line)] px-2.5 py-1 font-mono text-[0.6rem] uppercase text-[var(--color-soft)]">
+                        <span className="border border-[var(--color-line)] px-2.5 py-1 font-mono text-[0.6rem] uppercase text-[var(--color-soft)]">
                           {article.category}
                         </span>
                       </div>
-                      <h3 className="mt-2 truncate text-[1.02rem] font-semibold text-[var(--color-text)]">
+                      <h3 className="mt-2 break-words text-[1.02rem] font-semibold text-[var(--color-text)]">
                         {headline}
                       </h3>
                       <p className="mt-1 font-mono text-[0.66rem] text-[var(--color-soft)]">
@@ -440,7 +443,7 @@ export default function AdminArticles({
                       </p>
                     </div>
 
-                    <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
                       {article.status === "published" ? (
                         <a
                           className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.sm}`}
@@ -528,7 +531,7 @@ export default function AdminArticles({
             </label>
           </div>
 
-          <div className="mt-5 flex gap-2">
+          <div className="mt-5 flex gap-2 border-b border-[var(--color-line)] pb-4">
             {(["en", "th"] as const).map((loc) => (
               <Button
                 key={loc}
@@ -623,9 +626,9 @@ export default function AdminArticles({
                 <div
                   // biome-ignore lint/suspicious/noArrayIndexKey: editable ordered list without stable ids
                   key={sectionIndex}
-                  className="rounded-[1.1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.6)] p-4"
+                  className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-3 sm:p-4"
                 >
-                  <div className="flex items-end gap-2">
+                  <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-end">
                     <label className="block flex-1">
                       <span className={labelClass}>{copy.sectionHeadingLabel}</span>
                       <input
@@ -659,8 +662,10 @@ export default function AdminArticles({
 
                   <div className="mt-3 space-y-2">
                     {section.paragraphs.map((paragraph, paragraphIndex) => (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: editable ordered list without stable ids
-                      <div key={paragraphIndex} className="flex items-start gap-2">
+                      <div
+                        key={paragraphIndex.toString()}
+                        className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-start"
+                      >
                         <textarea
                           className={`${inputClass} min-h-[4rem] flex-1`}
                           value={paragraph}

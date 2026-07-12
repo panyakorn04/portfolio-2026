@@ -1,145 +1,174 @@
 import type { PortfolioDictionary } from "../_data/portfolio";
-import { buttonBase, buttonSizes } from "./button";
 
 type CaseStudy = PortfolioDictionary["sections"]["flagshipCaseStudy"];
-const surface =
-  "rounded-[var(--radius)] border border-[var(--color-line)] bg-[rgba(0,0,0,0.18)]";
 const label =
-  "font-mono text-[0.6rem] uppercase tracking-[0.11em] text-[var(--color-accent)]";
-const copy = "text-[0.84rem] leading-[1.72] text-[var(--color-muted)]";
-const cta = `${buttonBase} ${buttonSizes.lg} justify-center border border-[var(--color-line-strong)] font-semibold tracking-[0.05em] hover:-translate-y-0.5 hover:border-[var(--color-accent)]`;
-
-function DetailList({ items }: { items: string[] }) {
-  return (
-    <ul className="mt-4 grid gap-3">
-      {items.map((item) => (
-        <li key={item} className={`${copy} flex gap-3 text-pretty`}>
-          <span
-            aria-hidden="true"
-            className="mt-2.5 size-1.5 shrink-0 rounded-full bg-[var(--color-accent)] shadow-[0_0_14px_var(--accent-glow)]"
-          />
-          <span>{item}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
+  "font-mono text-[.66rem] uppercase tracking-[.14em] text-[var(--color-accent)]";
+const copy = "text-[.9rem] leading-[1.75] text-[var(--color-muted)]";
 
 export function FlagshipCaseStudy({ study }: { study: CaseStudy }) {
-  const detailGroups = [
-    { heading: study.capabilitiesLabel, items: study.capabilities },
-    { heading: study.securityLabel, items: study.security },
-    { heading: study.outcomesLabel, items: study.outcomes },
-  ];
-
   return (
-    <article className="relative mb-5 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--accent-border)] bg-[linear-gradient(145deg,rgba(26,255,125,0.1),rgba(255,255,255,0.025)_38%,rgba(0,0,0,0.2))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)] sm:p-6">
-      <div
-        aria-hidden="true"
-        className="absolute -right-20 -top-24 size-64 rounded-full bg-[var(--accent-glow)] opacity-20 blur-3xl"
-      />
-      <div className="relative">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className={label}>case_00 · {study.eyebrow}</p>
-          <span className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-dim)] px-3 py-1 font-mono text-[0.58rem] uppercase tracking-[0.08em] text-[var(--color-accent)]">
-            {study.liveBadge}
-          </span>
-        </div>
-        <h3 className="mt-4 max-w-4xl text-balance [font-family:var(--font-display),sans-serif] text-[clamp(1.55rem,4vw,3rem)] font-semibold leading-[1.02] tracking-[-0.06em]">
-          {study.title}
-        </h3>
-        <p className={`${copy} mt-4 max-w-3xl text-pretty text-[0.94rem] sm:text-base`}>
-          {study.summary}
-        </p>
-
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <section className={`${surface} p-4 sm:p-5`}>
-            <p className={label}>{study.problemLabel}</p>
-            <p className={`${copy} mt-3 text-pretty`}>{study.problem}</p>
-          </section>
-          <section className={`${surface} p-4 sm:p-5`}>
-            <p className={label}>{study.solutionLabel}</p>
-            <p className={`${copy} mt-3 text-pretty`}>{study.solution}</p>
-          </section>
-        </div>
-
-        <section className={`${surface} mt-4 p-4 sm:p-5`}>
-          <p className={label}>{study.architectureLabel}</p>
-          <ol className="mt-4 grid gap-3 md:grid-cols-4">
-            {study.architecture.map((node, index) => (
-              <li
-                key={node.label}
-                className="relative rounded-[var(--radius-sm)] border border-[var(--color-line)] bg-[var(--surface)] p-4"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[0.62rem] text-[var(--color-soft)]">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <strong className="text-sm text-[var(--color-text)]">
-                    {node.label}
-                  </strong>
-                </div>
-                <p className={`${copy} mt-2 text-[0.76rem]`}>{node.detail}</p>
-                {index < study.architecture.length - 1 ? (
-                  <span
-                    aria-hidden="true"
-                    className="absolute -right-3 top-1/2 z-10 hidden text-[var(--color-accent)] md:block"
-                  >
-                    →
-                  </span>
-                ) : null}
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <div className="mt-4 grid gap-4 lg:grid-cols-3">
-          {detailGroups.map((group) => (
-            <section key={group.heading} className={`${surface} p-4 sm:p-5`}>
-              <p className={label}>{group.heading}</p>
-              <DetailList items={group.items} />
-            </section>
-          ))}
-        </div>
-
-        <div className="mt-5 flex flex-wrap gap-2 border-t border-[var(--color-line)] pt-5">
-          {study.stack.map((item) => (
-            <span
-              key={item}
-              className="rounded-full border border-[var(--color-line)] bg-[var(--surface)] px-3 py-1.5 font-mono text-[0.62rem] text-[var(--color-soft)]"
+    <article>
+      <div className="grid gap-10 xl:grid-cols-[minmax(0,.8fr)_minmax(30rem,1.2fr)] xl:items-center">
+        <div>
+          <div className="flex items-center gap-3">
+            <p className={label}>{study.eyebrow}</p>
+            <span className="h-px flex-1 bg-[var(--color-line)]" />
+            <span className={label}>{study.liveBadge}</span>
+          </div>
+          <h3 className="mt-7 text-balance text-[clamp(2.3rem,5vw,5rem)] font-semibold leading-[.95] tracking-[-.065em]">
+            {study.title}
+          </h3>
+          <p className={`${copy} mt-7 max-w-2xl text-pretty text-base`}>
+            {study.summary}
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a
+              href={study.liveHref}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-11 items-center border border-[var(--color-accent)] bg-[var(--color-accent)] px-5 text-sm font-semibold text-[#07110d]"
             >
-              {item}
+              {study.liveLabel} ↗
+            </a>
+            <a
+              href={study.sourceHref}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-11 items-center border border-[var(--color-line-strong)] px-5 text-sm font-semibold"
+            >
+              {study.sourceLabel} ↗
+            </a>
+          </div>
+        </div>
+        <section
+          className="border border-[var(--color-line-strong)] bg-[#101311] p-3 sm:p-5"
+          aria-label={study.architectureLabel}
+        >
+          <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
+            <div>
+              <p className={label}>AI Workflow Studio</p>
+              <p className="mt-1 text-xs text-[var(--color-soft)]">
+                Execution inspector / production
+              </p>
+            </div>
+            <span className="flex items-center gap-2 text-xs text-[var(--color-accent)]">
+              <i className="size-2 rounded-full bg-[var(--color-accent)]" />
+              Live
             </span>
-          ))}
-        </div>
-        <p className={`${copy} mt-4 text-pretty text-[0.76rem]`}>{study.note}</p>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          <a
-            href={study.liveHref}
-            target="_blank"
-            rel="noreferrer"
-            className={`${cta} bg-[var(--color-accent)] text-[#05070a] shadow-[var(--shadow-btn)]`}
-          >
-            {study.liveLabel} ↗
-          </a>
-          <a
-            href={study.sourceHref}
-            target="_blank"
-            rel="noreferrer"
-            className={`${cta} bg-[var(--surface)] text-[var(--color-text)] hover:text-[var(--color-accent)]`}
-          >
-            {study.sourceLabel} ↗
-          </a>
-          <a
-            href={study.backendHref}
-            target="_blank"
-            rel="noreferrer"
-            className={`${cta} bg-[var(--surface)] text-[var(--color-text)] hover:text-[var(--color-accent)]`}
-          >
-            {study.backendLabel} ↗
-          </a>
-        </div>
+          </div>
+          <div className="grid gap-3 py-4 sm:grid-cols-[10rem_1fr]">
+            <aside className="border border-[var(--color-line)] p-3">
+              <p className={label}>Workflows</p>
+              {study.capabilities.slice(0, 3).map((item, i) => (
+                <div
+                  key={item}
+                  className={`mt-3 border-l-2 ${i === 0 ? "border-[var(--color-accent)] bg-[var(--accent-dim)]" : "border-[var(--color-line)]"} p-2`}
+                >
+                  <p className="text-xs font-medium">
+                    {i === 0
+                      ? "Content intelligence"
+                      : i === 1
+                        ? "Competitive research"
+                        : "Meeting action center"}
+                  </p>
+                  <p className="mt-1 font-mono text-[.55rem] text-[var(--color-soft)]">
+                    {i === 0 ? "RUNNING" : "ACTIVE"}
+                  </p>
+                </div>
+              ))}
+            </aside>
+            <div className="border border-[var(--color-line)] p-4">
+              <div className="flex justify-between">
+                <div>
+                  <p className={label}>{study.architectureLabel}</p>
+                  <p className="mt-2 text-sm font-semibold">Production system path</p>
+                </div>
+                <span className="font-mono text-[.6rem] text-[var(--color-soft)]">
+                  LIVE
+                </span>
+              </div>
+              <ol className="mt-6">
+                {study.architecture.map((node, i) => (
+                  <li
+                    key={node.label}
+                    className="relative grid grid-cols-[1.5rem_1fr] gap-3 pb-5 last:pb-0"
+                  >
+                    <span className="relative z-10 grid size-6 place-items-center rounded-full border border-[var(--color-accent)] bg-[#101311] font-mono text-[.55rem] text-[var(--color-accent)]">
+                      {i + 1}
+                    </span>
+                    {i < study.architecture.length - 1 ? (
+                      <span className="absolute left-[.72rem] top-6 h-full w-px bg-[var(--color-line-strong)]" />
+                    ) : null}
+                    <div>
+                      <strong className="text-xs">{node.label}</strong>
+                      <p className="mt-1 text-[.68rem] leading-5 text-[var(--color-soft)]">
+                        {node.detail}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-px bg-[var(--color-line)]">
+            {[study.capabilitiesLabel, study.securityLabel, study.outcomesLabel].map(
+              (x, i) => (
+                <div key={x} className="bg-[#101311] p-3">
+                  <p className="font-mono text-[.55rem] text-[var(--color-soft)]">{x}</p>
+                  <p className="mt-1 text-sm text-[var(--color-accent)]">
+                    {i === 0 ? "SSE" : i === 1 ? "Session" : "Shipped"}
+                  </p>
+                </div>
+              ),
+            )}
+          </div>
+        </section>
       </div>
+      <div className="mt-16 grid border-y border-[var(--color-line)] lg:grid-cols-2">
+        <section className="py-8 lg:pr-10">
+          <p className={label}>{study.problemLabel}</p>
+          <p className={`${copy} mt-4 text-pretty`}>{study.problem}</p>
+        </section>
+        <section className="border-t border-[var(--color-line)] py-8 lg:border-l lg:border-t-0 lg:pl-10">
+          <p className={label}>{study.solutionLabel}</p>
+          <p className={`${copy} mt-4 text-pretty`}>{study.solution}</p>
+        </section>
+      </div>
+      <div className="grid gap-10 py-10 lg:grid-cols-3">
+        {[
+          { h: study.capabilitiesLabel, x: study.capabilities },
+          { h: study.securityLabel, x: study.security },
+          { h: study.outcomesLabel, x: study.outcomes },
+        ].map((g) => (
+          <section key={g.h}>
+            <p className={label}>{g.h}</p>
+            <ul className="mt-5 grid gap-4">
+              {g.x.map((x) => (
+                <li
+                  key={x}
+                  className={`${copy} border-t border-[var(--color-line)] pt-4`}
+                >
+                  {x}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+      <div className="flex flex-col gap-5 border-t border-[var(--color-line)] pt-6 md:flex-row md:items-center md:justify-between">
+        <p className="font-mono text-[.65rem] leading-6 text-[var(--color-soft)]">
+          {study.stack.join(" · ")}
+        </p>
+        <a
+          href={study.backendHref}
+          target="_blank"
+          rel="noreferrer"
+          className="text-sm text-[var(--color-accent)]"
+        >
+          {study.backendLabel} ↗
+        </a>
+      </div>
+      <p className={`${copy} mt-5 text-xs`}>{study.note}</p>
     </article>
   );
 }

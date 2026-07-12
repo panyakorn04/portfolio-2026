@@ -16,7 +16,7 @@ import { Button, buttonBase, buttonSizes, buttonVariants } from "./button";
 type AdminCopy = (typeof adminDirectoryCopy)[Locale];
 
 const titleClass =
-  '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance';
+  '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2.25rem,6vw,4.75rem)] font-medium leading-[0.96] tracking-[-0.055em] text-balance';
 const localInputClass = `mt-2 ${inputClass}`;
 
 export default function AdminLogin({
@@ -88,13 +88,13 @@ export default function AdminLogin({
   return (
     <main
       lang={locale}
-      className="relative min-h-screen overflow-x-clip bg-[var(--color-bg)] text-[var(--color-text)]"
+      className="relative flex min-h-dvh overflow-x-clip bg-[#070908] text-[var(--color-text)]"
     >
       <div className="ambient" aria-hidden="true" />
-      <div className="relative z-10 mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-10">
-        <section className={glassPanelClass}>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full border border-[var(--color-line-strong)] bg-[var(--accent-dim)] px-3 py-1 font-mono text-[0.66rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-accent)]">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.72fr)] lg:gap-14 lg:py-14">
+        <header className="max-w-2xl lg:pr-8">
+          <div className="flex flex-wrap items-center gap-3 border-b border-[var(--color-line)] pb-5">
+            <span className="border-l-2 border-[var(--color-accent)] pl-3 font-mono text-[0.66rem] uppercase tracking-[0.12em] tabular-nums text-[var(--color-accent)]">
               /admin/login
             </span>
             <a
@@ -105,13 +105,23 @@ export default function AdminLogin({
             </a>
           </div>
 
-          <div className="mt-6 max-w-3xl space-y-4 border-b border-[var(--color-line)] pb-6">
+          <div className="mt-10 space-y-5">
             <p className={eyeClass}>{copy.authPanelLabel}</p>
             <h1 className={titleClass}>{copy.authTitle}</h1>
             <p className={`${bodyClass} text-pretty`}>{copy.authDescription}</p>
           </div>
+        </header>
 
-          <div className="mt-6 max-w-xl">
+        <section className={`${glassPanelClass} w-full`}>
+          <div className="mb-7 border-b border-[var(--color-line)] pb-4">
+            <p className={eyeClass}>{copy.authPanelLabel}</p>
+          </div>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              signIn();
+            }}
+          >
             <label htmlFor="admin-email" className={labelClass}>
               {copy.emailLoginLabel}
             </label>
@@ -121,6 +131,8 @@ export default function AdminLogin({
               value={emailInput}
               onChange={(event) => setEmailInput(event.target.value)}
               placeholder={copy.emailLoginPlaceholder}
+              autoComplete="email"
+              required
               className={localInputClass}
             />
 
@@ -132,25 +144,33 @@ export default function AdminLogin({
               type="password"
               value={passwordInput}
               onChange={(event) => setPasswordInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  signIn();
-                }
-              }}
               placeholder={copy.passwordPlaceholder}
+              autoComplete="current-password"
+              required
               className={localInputClass}
             />
 
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Button variant="primary" size="md" onClick={signIn} disabled={isSigningIn}>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                disabled={isSigningIn}
+                className="min-h-11 w-full rounded-[0.25rem]"
+              >
                 {isSigningIn ? copy.signingInLabel : copy.signInLabel}
               </Button>
             </div>
 
             {statusMessage ? (
-              <p className="mt-4 text-sm text-[var(--color-accent)]">{statusMessage}</p>
+              <p
+                role="alert"
+                className="mt-4 border-l-2 border-[var(--color-accent)] bg-[var(--accent-dim)] px-3 py-2 text-sm text-[var(--color-text)]"
+              >
+                {statusMessage}
+              </p>
             ) : null}
-          </div>
+          </form>
         </section>
       </div>
     </main>

@@ -41,7 +41,7 @@ const widgetShellClass =
 const backdropClass =
   "fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(111,247,166,0.06),transparent_30%),rgba(3,8,6,0.38)] motion-reduce:transition-none";
 const flyoutClass =
-  "w-[min(calc(100vw-2rem),38rem)] max-h-[min(84svh,52rem)] origin-bottom-right overflow-hidden rounded-[1.6rem] border border-[rgba(111,247,166,0.14)] bg-[linear-gradient(180deg,rgba(5,11,8,0.96),rgba(3,8,6,0.96))] shadow-[0_28px_80px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(111,247,166,0.1)] backdrop-blur-[18px] motion-reduce:transition-none max-sm:w-[calc(100vw-2.75rem)] max-sm:max-h-[calc(100svh-5.5rem)]";
+  "w-[min(calc(100vw-2rem),38rem)] max-h-[min(84svh,52rem)] origin-bottom-right overflow-hidden border border-[var(--color-line-strong)] bg-[rgba(11,13,12,0.98)] shadow-[0_28px_80px_rgba(0,0,0,0.55)] motion-reduce:transition-none max-sm:w-[calc(100vw-2.75rem)] max-sm:max-h-[calc(100svh-5.5rem)]";
 const chatLogClass =
   "flex min-h-64 max-h-[22rem] flex-col gap-3 overflow-y-auto rounded-[1.15rem] bg-[rgba(4,9,7,0.72)] p-3 [scrollbar-color:rgba(111,247,166,0.35)_transparent] [scrollbar-width:thin] max-sm:min-h-52 max-sm:max-h-[min(40svh,20rem)]";
 const recentButtonClass =
@@ -94,14 +94,14 @@ export default function ChatDemoView({
         <section id="portfolio-chat-widget" className={flyoutClass}>
           <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
             <div className="flex items-center gap-2.5">
-              <span className="flex size-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-[0.6rem] font-bold text-[#041009]">
+              <span className="flex size-11 items-center justify-center rounded-full bg-[var(--color-accent)] text-[0.6rem] font-bold text-[#041009]">
                 P
               </span>
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setActiveTab("new")}
-                  className={`rounded-full px-2.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
+                  className={`min-h-11 rounded-full px-3 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
                     activeTab === "new"
                       ? "bg-[var(--color-accent)] text-[#041009]"
                       : "border border-[var(--color-line)] text-[var(--color-soft)] hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
@@ -113,7 +113,7 @@ export default function ChatDemoView({
                 <button
                   type="button"
                   onClick={() => setActiveTab("recent")}
-                  className={`rounded-full px-2.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
+                  className={`min-h-11 rounded-full px-3 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
                     activeTab === "recent"
                       ? "bg-[var(--color-accent)] text-[#041009]"
                       : "border border-[var(--color-line)] text-[var(--color-soft)] hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
@@ -130,7 +130,7 @@ export default function ChatDemoView({
                   setActiveTab("new");
                   onNewChat();
                 }}
-                className="flex size-7 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
+                className="flex size-11 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
                 aria-label={copy.newChatLabel}
               >
                 <svg
@@ -152,7 +152,7 @@ export default function ChatDemoView({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex size-7 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
+                className="flex size-11 items-center justify-center rounded-full text-[var(--color-soft)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text)]"
                 aria-label={copy.closeLabel}
               >
                 <svg
@@ -276,7 +276,7 @@ export default function ChatDemoView({
                 )
               ) : messages.length === 0 ? (
                 <div className="flex flex-1 flex-col items-center justify-center gap-2 p-4 text-center">
-                  <div className="flex size-7 items-center justify-center rounded-full bg-[var(--color-accent)]/10 ring-1 ring-[rgba(111,247,166,0.2)]">
+                  <div className="flex size-11 items-center justify-center rounded-full bg-[var(--color-accent)]/10 ring-1 ring-[rgba(111,247,166,0.2)]">
                     <span className="font-mono text-[10px] text-[var(--color-accent)]">
                       AI
                     </span>

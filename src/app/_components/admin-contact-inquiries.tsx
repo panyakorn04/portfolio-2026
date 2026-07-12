@@ -670,9 +670,9 @@ export default function AdminContactInquiries({
 
   return (
     <div lang={locale}>
-      <div className="grid gap-6 xl:grid-cols-[22rem_minmax(0,1fr)]">
-        <div className="space-y-6">
-          <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
+      <div className="grid gap-5 xl:grid-cols-[21rem_minmax(0,1fr)]">
+        <aside className="space-y-5">
+          <section className="rounded-[0.375rem] border border-[var(--color-line)] bg-[#0d0f0e] p-4">
             <p className={labelClass}>{copy.currentUserLabel}</p>
             <div className="mt-3 space-y-2">
               <p className="text-sm font-semibold text-[var(--color-text)]">
@@ -700,7 +700,7 @@ export default function AdminContactInquiries({
             </div>
           </section>
 
-          <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
+          <section className="rounded-[0.375rem] border border-[var(--color-line)] bg-[#0d0f0e] p-4">
             <div className="flex items-center justify-between gap-3">
               <p className={labelClass}>{copy.sessionsLabel}</p>
               <Button
@@ -724,7 +724,7 @@ export default function AdminContactInquiries({
                 sessions.map((session) => (
                   <div
                     key={session.id}
-                    className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
+                    className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <p className="font-mono text-[0.7rem] text-[var(--color-soft)]">
@@ -757,7 +757,7 @@ export default function AdminContactInquiries({
           </section>
 
           {canManageUsers ? (
-            <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
+            <section className="rounded-[0.375rem] border border-[var(--color-line)] bg-[#0d0f0e] p-4">
               <div className="flex items-center justify-between gap-3">
                 <p className={labelClass}>{copy.usersLabel}</p>
                 {isLoadingUsers ? (
@@ -774,7 +774,7 @@ export default function AdminContactInquiries({
                   users.map((user) => (
                     <div
                       key={user.id}
-                      className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
+                      className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4"
                     >
                       <p className="text-sm font-semibold text-[var(--color-text)]">
                         {user.email}
@@ -806,7 +806,7 @@ export default function AdminContactInquiries({
             </section>
           ) : null}
 
-          <section className="rounded-[1.25rem] border border-[var(--color-line)] bg-[rgba(10,20,16,0.68)] p-4">
+          <section className="rounded-[0.375rem] border border-[var(--color-line)] bg-[#0d0f0e] p-4">
             <div className="flex items-center justify-between gap-3">
               <p className={labelClass}>{copy.inquiriesLabel}</p>
               <span className="font-mono text-[0.7rem] text-[var(--color-soft)]">
@@ -815,7 +815,7 @@ export default function AdminContactInquiries({
             </div>
 
             <div className="mt-4 grid gap-4">
-              <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+              <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
                 <p className={labelClass}>{copy.listControlsLabel}</p>
                 <div className="mt-3 grid gap-4">
                   <div>
@@ -875,10 +875,10 @@ export default function AdminContactInquiries({
                         setSummary(null);
                         setSelectedInquiryDetail(null);
                       }}
-                      className={`w-full rounded-[1rem] border px-4 py-3 text-left transition-colors ${
+                      className={`w-full rounded-[0.25rem] border px-4 py-3 text-left transition-colors ${
                         isActive
-                          ? "border-[var(--color-line-strong)] bg-[rgba(111,247,166,0.1)]"
-                          : "border-[var(--color-line)] bg-[rgba(6,12,9,0.7)]"
+                          ? "border-[var(--color-accent)] bg-[var(--accent-dim)]"
+                          : "border-[var(--color-line)] bg-[#090b0a] hover:border-[var(--color-line-strong)]"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -906,7 +906,7 @@ export default function AdminContactInquiries({
               )}
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-3 rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
               <p className="font-mono text-[0.7rem] text-[var(--color-soft)]">
                 {copy.pageLabel} {currentPage} / {totalPages}
               </p>
@@ -930,12 +930,17 @@ export default function AdminContactInquiries({
               </div>
             </div>
           </section>
-        </div>
+        </aside>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-5">
           {statusMessage ? (
             <section className={`${glassCompactPanelClass} p-5 sm:p-6`}>
-              <p className="text-sm text-[var(--color-accent)]">{statusMessage}</p>
+              <p
+                role="status"
+                className="border-l-2 border-[var(--color-accent)] bg-[var(--accent-dim)] px-3 py-2 text-sm text-[var(--color-text)]"
+              >
+                {statusMessage}
+              </p>
             </section>
           ) : null}
 
@@ -957,7 +962,7 @@ export default function AdminContactInquiries({
             </div>
 
             {detailInquiry ? (
-              <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_15rem]">
+              <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_14rem]">
                 <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     {[
@@ -971,7 +976,7 @@ export default function AdminContactInquiries({
                     ].map(([label, value]) => (
                       <div
                         key={`${label}-${value}`}
-                        className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
+                        className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4"
                       >
                         <p className={labelClass}>{label}</p>
                         <p className="mt-2 text-sm text-[var(--color-text)]">{value}</p>
@@ -979,7 +984,7 @@ export default function AdminContactInquiries({
                     ))}
                   </div>
 
-                  <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                  <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
                     <p className={labelClass}>{copy.messageLabel}</p>
                     <p className={`${bodyClass} mt-3 whitespace-pre-wrap`}>
                       {detailInquiry.message}
@@ -988,14 +993,14 @@ export default function AdminContactInquiries({
                 </div>
 
                 <div className="space-y-4">
-                  <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                  <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
                     <p className={labelClass}>{copy.createdAtLabel}</p>
                     <p className="mt-2 text-sm text-[var(--color-text)]">
                       {new Date(detailInquiry.createdAt).toLocaleString(locale)}
                     </p>
                   </div>
 
-                  <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                  <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
                     <p className={labelClass}>{copy.handledAtLabel}</p>
                     <p className="mt-2 text-sm text-[var(--color-text)]">
                       {detailInquiry.handledAt
@@ -1027,7 +1032,7 @@ export default function AdminContactInquiries({
 
             {detailInquiry ? (
               <div className="mt-4 grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
-                <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
                   <label htmlFor="inquiry-status" className={labelClass}>
                     {copy.statusLabel}
                   </label>
@@ -1046,7 +1051,7 @@ export default function AdminContactInquiries({
                   </select>
                 </div>
 
-                <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
                   <label htmlFor="inquiry-note" className={labelClass}>
                     {copy.internalNoteLabel}
                   </label>
@@ -1084,7 +1089,7 @@ export default function AdminContactInquiries({
                 {selectedInquiryDetail.activities.map((activity) => (
                   <div
                     key={activity.id}
-                    className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4"
+                    className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-[var(--color-text)]">
@@ -1139,15 +1144,15 @@ export default function AdminContactInquiries({
             <p className={labelClass}>{copy.summaryLabel}</p>
             {summary ? (
               <div className="mt-4 space-y-4">
-                <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
                   <p className={labelClass}>{copy.summaryResultLabel}</p>
                   <p className={`${bodyClass} mt-3 whitespace-pre-wrap`}>
                     {summary.summary}
                   </p>
                 </div>
-                <div className="rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.74)] p-4">
+                <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
                   <p className={labelClass}>{copy.summaryPromptLabel}</p>
-                  <pre className="mt-3 overflow-x-auto whitespace-pre-wrap font-mono text-[0.72rem] leading-6 text-[var(--color-soft)]">
+                  <pre className="mt-3 max-w-full overflow-x-auto whitespace-pre-wrap break-words font-mono text-[0.72rem] leading-6 text-[var(--color-soft)]">
                     {summary.prompt}
                   </pre>
                 </div>
