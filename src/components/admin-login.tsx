@@ -1,19 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
-
-import type { adminDirectoryCopy } from "../lib/admin";
-import {
-  bodyClass,
-  eyeClass,
-  glassPanelClass,
-  inputClass,
-  labelClass,
-} from "../lib/admin-styles";
-import type { Locale } from "../lib/portfolio";
+import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import { Button, buttonBase, buttonSizes, buttonVariants } from "./ui/button";
+import {
+  adminBodyClass as bodyClass,
+  adminEyeClass as eyeClass,
+  glassPanelClass,
+  adminInputClass as inputClass,
+  adminLabelClass as labelClass,
+} from "./ui/typography";
 
-type AdminCopy = (typeof adminDirectoryCopy)[Locale];
+type AdminCopy = PortfolioDictionary["adminWorkspace"];
 
 const titleClass =
   '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2.25rem,6vw,4.75rem)] font-medium leading-[0.96] tracking-[-0.055em] text-balance';

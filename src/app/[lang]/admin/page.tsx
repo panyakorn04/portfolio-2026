@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import AdminWorkspace from "../../../components/admin-workspace";
-import { adminDirectoryCopy } from "../../../lib/admin";
-import { adminArticlesCopy } from "../../../lib/admin-articles";
 import { hasLocale } from "../../../lib/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../lib/site-url";
+import { getDictionary } from "../dictionaries";
 
 export async function generateMetadata({
   params,
@@ -16,7 +15,8 @@ export async function generateMetadata({
     return {};
   }
 
-  const copy = adminDirectoryCopy[lang];
+  const dictionary = await getDictionary(lang);
+  const copy = dictionary.adminWorkspace;
   const pathname = getLocalizedSitePath(lang, "/admin");
 
   return {
@@ -52,11 +52,13 @@ export default async function AdminPage({ params }: PageProps<"/[lang]/admin">) 
     notFound();
   }
 
+  const dict = await getDictionary(lang);
+
   return (
     <AdminWorkspace
       locale={lang}
-      contactCopy={adminDirectoryCopy[lang]}
-      articlesCopy={adminArticlesCopy[lang]}
+      contactCopy={dict.adminWorkspace}
+      articlesCopy={dict.adminArticles}
     />
   );
 }

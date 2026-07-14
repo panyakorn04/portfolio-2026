@@ -8,18 +8,16 @@ import {
   useState,
   useTransition,
 } from "react";
-
-import type { adminDirectoryCopy } from "../lib/admin";
-import {
-  bodyClass,
-  glassCompactPanelClass,
-  labelClass,
-  inputClass as sharedInputClass,
-} from "../lib/admin-styles";
-import type { Locale } from "../lib/portfolio";
+import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import { Button } from "./ui/button";
+import {
+  adminBodyClass as bodyClass,
+  glassCompactPanelClass,
+  adminLabelClass as labelClass,
+  adminInputClass as sharedInputClass,
+} from "./ui/typography";
 
-type AdminCopy = (typeof adminDirectoryCopy)[Locale];
+type AdminCopy = PortfolioDictionary["adminWorkspace"];
 
 type InquiryItem = {
   id: string;

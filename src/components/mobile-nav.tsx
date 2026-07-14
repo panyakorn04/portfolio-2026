@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { articleDirectoryCopy } from "../lib/articles";
 import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import { Button, buttonBase, buttonVariants } from "./ui/button";
 
@@ -12,6 +11,7 @@ type MobileNavProps = {
   alternateLocale: Locale;
   locale: Locale;
   navItems: PortfolioDictionary["navItems"];
+  articleNavLabel: string;
   ui: Pick<
     PortfolioDictionary["ui"],
     "closeMenuLabel" | "contactCta" | "languageLabel" | "menuLabel"
@@ -23,10 +23,10 @@ export default function MobileNav({
   alternateLocale,
   locale,
   navItems,
+  articleNavLabel,
   ui,
 }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const articleLabel = articleDirectoryCopy[locale].navLabel;
   const actionButtonClass = `${buttonBase} ${buttonVariants.action} px-[0.92rem] py-[0.68rem] text-[0.66rem] tabular-nums sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]`;
 
   useEffect(() => {
@@ -165,7 +165,9 @@ export default function MobileNav({
               <span className="text-[0.58rem] uppercase text-(--color-soft)">
                 0{navItems.length + 1}
               </span>
-              <span className="mt-1 text-[0.74rem] text-foreground">{articleLabel}</span>
+              <span className="mt-1 text-[0.74rem] text-foreground">
+                {articleNavLabel}
+              </span>
             </Link>
             <a
               href="mailto:panyakorn40@gmail.com"

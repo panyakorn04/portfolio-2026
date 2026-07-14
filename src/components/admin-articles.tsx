@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-
-import type { AdminArticlesCopy } from "../lib/admin-articles";
+import type { Locale, PortfolioDictionary } from "../lib/portfolio";
+import { Button, buttonBase, buttonSizes, buttonVariants } from "./ui/button";
 import {
   glassCompactPanelClass,
-  labelClass,
-  inputClass as sharedInputClass,
-} from "../lib/admin-styles";
-import type { Locale } from "../lib/portfolio";
-import { Button, buttonBase, buttonSizes, buttonVariants } from "./ui/button";
+  adminLabelClass as labelClass,
+  adminInputClass as sharedInputClass,
+} from "./ui/typography";
 
 type ArticleStatus = "draft" | "published";
 
@@ -127,7 +125,7 @@ export default function AdminArticles({
   copy,
 }: {
   locale: Locale;
-  copy: AdminArticlesCopy;
+  copy: PortfolioDictionary["adminArticles"];
 }) {
   const [articles, setArticles] = useState<ArticleRecord[]>([]);
   const [statusFilter, setStatusFilter] = useState<ArticleStatus | "all">("all");

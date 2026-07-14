@@ -1,10 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { articleDirectoryCopy } from "../lib/articles";
 import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import { contacts, socialLinks } from "../lib/site";
 import { getLocalizedSitePath } from "../lib/site-url";
-import ChatDemo from "./chat-demo";
+import ChatDemo from "./chat-demo-loader";
 import ContactForm from "./contact-form";
 import { FlagshipCaseStudy } from "./flagship-case-study";
 import Navbar from "./navbar";
@@ -32,8 +31,7 @@ export function PortfolioShell({
   articles: PortfolioArticleSummary[];
   appVersion: string;
 }) {
-  const { hero, sections, ui } = dictionary;
-  const articleCopy = articleDirectoryCopy[locale];
+  const { hero, sections, ui, articleDirectory: articleCopy } = dictionary;
   return (
     <main lang={locale} className="min-h-screen overflow-x-clip text-[var(--color-text)]">
       <Navbar locale={locale} dictionary={dictionary} />
@@ -43,9 +41,7 @@ export function PortfolioShell({
           className="grid min-h-[calc(100svh-4.5rem)] items-center gap-12 py-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,.65fr)] lg:py-24"
         >
           <div>
-            <p className={`${eyebrow} text-[var(--color-accent)]`}>
-              {hero.heroKicker} · Bangkok
-            </p>
+            <p className={`${eyebrow} text-[var(--color-accent)]`}>{hero.heroKicker}</p>
             <h1 className="mt-7 max-w-5xl text-balance text-[clamp(3rem,4.8vw,4.4rem)] font-semibold leading-[1.1]">
               {hero.heroTitle}
             </h1>
@@ -77,6 +73,7 @@ export function PortfolioShell({
                 fill
                 sizes="(max-width:1024px) 90vw, 420px"
                 priority
+                placeholder="blur"
                 alt={ui.profileImageAlt}
                 className="object-cover grayscale-[.15]"
               />
@@ -112,7 +109,10 @@ export function PortfolioShell({
           title={sections.workTitle}
           text={sections.workText}
         >
-          <FlagshipCaseStudy study={sections.flagshipCaseStudy} />
+          <FlagshipCaseStudy
+            study={sections.flagshipCaseStudy}
+            ui={dictionary.flagshipCaseStudyUi}
+          />
           <div className="mt-20 border-t border-[var(--color-line)]">
             {sections.featuredWork.map((project, i) => (
               <article
@@ -307,7 +307,11 @@ export function PortfolioShell({
         </Section>
         <footer className="flex flex-col justify-between gap-5 border-t border-[var(--color-line)] py-10 sm:flex-row">
           <p className={eyebrow}>
-            © {new Date().getFullYear()} Panyakorn Boonyong · v{appVersion}
+            {dictionary.footer.copyright.replace(
+              "{year}",
+              String(new Date().getFullYear()),
+            )}{" "}
+            · v{appVersion}
           </p>
           <div className="flex gap-5">
             {socialLinks.map((l) => (

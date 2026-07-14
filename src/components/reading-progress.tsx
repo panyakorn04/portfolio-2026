@@ -1,23 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { useReadingProgress } from "../hooks/use-reading-progress";
-
-const NAV_HEIGHT_PX = 64;
 
 export default function ReadingProgress() {
   const progress = useReadingProgress();
-
-  useEffect(() => {
-    function check() {
-      // keep for future label visibility toggle
-      window.scrollY > NAV_HEIGHT_PX;
-    }
-    check();
-    window.addEventListener("scroll", check, { passive: true });
-    return () => window.removeEventListener("scroll", check);
-  }, []);
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-0 z-50" aria-hidden="true">

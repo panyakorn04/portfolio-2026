@@ -8,9 +8,9 @@ import {
   buttonSizes,
   buttonVariants,
 } from "../../../../components/ui/button";
-import { articleDirectoryCopy } from "../../../../lib/articles";
 import { hasLocale, locales } from "../../../../lib/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../../lib/site-url";
+import { getDictionary } from "../../dictionaries";
 
 export const revalidate = 300;
 
@@ -85,8 +85,11 @@ export default async function ArticleDetailPage({
     notFound();
   }
 
-  const copy = articleDirectoryCopy[lang];
-  const article = await findArticle(lang, slug);
+  const [dictionary, article] = await Promise.all([
+    getDictionary(lang),
+    findArticle(lang, slug),
+  ]);
+  const copy = dictionary.articleDirectory;
 
   if (!article) {
     notFound();

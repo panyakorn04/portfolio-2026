@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
 import AdminLogin from "../../../../components/admin-login";
-import { adminDirectoryCopy } from "../../../../lib/admin";
 import { hasLocale } from "../../../../lib/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../../lib/site-url";
+import { getDictionary } from "../../dictionaries";
 
 function getApiBaseUrl() {
   return (
@@ -54,7 +54,8 @@ export async function generateMetadata({
     return {};
   }
 
-  const copy = adminDirectoryCopy[lang];
+  const dictionary = await getDictionary(lang);
+  const copy = dictionary.adminWorkspace;
   const pathname = getLocalizedSitePath(lang, "/admin/login");
 
   return {
@@ -96,5 +97,7 @@ export default async function AdminLoginPage({
     redirect(`/${lang}/admin`);
   }
 
-  return <AdminLogin locale={lang} copy={adminDirectoryCopy[lang]} />;
+  const dict = await getDictionary(lang);
+
+  return <AdminLogin locale={lang} copy={dict.adminWorkspace} />;
 }

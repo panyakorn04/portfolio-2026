@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 
 import { listArticles } from "@/lib/articles-api";
 import { buttonBase, buttonSizes, buttonVariants } from "../../../components/ui/button";
-import { articleDirectoryCopy } from "../../../lib/articles";
 import { hasLocale } from "../../../lib/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../lib/site-url";
+import { getDictionary } from "../dictionaries";
 
 export const revalidate = 300;
 
@@ -29,7 +29,8 @@ export async function generateMetadata({
     return {};
   }
 
-  const copy = articleDirectoryCopy[lang];
+  const dictionary = await getDictionary(lang);
+  const copy = dictionary.articleDirectory;
   const pathname = getLocalizedSitePath(lang, "/articles");
 
   return {
@@ -61,7 +62,8 @@ export default async function ArticlesPage({ params }: PageProps<"/[lang]/articl
     notFound();
   }
 
-  const copy = articleDirectoryCopy[lang];
+  const dictionary = await getDictionary(lang);
+  const copy = dictionary.articleDirectory;
   const articles = await listArticles(lang);
   const [featuredArticle, ...restArticles] = articles;
 

@@ -6,7 +6,7 @@ export default function Navbar({
   dictionary,
 }: {
   locale: Locale;
-  dictionary: Pick<PortfolioDictionary, "ui" | "navItems">;
+  dictionary: Pick<PortfolioDictionary, "ui" | "navItems" | "articleDirectory">;
 }) {
   const t = dictionary.ui;
   const alternateLocale: Locale = locale === "en" ? "th" : "en";
@@ -37,6 +37,7 @@ export default function Navbar({
             locale={locale}
             navItems={dictionary.navItems}
             ui={t}
+            articleNavLabel={dictionary.articleDirectory.navLabel}
           />
         </div>
       </nav>

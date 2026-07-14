@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { useActiveSection } from "../hooks/use-active-section";
-import { articleDirectoryCopy } from "../lib/articles";
 import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import MobileNav from "./mobile-nav";
 import ReadingProgress from "./reading-progress";
@@ -13,6 +12,7 @@ type NavControlsProps = {
   alternateLocale: Locale;
   locale: Locale;
   navItems: PortfolioDictionary["navItems"];
+  articleNavLabel: string;
   ui: Pick<
     PortfolioDictionary["ui"],
     "brandRole" | "closeMenuLabel" | "contactCta" | "languageLabel" | "menuLabel"
@@ -23,11 +23,11 @@ export default function NavControls({
   alternateLocale,
   locale,
   navItems,
+  articleNavLabel,
   ui,
 }: NavControlsProps) {
   const sectionIds = useMemo(() => navItems.map((item) => item.id), [navItems]);
   const activeSectionId = useActiveSection(sectionIds);
-  const articleLabel = articleDirectoryCopy[locale].navLabel;
 
   return (
     <>
@@ -54,7 +54,7 @@ export default function NavControls({
           href={`/${locale}/articles`}
           className={`${buttonBase} ${buttonVariants.chip} px-3 py-2 text-[0.7rem]`}
         >
-          {articleLabel}
+          {articleNavLabel}
         </Link>
       </div>
 
@@ -64,6 +64,7 @@ export default function NavControls({
         locale={locale}
         navItems={navItems}
         ui={ui}
+        articleNavLabel={articleNavLabel}
       />
     </>
   );

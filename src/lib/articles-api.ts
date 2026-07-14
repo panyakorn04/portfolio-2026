@@ -1,3 +1,4 @@
+import "server-only";
 import { cache } from "react";
 
 type ArticleLocale = "en" | "th";

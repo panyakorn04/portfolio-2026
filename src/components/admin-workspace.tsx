@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-
-import type { adminDirectoryCopy } from "../lib/admin";
-import type { adminArticlesCopy } from "../lib/admin-articles";
-import { bodyClass, eyeClass, glassPanelClass } from "../lib/admin-styles";
-import type { Locale } from "../lib/portfolio";
+import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import AdminArticles from "./admin-articles";
 import AdminContactInquiries from "./admin-contact-inquiries";
 import { Button } from "./ui/button";
+import {
+  adminBodyClass as bodyClass,
+  adminEyeClass as eyeClass,
+  glassPanelClass,
+} from "./ui/typography";
 
 type Tab = "inquiries" | "articles";
 
@@ -18,8 +19,8 @@ export default function AdminWorkspace({
   articlesCopy,
 }: {
   locale: Locale;
-  contactCopy: (typeof adminDirectoryCopy)[Locale];
-  articlesCopy: (typeof adminArticlesCopy)[Locale];
+  contactCopy: PortfolioDictionary["adminWorkspace"];
+  articlesCopy: PortfolioDictionary["adminArticles"];
 }) {
   const [tab, setTab] = useState<Tab>("inquiries");
 

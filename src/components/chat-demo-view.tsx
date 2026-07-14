@@ -106,7 +106,7 @@ export default function ChatDemoView({
                       : "border border-[var(--color-line)] text-[var(--color-soft)] hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
                   }`}
                 >
-                  Chat
+                  {copy.chatTabLabel}
                 </button>
                 <span className="text-[0.55rem] text-[var(--color-soft)]">/</span>
                 <button

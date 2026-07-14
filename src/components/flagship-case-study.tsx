@@ -2,8 +2,9 @@ import type { PortfolioDictionary } from "../lib/portfolio";
 import { copy, label } from "./ui/typography";
 
 type CaseStudy = PortfolioDictionary["sections"]["flagshipCaseStudy"];
+type CaseStudyUi = PortfolioDictionary["flagshipCaseStudyUi"];
 
-export function FlagshipCaseStudy({ study }: { study: CaseStudy }) {
+export function FlagshipCaseStudy({ study, ui }: { study: CaseStudy; ui: CaseStudyUi }) {
   return (
     <article>
       <div className="grid gap-10 xl:grid-cols-[minmax(0,.8fr)_minmax(30rem,1.2fr)] xl:items-center">
@@ -44,33 +45,25 @@ export function FlagshipCaseStudy({ study }: { study: CaseStudy }) {
         >
           <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
             <div>
-              <p className={label}>AI Workflow Studio</p>
-              <p className="mt-1 text-xs text-[var(--color-soft)]">
-                Execution inspector / production
-              </p>
+              <p className={label}>{ui.studioTitle}</p>
+              <p className="mt-1 text-xs text-[var(--color-soft)]">{ui.studioSubtitle}</p>
             </div>
             <span className="flex items-center gap-2 text-xs text-[var(--color-accent)]">
               <i className="size-2 rounded-full bg-[var(--color-accent)]" />
-              Live
+              {ui.liveStatusLabel}
             </span>
           </div>
           <div className="grid gap-3 py-4 sm:grid-cols-[10rem_1fr]">
             <aside className="border border-[var(--color-line)] p-3">
-              <p className={label}>Workflows</p>
-              {study.capabilities.slice(0, 3).map((item, i) => (
+              <p className={label}>{ui.workflowsLabel}</p>
+              {ui.workflowNames.map((name, i) => (
                 <div
-                  key={item}
+                  key={name}
                   className={`mt-3 border-l-2 ${i === 0 ? "border-[var(--color-accent)] bg-[var(--accent-dim)]" : "border-[var(--color-line)]"} p-2`}
                 >
-                  <p className="text-xs font-medium">
-                    {i === 0
-                      ? "Content intelligence"
-                      : i === 1
-                        ? "Competitive research"
-                        : "Meeting action center"}
-                  </p>
+                  <p className="text-xs font-medium">{name}</p>
                   <p className="mt-1 font-mono text-[.55rem] text-[var(--color-soft)]">
-                    {i === 0 ? "RUNNING" : "ACTIVE"}
+                    {ui.workflowStatuses[i === 0 ? 0 : 1]}
                   </p>
                 </div>
               ))}
@@ -79,10 +72,10 @@ export function FlagshipCaseStudy({ study }: { study: CaseStudy }) {
               <div className="flex justify-between">
                 <div>
                   <p className={label}>{study.architectureLabel}</p>
-                  <p className="mt-2 text-sm font-semibold">Production system path</p>
+                  <p className="mt-2 text-sm font-semibold">{ui.productionPathTitle}</p>
                 </div>
                 <span className="font-mono text-[.6rem] text-[var(--color-soft)]">
-                  LIVE
+                  {ui.liveBadge}
                 </span>
               </div>
               <ol className="mt-6">
@@ -114,7 +107,7 @@ export function FlagshipCaseStudy({ study }: { study: CaseStudy }) {
                 <div key={x} className="bg-[#101311] p-3">
                   <p className="font-mono text-[.55rem] text-[var(--color-soft)]">{x}</p>
                   <p className="mt-1 text-sm text-[var(--color-accent)]">
-                    {i === 0 ? "SSE" : i === 1 ? "Session" : "Shipped"}
+                    {ui.capabilityBadges[i]}
                   </p>
                 </div>
               ),
