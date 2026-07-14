@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-
-import AdminWorkspace from "../../../components/admin-workspace";
 import { hasLocale } from "../../../lib/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../lib/site-url";
 import { getDictionary } from "../dictionaries";
+import AdminWorkspace from "./_components/admin-workspace";
 
 export async function generateMetadata({
   params,

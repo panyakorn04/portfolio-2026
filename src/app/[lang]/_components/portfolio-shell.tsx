@@ -1,16 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
-import profileImage from "../../public/assets/profile.jpg";
-import type { Locale, PortfolioDictionary } from "../lib/portfolio";
-import { contacts, socialLinks } from "../lib/site";
-import { getLocalizedSitePath } from "../lib/site-url";
+import ContactForm from "@/components/contact-form";
+import Navbar from "@/components/navbar";
+import Bullets from "@/components/ui/bullets";
+import Section from "@/components/ui/section";
+import {
+  body,
+  eyebrow,
+  linkButtonPrimary,
+  linkButtonSecondary,
+} from "@/components/ui/typography";
+import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
+import { contacts, socialLinks } from "@/lib/site";
+import { getLocalizedSitePath } from "@/lib/site-url";
+import profileImage from "../../../../public/assets/profile.jpg";
 import ChatDemo from "./chat-demo-loader";
-import ContactForm from "./contact-form";
 import { FlagshipCaseStudy } from "./flagship-case-study";
-import Navbar from "./navbar";
-import Bullets from "./ui/bullets";
-import Section from "./ui/section";
-import { body, eyebrow, linkButtonPrimary, linkButtonSecondary } from "./ui/typography";
 
 export type PortfolioArticleSummary = {
   slug: string;
@@ -128,7 +133,6 @@ export function PortfolioShell({
                   <h3 className="mt-3 text-2xl font-semibold tracking-[-.04em] sm:text-xl">
                     {project.title}
                   </h3>
-                  <p className={`${body} mt-4`}>{project.description}</p>
                 </div>
                 <div>
                   <Bullets items={project.bullets} />

@@ -1,7 +1,7 @@
 "use client";
 
-import { useChatDemo } from "../hooks/use-chat-demo";
-import type { PortfolioDictionary } from "../lib/portfolio";
+import type { PortfolioDictionary } from "@/lib/portfolio";
+import { useChatDemo } from "../_hooks/use-chat-demo";
 import ChatDemoView from "./chat-demo-view";
 
 type ChatCopy = PortfolioDictionary["chat"];

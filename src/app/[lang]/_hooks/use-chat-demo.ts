@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 
-import type { PortfolioDictionary } from "../lib/portfolio";
+import type { PortfolioDictionary } from "@/lib/portfolio";
 import {
   buildFallbackMessages,
   extractSseData,

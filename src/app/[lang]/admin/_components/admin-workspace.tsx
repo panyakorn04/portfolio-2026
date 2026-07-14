@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import type { Locale, PortfolioDictionary } from "../lib/portfolio";
-import AdminArticles from "./admin-articles";
-import AdminContactInquiries from "./admin-contact-inquiries";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import {
   adminBodyClass as bodyClass,
   adminEyeClass as eyeClass,
   glassPanelClass,
-} from "./ui/typography";
+} from "@/components/ui/typography";
+import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
+import AdminArticles from "./admin-articles";
+import AdminContactInquiries from "./admin-contact-inquiries";
 
 type Tab = "inquiries" | "articles";
 

@@ -8,14 +8,14 @@ import {
   useState,
   useTransition,
 } from "react";
-import type { Locale, PortfolioDictionary } from "../lib/portfolio";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import {
   adminBodyClass as bodyClass,
   glassCompactPanelClass,
   adminLabelClass as labelClass,
   adminInputClass as sharedInputClass,
-} from "./ui/typography";
+} from "@/components/ui/typography";
+import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
 
 type AdminCopy = PortfolioDictionary["adminWorkspace"];
 

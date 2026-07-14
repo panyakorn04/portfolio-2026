@@ -5,8 +5,8 @@ import {
   type RefObject,
   useState,
 } from "react";
-import type { ChatMessage, ChatRecentSession } from "../hooks/use-chat-demo";
-import type { PortfolioDictionary } from "../lib/portfolio";
+import type { PortfolioDictionary } from "@/lib/portfolio";
+import type { ChatMessage, ChatRecentSession } from "../_hooks/use-chat-demo";
 
 type ChatCopy = PortfolioDictionary["chat"];
 

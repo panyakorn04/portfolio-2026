@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-
-import AdminLogin from "../../../../components/admin-login";
 import { hasLocale } from "../../../../lib/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../../lib/site-url";
 import { getDictionary } from "../../dictionaries";
+import AdminLogin from "../_components/admin-login";
 
 function getApiBaseUrl() {
   return (

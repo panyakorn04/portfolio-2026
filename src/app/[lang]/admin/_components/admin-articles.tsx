@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import type { Locale, PortfolioDictionary } from "../lib/portfolio";
-import { Button, buttonBase, buttonSizes, buttonVariants } from "./ui/button";
+import { Button, buttonBase, buttonSizes, buttonVariants } from "@/components/ui/button";
 import {
   glassCompactPanelClass,
   adminLabelClass as labelClass,
   adminInputClass as sharedInputClass,
-} from "./ui/typography";
+} from "@/components/ui/typography";
+import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
 
 type ArticleStatus = "draft" | "published";
 

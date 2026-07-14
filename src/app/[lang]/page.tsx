@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { listArticles } from "@/lib/articles-api";
 
 import packageJson from "../../../package.json";
-import { PortfolioShell } from "../../components/portfolio-shell";
 import { hasLocale } from "../../lib/portfolio";
+import { PortfolioShell } from "./_components/portfolio-shell";
 import { getDictionary } from "./dictionaries";
 
 export default async function LocalizedHomePage({ params }: PageProps<"/[lang]">) {

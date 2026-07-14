@@ -1,5 +1,5 @@
-import type { PortfolioDictionary } from "../lib/portfolio";
-import { copy, label } from "./ui/typography";
+import { copy, label } from "@/components/ui/typography";
+import type { PortfolioDictionary } from "@/lib/portfolio";
 
 type CaseStudy = PortfolioDictionary["sections"]["flagshipCaseStudy"];
 type CaseStudyUi = PortfolioDictionary["flagshipCaseStudyUi"];

@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { Locale, PortfolioDictionary } from "../lib/portfolio";
-import { Button, buttonBase, buttonSizes, buttonVariants } from "./ui/button";
+import { Button, buttonBase, buttonSizes, buttonVariants } from "@/components/ui/button";
 import {
   adminBodyClass as bodyClass,
   adminEyeClass as eyeClass,
   glassPanelClass,
   adminInputClass as inputClass,
   adminLabelClass as labelClass,
-} from "./ui/typography";
+} from "@/components/ui/typography";
+import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
 
 type AdminCopy = PortfolioDictionary["adminWorkspace"];
 
