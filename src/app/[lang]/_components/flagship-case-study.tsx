@@ -25,7 +25,7 @@ export function FlagshipCaseStudy({ study, ui }: { study: CaseStudy; ui: CaseStu
               href={study.liveHref}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-11 items-center border border-[var(--color-accent)] bg-[var(--color-accent)] px-5 text-sm font-semibold text-[#07110d]"
+              className="inline-flex min-h-11 items-center border border-[var(--color-accent)] bg-[var(--color-accent)] px-5 text-sm font-semibold text-[var(--color-accent-foreground)]"
             >
               {study.liveLabel} ↗
             </a>
@@ -40,7 +40,7 @@ export function FlagshipCaseStudy({ study, ui }: { study: CaseStudy; ui: CaseStu
           </div>
         </div>
         <section
-          className="border border-[var(--color-line-strong)] bg-[#101311] p-3 sm:p-5"
+          className="border border-[var(--color-line-strong)] bg-[var(--bg-elevated)] p-3 sm:p-5"
           aria-label={study.architectureLabel}
         >
           <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
@@ -84,7 +84,7 @@ export function FlagshipCaseStudy({ study, ui }: { study: CaseStudy; ui: CaseStu
                     key={node.label}
                     className="relative grid grid-cols-[1.5rem_1fr] gap-3 pb-5 last:pb-0"
                   >
-                    <span className="relative z-10 grid size-6 place-items-center rounded-full border border-[var(--color-accent)] bg-[#101311] font-mono text-[.55rem] text-[var(--color-accent)]">
+                    <span className="relative z-10 grid size-6 place-items-center rounded-full border border-[var(--color-accent)] bg-[var(--bg-elevated)] font-mono text-[.55rem] text-[var(--color-accent)]">
                       {i + 1}
                     </span>
                     {i < study.architecture.length - 1 ? (
@@ -104,7 +104,7 @@ export function FlagshipCaseStudy({ study, ui }: { study: CaseStudy; ui: CaseStu
           <div className="grid grid-cols-3 gap-px bg-[var(--color-line)]">
             {[study.capabilitiesLabel, study.securityLabel, study.outcomesLabel].map(
               (x, i) => (
-                <div key={x} className="bg-[#101311] p-3">
+                <div key={x} className="bg-[var(--bg-elevated)] p-3">
                   <p className="font-mono text-[.55rem] text-[var(--color-soft)]">{x}</p>
                   <p className="mt-1 text-sm text-[var(--color-accent)]">
                     {ui.capabilityBadges[i]}

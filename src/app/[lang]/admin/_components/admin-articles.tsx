@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { Button, buttonBase, buttonSizes, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
+  adminFieldErrorClass,
   glassCompactPanelClass,
   adminLabelClass as labelClass,
-  adminInputClass as sharedInputClass,
 } from "@/components/ui/typography";
 import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
 
@@ -58,7 +61,6 @@ type DraftArticle = {
 };
 
 const panelClass = `${glassCompactPanelClass} p-4 sm:p-5 lg:p-6`;
-const inputClass = sharedInputClass;
 
 function emptyTranslation(): DraftTranslation {
   return {
@@ -358,19 +360,18 @@ export default function AdminArticles({
         ) : null}
 
         <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
-          <label className="block">
-            <span className={labelClass}>{copy.searchLabel}</span>
-            <input
-              className={`${inputClass} mt-1`}
+          <div className="space-y-1.5">
+            <Label>{copy.searchLabel}</Label>
+            <Input
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               placeholder={copy.searchPlaceholder}
             />
-          </label>
-          <label className="block">
-            <span className={labelClass}>{copy.statusFilterLabel}</span>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{copy.statusFilterLabel}</Label>
             <select
-              className={`${inputClass} mt-1`}
+              className="flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
               value={statusFilter}
               onChange={(event) =>
                 setStatusFilter(event.target.value as ArticleStatus | "all")
@@ -382,7 +383,7 @@ export default function AdminArticles({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
         </div>
       </section>
 
@@ -444,7 +445,7 @@ export default function AdminArticles({
                     <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
                       {article.status === "published" ? (
                         <a
-                          className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.sm}`}
+                          className={buttonVariants({ variant: "ghost", size: "sm" })}
                           href={`/${locale}/articles/${article.slug}`}
                           target="_blank"
                           rel="noreferrer"
@@ -486,38 +487,32 @@ export default function AdminArticles({
       {draft && activeTranslation ? (
         <section className={panelClass}>
           <div className="grid gap-3 sm:grid-cols-3">
-            <label className="block">
-              <span className={labelClass}>{copy.slugLabel}</span>
-              <input
-                className={`${inputClass} mt-1`}
+            <div className="space-y-1.5">
+              <Label>{copy.slugLabel}</Label>
+              <Input
                 value={draft.slug}
                 onChange={(event) => setDraft({ ...draft, slug: event.target.value })}
                 placeholder={copy.slugPlaceholder}
               />
               {fieldError("slug") ? (
-                <span className="mt-1 block text-[0.72rem] text-[#ff8f8f]">
-                  {fieldError("slug")}
-                </span>
+                <span className={adminFieldErrorClass}>{fieldError("slug")}</span>
               ) : null}
-            </label>
-            <label className="block">
-              <span className={labelClass}>{copy.categoryLabel}</span>
-              <input
-                className={`${inputClass} mt-1`}
+            </div>
+            <div className="space-y-1.5">
+              <Label>{copy.categoryLabel}</Label>
+              <Input
                 value={draft.category}
                 onChange={(event) => setDraft({ ...draft, category: event.target.value })}
                 placeholder={copy.categoryPlaceholder}
               />
               {fieldError("category") ? (
-                <span className="mt-1 block text-[0.72rem] text-[#ff8f8f]">
-                  {fieldError("category")}
-                </span>
+                <span className={adminFieldErrorClass}>{fieldError("category")}</span>
               ) : null}
-            </label>
-            <label className="block">
-              <span className={labelClass}>{copy.statusLabel}</span>
+            </div>
+            <div className="space-y-1.5">
+              <Label>{copy.statusLabel}</Label>
               <select
-                className={`${inputClass} mt-1`}
+                className="flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
                 value={draft.status}
                 onChange={(event) =>
                   setDraft({ ...draft, status: event.target.value as ArticleStatus })
@@ -526,7 +521,7 @@ export default function AdminArticles({
                 <option value="draft">{copy.statusDraftLabel}</option>
                 <option value="published">{copy.statusPublishedLabel}</option>
               </select>
-            </label>
+            </div>
           </div>
 
           <div className="mt-5 flex gap-2 border-b border-[var(--color-line)] pb-4">
@@ -543,38 +538,36 @@ export default function AdminArticles({
           </div>
 
           <div className="mt-5 space-y-4">
-            <label className="block">
-              <span className={labelClass}>{copy.fieldTitleLabel}</span>
-              <input
-                className={`${inputClass} mt-1`}
+            <div className="space-y-1.5">
+              <Label>{copy.fieldTitleLabel}</Label>
+              <Input
                 value={activeTranslation.title}
                 onChange={(event) => updateTranslation("title", event.target.value)}
               />
               {fieldError(`translations.${activeLocale}.title`) ? (
-                <span className="mt-1 block text-[0.72rem] text-[#ff8f8f]">
+                <span className={adminFieldErrorClass}>
                   {fieldError(`translations.${activeLocale}.title`)}
                 </span>
               ) : null}
-            </label>
+            </div>
 
             <div className="grid gap-4 sm:grid-cols-[1fr_12rem]">
-              <label className="block">
-                <span className={labelClass}>{copy.fieldSummaryLabel}</span>
-                <textarea
-                  className={`${inputClass} mt-1 min-h-[5rem]`}
+              <div className="space-y-1.5">
+                <Label>{copy.fieldSummaryLabel}</Label>
+                <Textarea
+                  className="min-h-[5rem]"
                   value={activeTranslation.summary}
                   onChange={(event) => updateTranslation("summary", event.target.value)}
                 />
                 {fieldError(`translations.${activeLocale}.summary`) ? (
-                  <span className="mt-1 block text-[0.72rem] text-[#ff8f8f]">
+                  <span className={adminFieldErrorClass}>
                     {fieldError(`translations.${activeLocale}.summary`)}
                   </span>
                 ) : null}
-              </label>
-              <label className="block">
-                <span className={labelClass}>{copy.fieldReadingTimeLabel}</span>
-                <input
-                  className={`${inputClass} mt-1`}
+              </div>
+              <div className="space-y-1.5">
+                <Label>{copy.fieldReadingTimeLabel}</Label>
+                <Input
                   value={activeTranslation.readingTime}
                   onChange={(event) =>
                     updateTranslation("readingTime", event.target.value)
@@ -582,26 +575,26 @@ export default function AdminArticles({
                   placeholder={copy.fieldReadingTimePlaceholder}
                 />
                 {fieldError(`translations.${activeLocale}.readingTime`) ? (
-                  <span className="mt-1 block text-[0.72rem] text-[#ff8f8f]">
+                  <span className={adminFieldErrorClass}>
                     {fieldError(`translations.${activeLocale}.readingTime`)}
                   </span>
                 ) : null}
-              </label>
+              </div>
             </div>
 
-            <label className="block">
-              <span className={labelClass}>{copy.fieldLeadLabel}</span>
-              <textarea
-                className={`${inputClass} mt-1 min-h-[6rem]`}
+            <div className="space-y-1.5">
+              <Label>{copy.fieldLeadLabel}</Label>
+              <Textarea
+                className="min-h-[6rem]"
                 value={activeTranslation.lead}
                 onChange={(event) => updateTranslation("lead", event.target.value)}
               />
               {fieldError(`translations.${activeLocale}.lead`) ? (
-                <span className="mt-1 block text-[0.72rem] text-[#ff8f8f]">
+                <span className={adminFieldErrorClass}>
                   {fieldError(`translations.${activeLocale}.lead`)}
                 </span>
               ) : null}
-            </label>
+            </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-3">
@@ -627,10 +620,9 @@ export default function AdminArticles({
                   className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-3 sm:p-4"
                 >
                   <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-end">
-                    <label className="block flex-1">
-                      <span className={labelClass}>{copy.sectionHeadingLabel}</span>
-                      <input
-                        className={`${inputClass} mt-1`}
+                    <div className="space-y-1.5 flex-1">
+                      <Label>{copy.sectionHeadingLabel}</Label>
+                      <Input
                         value={section.heading}
                         onChange={(event) =>
                           updateSections((sections) =>
@@ -642,7 +634,7 @@ export default function AdminArticles({
                           )
                         }
                       />
-                    </label>
+                    </div>
                     {activeTranslation.sections.length > 1 ? (
                       <Button
                         variant="ghost"
@@ -664,8 +656,8 @@ export default function AdminArticles({
                         key={paragraphIndex.toString()}
                         className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-start"
                       >
-                        <textarea
-                          className={`${inputClass} min-h-[4rem] flex-1`}
+                        <Textarea
+                          className="min-h-[4rem] flex-1"
                           value={paragraph}
                           onChange={(event) =>
                             updateSections((sections) =>

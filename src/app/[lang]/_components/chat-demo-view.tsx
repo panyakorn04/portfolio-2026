@@ -93,7 +93,7 @@ export default function ChatDemoView({
         <section id="portfolio-chat-widget" className={flyoutClass}>
           <div className="flex items-center justify-between gap-3 border-b border-[var(--color-line)] px-4 py-3">
             <div className="flex items-center gap-2.5">
-              <span className="flex size-11 items-center justify-center rounded-full bg-[var(--color-accent)] text-[0.6rem] font-bold text-[#041009]">
+              <span className="flex size-11 items-center justify-center rounded-full bg-[var(--color-accent)] text-[0.6rem] font-bold text-[var(--color-accent-foreground)]">
                 P
               </span>
               <div className="flex items-center gap-1.5">
@@ -102,7 +102,7 @@ export default function ChatDemoView({
                   onClick={() => setActiveTab("new")}
                   className={`min-h-11 rounded-full px-3 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
                     activeTab === "new"
-                      ? "bg-[var(--color-accent)] text-[#041009]"
+                      ? "bg-[var(--color-accent)] text-[var(--color-accent-foreground)]"
                       : "border border-[var(--color-line)] text-[var(--color-soft)] hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
                   }`}
                 >
@@ -114,7 +114,7 @@ export default function ChatDemoView({
                   onClick={() => setActiveTab("recent")}
                   className={`min-h-11 rounded-full px-3 font-mono text-[0.6rem] uppercase tracking-[0.05em] transition-colors ${
                     activeTab === "recent"
-                      ? "bg-[var(--color-accent)] text-[#041009]"
+                      ? "bg-[var(--color-accent)] text-[var(--color-accent-foreground)]"
                       : "border border-[var(--color-line)] text-[var(--color-soft)] hover:border-[var(--color-line-strong)] hover:text-[var(--color-text)]"
                   }`}
                 >
@@ -295,7 +295,7 @@ export default function ChatDemoView({
                         className={`flex gap-2 ${isAssistant ? "justify-start" : "justify-end"}`}
                       >
                         {isAssistant && (
-                          <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-[9px] font-bold text-[#041009]">
+                          <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-[9px] font-bold text-[var(--color-accent-foreground)]">
                             P
                           </div>
                         )}
@@ -388,7 +388,7 @@ export default function ChatDemoView({
               <button
                 type="submit"
                 disabled={isWaiting || !draft.trim()}
-                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[var(--color-line-strong)] bg-[var(--color-accent)] text-[#041009] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[var(--color-line-strong)] bg-[var(--color-accent)] text-[var(--color-accent-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label={copy.sendLabel}
               >
                 <svg

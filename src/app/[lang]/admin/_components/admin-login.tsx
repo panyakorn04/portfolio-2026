@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Button, buttonBase, buttonSizes, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   adminBodyClass as bodyClass,
   adminEyeClass as eyeClass,
-  glassPanelClass,
-  adminInputClass as inputClass,
-  adminLabelClass as labelClass,
 } from "@/components/ui/typography";
 import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
 
@@ -15,7 +15,6 @@ type AdminCopy = PortfolioDictionary["adminWorkspace"];
 
 const titleClass =
   '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2.25rem,6vw,4.75rem)] font-medium leading-[0.96] tracking-[-0.055em] text-balance';
-const localInputClass = `mt-2 ${inputClass}`;
 
 export default function AdminLogin({
   locale,
@@ -97,7 +96,7 @@ export default function AdminLogin({
             </span>
             <a
               href={`/${locale}`}
-              className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.xs}`}
+              className={buttonVariants({ variant: "ghost", size: "xs" })}
             >
               {copy.backToPortfolioLabel}
             </a>
@@ -110,66 +109,65 @@ export default function AdminLogin({
           </div>
         </header>
 
-        <section className={`${glassPanelClass} w-full`}>
-          <div className="mb-7 border-b border-[var(--color-line)] pb-4">
+        <Card className="w-full">
+          <CardHeader>
             <p className={eyeClass}>{copy.authPanelLabel}</p>
-          </div>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              signIn();
-            }}
-          >
-            <label htmlFor="admin-email" className={labelClass}>
-              {copy.emailLoginLabel}
-            </label>
-            <input
-              id="admin-email"
-              type="email"
-              value={emailInput}
-              onChange={(event) => setEmailInput(event.target.value)}
-              placeholder={copy.emailLoginPlaceholder}
-              autoComplete="email"
-              required
-              className={localInputClass}
-            />
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                signIn();
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-1.5">
+                <Label htmlFor="admin-email">{copy.emailLoginLabel}</Label>
+                <Input
+                  id="admin-email"
+                  type="email"
+                  value={emailInput}
+                  onChange={(event) => setEmailInput(event.target.value)}
+                  placeholder={copy.emailLoginPlaceholder}
+                  autoComplete="email"
+                  required
+                />
+              </div>
 
-            <label htmlFor="admin-password" className={labelClass}>
-              {copy.passwordLabel}
-            </label>
-            <input
-              id="admin-password"
-              type="password"
-              value={passwordInput}
-              onChange={(event) => setPasswordInput(event.target.value)}
-              placeholder={copy.passwordPlaceholder}
-              autoComplete="current-password"
-              required
-              className={localInputClass}
-            />
+              <div className="space-y-1.5">
+                <Label htmlFor="admin-password">{copy.passwordLabel}</Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  value={passwordInput}
+                  onChange={(event) => setPasswordInput(event.target.value)}
+                  placeholder={copy.passwordPlaceholder}
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
 
-            <div className="mt-6 flex flex-wrap gap-3">
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
                 disabled={isSigningIn}
-                className="min-h-11 w-full rounded-[0.25rem]"
+                className="w-full"
               >
                 {isSigningIn ? copy.signingInLabel : copy.signInLabel}
               </Button>
-            </div>
 
-            {statusMessage ? (
-              <p
-                role="alert"
-                className="mt-4 border-l-2 border-[var(--color-accent)] bg-[var(--accent-dim)] px-3 py-2 text-sm text-[var(--color-text)]"
-              >
-                {statusMessage}
-              </p>
-            ) : null}
-          </form>
-        </section>
+              {statusMessage ? (
+                <p
+                  role="alert"
+                  className="mt-4 border-l-2 border-[var(--color-accent)] bg-[var(--accent-dim)] px-3 py-2 text-sm text-[var(--color-text)]"
+                >
+                  {statusMessage}
+                </p>
+              ) : null}
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );

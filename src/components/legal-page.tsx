@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import type { Locale, PortfolioDictionary } from "../lib/portfolio";
-import { buttonBase, buttonSizes, buttonVariants } from "./ui/button";
+import { buttonVariants } from "./ui/button";
 
 const pageShellClass =
   "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";
@@ -40,7 +40,7 @@ export default function LegalPage({ locale, dictionary, page, url }: LegalPagePr
             </span>
             <Link
               href={`/${locale}`}
-              className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.xs}`}
+              className={buttonVariants({ variant: "ghost", size: "xs" })}
             >
               {shared.backToHome}
             </Link>

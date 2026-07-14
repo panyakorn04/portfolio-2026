@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import type { Locale, PortfolioDictionary } from "../lib/portfolio";
-import { Button, buttonBase, buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
+import { navItemCardClass } from "./ui/typography";
 
 type MobileNavProps = {
   activeSectionId: string | null;
@@ -27,7 +28,7 @@ export default function MobileNav({
   ui,
 }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const actionButtonClass = `${buttonBase} ${buttonVariants.action} px-[0.92rem] py-[0.68rem] text-[0.66rem] tabular-nums sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]`;
+  const actionButtonClass = `${buttonVariants({ variant: "action" })} px-[0.92rem] py-[0.68rem] text-[0.66rem] tabular-nums sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]`;
 
   useEffect(() => {
     if (!isOpen) {
@@ -144,7 +145,7 @@ export default function MobileNav({
                 key={item.id}
                 href={`/${locale}#${item.id}`}
                 aria-current={activeSectionId === item.id ? "location" : undefined}
-                className={`flex flex-col rounded-[1.15rem] border py-[0.85rem] px-[0.9rem] font-mono tabular-nums transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent) ${
+                className={`${navItemCardClass} ${
                   activeSectionId === item.id
                     ? "border-(--color-line-strong) bg-linear-to-b from-[rgba(111,247,166,0.14)] to-[rgba(111,247,166,0.05)]"
                     : "border-(--color-line) bg-[rgba(10,20,16,0.65)]"
@@ -159,7 +160,7 @@ export default function MobileNav({
             ))}
             <Link
               href={`/${locale}/articles`}
-              className="flex flex-col rounded-[1.15rem] border border-(--color-line) bg-[rgba(10,20,16,0.65)] py-[0.85rem] px-[0.9rem] font-mono tabular-nums transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)"
+              className={navItemCardClass}
               onClick={closeMenu}
             >
               <span className="text-[0.58rem] uppercase text-(--color-soft)">
@@ -171,7 +172,7 @@ export default function MobileNav({
             </Link>
             <a
               href="mailto:panyakorn40@gmail.com"
-              className="flex flex-col rounded-[1.15rem] border border-(--color-line) bg-[rgba(10,20,16,0.65)] py-[0.85rem] px-[0.9rem] font-mono tabular-nums transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)"
+              className={navItemCardClass}
               onClick={closeMenu}
             >
               <span className="text-[0.58rem] uppercase text-(--color-soft)">

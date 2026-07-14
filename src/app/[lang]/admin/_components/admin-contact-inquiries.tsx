@@ -9,11 +9,14 @@ import {
   useTransition,
 } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   adminBodyClass as bodyClass,
   glassCompactPanelClass,
+  innerPanelClass,
   adminLabelClass as labelClass,
-  adminInputClass as sharedInputClass,
 } from "@/components/ui/typography";
 import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
 
@@ -648,7 +651,6 @@ export default function AdminContactInquiries({
     });
   }
 
-  const fieldClass = `mt-2 ${sharedInputClass}`;
   const detailInquiry = selectedInquiryDetail ?? selectedInquiry;
 
   function formatActivityEvent(eventType: string) {
@@ -720,10 +722,7 @@ export default function AdminContactInquiries({
                 </p>
               ) : (
                 sessions.map((session) => (
-                  <div
-                    key={session.id}
-                    className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4"
-                  >
+                  <div key={session.id} className={innerPanelClass}>
                     <div className="flex items-center justify-between gap-3">
                       <p className="font-mono text-[0.7rem] text-[var(--color-soft)]">
                         {session.isCurrent ? copy.sessionsCurrentLabel : session.id}
@@ -770,10 +769,7 @@ export default function AdminContactInquiries({
                   <p className={bodyClass}>{copy.usersEmptyLabel}</p>
                 ) : (
                   users.map((user) => (
-                    <div
-                      key={user.id}
-                      className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4"
-                    >
+                    <div key={user.id} className={innerPanelClass}>
                       <p className="text-sm font-semibold text-[var(--color-text)]">
                         {user.email}
                       </p>
@@ -791,7 +787,7 @@ export default function AdminContactInquiries({
                           saveUserRole(user.id, event.target.value as UserItem["role"])
                         }
                         disabled={savingUserId === user.id}
-                        className={fieldClass}
+                        className="mt-2 flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
                       >
                         <option value="admin">{copy.roleAdminLabel}</option>
                         <option value="editor">{copy.roleEditorLabel}</option>
@@ -813,14 +809,12 @@ export default function AdminContactInquiries({
             </div>
 
             <div className="mt-4 grid gap-4">
-              <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
+              <div className={innerPanelClass}>
                 <p className={labelClass}>{copy.listControlsLabel}</p>
                 <div className="mt-3 grid gap-4">
                   <div>
-                    <label htmlFor="admin-search" className={labelClass}>
-                      {copy.searchLabel}
-                    </label>
-                    <input
+                    <Label htmlFor="admin-search">{copy.searchLabel}</Label>
+                    <Input
                       id="admin-search"
                       value={searchInput}
                       onChange={(event) => {
@@ -828,14 +822,12 @@ export default function AdminContactInquiries({
                         setCurrentPage(1);
                       }}
                       placeholder={copy.searchPlaceholder}
-                      className={fieldClass}
+                      className="mt-2"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="admin-status-filter" className={labelClass}>
-                      {copy.statusFilterLabel}
-                    </label>
+                    <Label htmlFor="admin-status-filter">{copy.statusFilterLabel}</Label>
                     <select
                       id="admin-status-filter"
                       value={statusFilter}
@@ -845,7 +837,7 @@ export default function AdminContactInquiries({
                         );
                         setCurrentPage(1);
                       }}
-                      className={fieldClass}
+                      className="mt-2 flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
                     >
                       <option value="all">{copy.statusAllLabel}</option>
                       <option value="new">{copy.statusNewLabel}</option>
@@ -904,7 +896,9 @@ export default function AdminContactInquiries({
               )}
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-3 rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
+            <div
+              className={`${innerPanelClass} mt-4 flex items-center justify-between gap-3`}
+            >
               <p className="font-mono text-[0.7rem] text-[var(--color-soft)]">
                 {copy.pageLabel} {currentPage} / {totalPages}
               </p>
@@ -972,17 +966,14 @@ export default function AdminContactInquiries({
                       [copy.deliveryLabel, detailInquiry.deliveryMode],
                       [copy.statusLabel, statusLabelByValue[detailInquiry.status]],
                     ].map(([label, value]) => (
-                      <div
-                        key={`${label}-${value}`}
-                        className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4"
-                      >
+                      <div key={`${label}-${value}`} className={innerPanelClass}>
                         <p className={labelClass}>{label}</p>
                         <p className="mt-2 text-sm text-[var(--color-text)]">{value}</p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
+                  <div className={innerPanelClass}>
                     <p className={labelClass}>{copy.messageLabel}</p>
                     <p className={`${bodyClass} mt-3 whitespace-pre-wrap`}>
                       {detailInquiry.message}
@@ -991,14 +982,14 @@ export default function AdminContactInquiries({
                 </div>
 
                 <div className="space-y-4">
-                  <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
+                  <div className={innerPanelClass}>
                     <p className={labelClass}>{copy.createdAtLabel}</p>
                     <p className="mt-2 text-sm text-[var(--color-text)]">
                       {new Date(detailInquiry.createdAt).toLocaleString(locale)}
                     </p>
                   </div>
 
-                  <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
+                  <div className={innerPanelClass}>
                     <p className={labelClass}>{copy.handledAtLabel}</p>
                     <p className="mt-2 text-sm text-[var(--color-text)]">
                       {detailInquiry.handledAt
@@ -1030,10 +1021,8 @@ export default function AdminContactInquiries({
 
             {detailInquiry ? (
               <div className="mt-4 grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
-                <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
-                  <label htmlFor="inquiry-status" className={labelClass}>
-                    {copy.statusLabel}
-                  </label>
+                <div className={innerPanelClass}>
+                  <Label htmlFor="inquiry-status">{copy.statusLabel}</Label>
                   <select
                     id="inquiry-status"
                     value={draftStatus}
@@ -1041,7 +1030,7 @@ export default function AdminContactInquiries({
                       setDraftStatus(event.target.value as InquiryItem["status"])
                     }
                     disabled={!canEditInquiries}
-                    className={fieldClass}
+                    className="mt-2 flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
                   >
                     <option value="new">{copy.statusNewLabel}</option>
                     <option value="in_progress">{copy.statusInProgressLabel}</option>
@@ -1049,18 +1038,16 @@ export default function AdminContactInquiries({
                   </select>
                 </div>
 
-                <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
-                  <label htmlFor="inquiry-note" className={labelClass}>
-                    {copy.internalNoteLabel}
-                  </label>
-                  <textarea
+                <div className={innerPanelClass}>
+                  <Label htmlFor="inquiry-note">{copy.internalNoteLabel}</Label>
+                  <Textarea
                     id="inquiry-note"
                     value={draftInternalNote}
                     onChange={(event) => setDraftInternalNote(event.target.value)}
                     placeholder={copy.internalNotePlaceholder}
                     rows={7}
                     disabled={!canEditInquiries}
-                    className={`${fieldClass} min-h-32 resize-y`}
+                    className="mt-2 min-h-32"
                   />
                 </div>
               </div>
@@ -1085,10 +1072,7 @@ export default function AdminContactInquiries({
             {selectedInquiryDetail?.activities.length ? (
               <div className="mt-4 space-y-4">
                 {selectedInquiryDetail.activities.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4"
-                  >
+                  <div key={activity.id} className={innerPanelClass}>
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-[var(--color-text)]">
                         {formatActivityEvent(activity.eventType)}
@@ -1142,13 +1126,13 @@ export default function AdminContactInquiries({
             <p className={labelClass}>{copy.summaryLabel}</p>
             {summary ? (
               <div className="mt-4 space-y-4">
-                <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
+                <div className={innerPanelClass}>
                   <p className={labelClass}>{copy.summaryResultLabel}</p>
                   <p className={`${bodyClass} mt-3 whitespace-pre-wrap`}>
                     {summary.summary}
                   </p>
                 </div>
-                <div className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4">
+                <div className={innerPanelClass}>
                   <p className={labelClass}>{copy.summaryPromptLabel}</p>
                   <pre className="mt-3 max-w-full overflow-x-auto whitespace-pre-wrap break-words font-mono text-[0.72rem] leading-6 text-[var(--color-soft)]">
                     {summary.prompt}

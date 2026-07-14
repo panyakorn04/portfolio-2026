@@ -267,7 +267,7 @@ export function PortfolioShell({
                     <p className={`${eyebrow} text-[var(--color-accent)]`}>
                       {article.category} · {article.readingTime}
                     </p>
-                    <h3 className="mt-2 text-2xl font-semibold tracking-[-.04em] group-hover:text-[var(--color-accent)]">
+                    <h3 className="mt-2 text-xl font-semibold tracking-[-.04em] group-hover:text-[var(--color-accent)]">
                       {article.title}
                     </h3>
                     <p className={`${body} mt-2 max-w-3xl`}>{article.summary}</p>

@@ -3,11 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { findArticle, getArticleSlugs } from "@/lib/articles-api";
+import { buttonVariants } from "../../../../components/ui/button";
 import {
-  buttonBase,
-  buttonSizes,
-  buttonVariants,
-} from "../../../../components/ui/button";
+  fontDisplayClass,
+  formLabel,
+  pageShellClassWide,
+} from "../../../../components/ui/typography";
 import { hasLocale, locales } from "../../../../lib/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../../lib/site-url";
 import { getDictionary } from "../../dictionaries";
@@ -28,14 +29,9 @@ export async function generateStaticParams() {
   return results.flat();
 }
 
-const pageShellClass =
-  "min-h-screen bg-[var(--color-bg)] px-5 py-14 text-[var(--color-text)] sm:px-8 sm:py-20";
 const panelClass = "border-t border-[var(--color-line)] py-8 sm:py-12";
-const titleClass =
-  '[font-family:var(--font-display),"Segoe_UI",sans-serif] text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance';
+const titleClass = `${fontDisplayClass} text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance`;
 const bodyClass = "text-[0.96rem] leading-[1.9] text-[var(--color-muted)] sm:text-[1rem]";
-const labelClass =
-  "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
 
 export async function generateMetadata({
   params,
@@ -96,7 +92,7 @@ export default async function ArticleDetailPage({
   }
 
   return (
-    <main lang={lang} className={pageShellClass}>
+    <main lang={lang} className={pageShellClassWide}>
       <div className="mx-auto max-w-4xl">
         <article className={panelClass}>
           <div className="flex flex-wrap items-center gap-3">
@@ -105,7 +101,7 @@ export default async function ArticleDetailPage({
             </span>
             <Link
               href={`/${lang}/articles`}
-              className={`${buttonBase} ${buttonVariants.ghost} ${buttonSizes.xs}`}
+              className={buttonVariants({ variant: "ghost", size: "xs" })}
             >
               {copy.backToArticlesLabel}
             </Link>
@@ -126,13 +122,13 @@ export default async function ArticleDetailPage({
 
             <dl className="mt-6 flex flex-wrap gap-6">
               <div>
-                <dt className={labelClass}>{copy.publishedLabel}</dt>
+                <dt className={formLabel}>{copy.publishedLabel}</dt>
                 <dd className="mt-2 text-sm text-[var(--color-text)]">
                   {article.publishedAt}
                 </dd>
               </div>
               <div>
-                <dt className={labelClass}>{copy.readingTimeLabel}</dt>
+                <dt className={formLabel}>{copy.readingTimeLabel}</dt>
                 <dd className="mt-2 text-sm text-[var(--color-text)]">
                   {article.readingTime}
                 </dd>

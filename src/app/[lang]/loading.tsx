@@ -1,8 +1,6 @@
-const pageShellClass =
-  "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";
-const panelClass =
-  "mx-auto max-w-6xl rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-6 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-8";
-const barClass = "rounded-full bg-[rgba(111,247,166,0.08)]";
+import { barClass, glassCardClass, pageShellClass } from "@/components/ui/typography";
+
+const panelClass = `mx-auto max-w-6xl ${glassCardClass}`;
 
 export default function Loading() {
   return (

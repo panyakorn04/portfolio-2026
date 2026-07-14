@@ -7,7 +7,10 @@ import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import { submitContact } from "./contact-actions";
 import { initialContactState } from "./contact-form-state";
 import { Button } from "./ui/button";
-import { formLabel, inputClass } from "./ui/typography";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { formLabel } from "./ui/typography";
 
 type ContactFormCopy = PortfolioDictionary["contactForm"];
 
@@ -59,10 +62,8 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
         <input type="hidden" name="locale" value={locale} />
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="contact-name" className={formLabel}>
-              {copy.nameLabel}
-            </label>
-            <input
+            <Label htmlFor="contact-name">{copy.nameLabel}</Label>
+            <Input
               id="contact-name"
               name="name"
               autoComplete="name"
@@ -70,7 +71,6 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
               minLength={2}
               aria-invalid={fieldErrors.name ? "true" : "false"}
               placeholder={copy.namePlaceholder}
-              className={inputClass}
             />
             {fieldErrors.name ? (
               <p className="mt-2 text-sm text-[#ff9a9a]">{fieldErrors.name}</p>
@@ -78,10 +78,8 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
           </div>
 
           <div>
-            <label htmlFor="contact-email" className={formLabel}>
-              {copy.emailLabel}
-            </label>
-            <input
+            <Label htmlFor="contact-email">{copy.emailLabel}</Label>
+            <Input
               id="contact-email"
               name="email"
               type="email"
@@ -89,7 +87,6 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
               required
               aria-invalid={fieldErrors.email ? "true" : "false"}
               placeholder={copy.emailPlaceholder}
-              className={inputClass}
             />
             {fieldErrors.email ? (
               <p className="mt-2 text-sm text-[#ff9a9a]">{fieldErrors.email}</p>
@@ -99,30 +96,24 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="contact-company" className={formLabel}>
-              {copy.companyLabel}
-            </label>
-            <input
+            <Label htmlFor="contact-company">{copy.companyLabel}</Label>
+            <Input
               id="contact-company"
               name="company"
               autoComplete="organization"
               placeholder={copy.companyPlaceholder}
-              className={inputClass}
             />
           </div>
 
           <div>
-            <label htmlFor="contact-subject" className={formLabel}>
-              {copy.subjectLabel}
-            </label>
-            <input
+            <Label htmlFor="contact-subject">{copy.subjectLabel}</Label>
+            <Input
               id="contact-subject"
               name="subject"
               required
               minLength={3}
               aria-invalid={fieldErrors.subject ? "true" : "false"}
               placeholder={copy.subjectPlaceholder}
-              className={inputClass}
             />
             {fieldErrors.subject ? (
               <p className="mt-2 text-sm text-[#ff9a9a]">{fieldErrors.subject}</p>
@@ -131,10 +122,8 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
         </div>
 
         <div>
-          <label htmlFor="contact-message" className={formLabel}>
-            {copy.messageLabel}
-          </label>
-          <textarea
+          <Label htmlFor="contact-message">{copy.messageLabel}</Label>
+          <Textarea
             id="contact-message"
             name="message"
             rows={7}
@@ -142,7 +131,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
             minLength={20}
             aria-invalid={fieldErrors.message ? "true" : "false"}
             placeholder={copy.messagePlaceholder}
-            className={`${inputClass} min-h-[10.5rem] resize-y`}
+            className="min-h-[10.5rem]"
           />
           {fieldErrors.message ? (
             <p className="mt-2 text-sm text-[#ff9a9a]">{fieldErrors.message}</p>

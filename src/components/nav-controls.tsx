@@ -6,7 +6,7 @@ import { useActiveSection } from "../hooks/use-active-section";
 import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import MobileNav from "./mobile-nav";
 import ReadingProgress from "./reading-progress";
-import { buttonBase, buttonVariants } from "./ui/button";
+import { buttonVariants } from "./ui/button";
 
 type NavControlsProps = {
   alternateLocale: Locale;
@@ -52,7 +52,7 @@ export default function NavControls({
         </div>
         <Link
           href={`/${locale}/articles`}
-          className={`${buttonBase} ${buttonVariants.chip} px-3 py-2 text-[0.7rem]`}
+          className={`${buttonVariants({ variant: "chip" })} px-3 py-2 text-[0.7rem]`}
         >
           {articleNavLabel}
         </Link>

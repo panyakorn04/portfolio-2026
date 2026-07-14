@@ -14,12 +14,9 @@ export const copy = "text-[.9rem] leading-[1.75] text-[var(--color-muted)]";
 export const linkButton =
   "inline-flex min-h-11 items-center justify-center border px-5 py-2.5 text-sm font-semibold transition-colors";
 
-export const linkButtonPrimary = `${linkButton} border-[var(--color-accent)] bg-[var(--color-accent)] text-[#07110d] hover:bg-[#75e4ae]`;
+export const linkButtonPrimary = `${linkButton} border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-foreground)] hover:bg-[#75e4ae]`;
 
 export const linkButtonSecondary = `${linkButton} border-[var(--color-line-strong)] text-[var(--color-text)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]`;
-
-export const inputClass =
-  "mt-2 w-full rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.82)] px-3.5 py-3 text-sm text-[var(--color-text)] outline-none transition-colors placeholder:text-[var(--color-soft)] focus:border-[var(--color-line-strong)]";
 
 export const glassSurfaceClass =
   "border border-[var(--color-line)] bg-[#0d0f0e] shadow-[0_18px_60px_rgba(0,0,0,0.22)]";
@@ -29,6 +26,9 @@ export const glassPanelClass = `${glassSurfaceClass} rounded-[0.5rem] p-5 sm:p-7
 export const glassCompactPanelClass = `${glassSurfaceClass} rounded-[0.375rem]`;
 
 export const innerPanelClass =
+  "rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-4";
+
+export const innerPanelClassNoPad =
   "rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a]";
 
 export const adminEyeClass =
@@ -40,5 +40,23 @@ export const adminLabelClass =
 export const adminBodyClass =
   "text-[0.9rem] leading-[1.7] text-[var(--color-muted)] sm:text-[0.94rem]";
 
-export const adminInputClass =
-  "min-h-11 w-full rounded-[0.25rem] border border-[var(--color-line-strong)] bg-[#070908] px-3.5 py-2.5 text-base text-[var(--color-text)] outline-none transition-[border-color,box-shadow,background-color] placeholder:text-[var(--color-soft)] focus:border-[var(--color-accent)] focus:bg-[#0a0d0b] focus:ring-2 focus:ring-[var(--accent-dim)] disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm";
+export const adminFieldErrorClass = "mt-1 block text-[0.72rem] text-[#ff8f8f]";
+
+export const pageShellClass =
+  "min-h-screen bg-[var(--color-bg)] px-5 py-8 text-[var(--color-text)] sm:px-8 sm:py-10";
+
+export const pageShellClassWide =
+  "min-h-screen bg-[var(--color-bg)] px-5 py-14 text-[var(--color-text)] sm:px-8 sm:py-20";
+
+export const fontDisplayClass = '[font-family:var(--font-display),"Segoe_UI",sans-serif]';
+
+export const glassCardClass =
+  "rounded-[1.45rem] border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,rgba(10,20,16,0.96),rgba(6,12,9,0.96))] p-6 shadow-[inset_0_0_0_1px_rgba(111,247,166,0.04)] sm:p-8";
+
+export const barClass = "rounded-full bg-[rgba(111,247,166,0.08)]";
+
+export const errorLinkClass =
+  "inline-flex items-center gap-2 rounded-full border border-[var(--color-line-strong)] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.06em] text-[var(--color-accent)] transition-colors hover:bg-[rgba(111,247,166,0.06)]";
+
+export const navItemCardClass =
+  "flex flex-col rounded-[1.15rem] border border-(--color-line) bg-[rgba(10,20,16,0.65)] py-[0.85rem] px-[0.9rem] font-mono tabular-nums transition-colors motion-reduce:transition-none hover:border-(--color-accent) hover:text-(--color-accent)";
