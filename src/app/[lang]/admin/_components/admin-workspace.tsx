@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
   adminBodyClass as bodyClass,
   adminEyeClass as eyeClass,
+  glassCompactPanelClass,
   glassPanelClass,
+  adminLabelClass as labelClass,
 } from "@/components/ui/typography";
 import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
 import AdminArticles from "./admin-articles";
+import AdminChatTab from "./admin-chat-tab";
 import AdminContactInquiries from "./admin-contact-inquiries";
 
-type Tab = "inquiries" | "articles";
+type Tab = "inquiries" | "articles" | "chat";
 
 export default function AdminWorkspace({
   locale,
@@ -23,6 +25,12 @@ export default function AdminWorkspace({
   articlesCopy: PortfolioDictionary["adminArticles"];
 }) {
   const [tab, setTab] = useState<Tab>("inquiries");
+
+  const tabLabel: Record<Tab, string> = {
+    inquiries: articlesCopy.tabContactLabel,
+    articles: articlesCopy.tabArticlesLabel,
+    chat: "Chat",
+  };
 
   return (
     <main
@@ -48,7 +56,7 @@ export default function AdminWorkspace({
             <div className="space-y-3">
               <p className={eyeClass}>{contactCopy.eyebrow}</p>
               <h1 className="[font-family:var(--font-display),sans-serif] text-[clamp(2rem,4vw,3.75rem)] font-medium leading-[0.98] tracking-[-0.05em] text-balance text-[var(--color-text)]">
-                {contactCopy.title}
+                {tabLabel[tab]}
               </h1>
             </div>
             <p
@@ -57,40 +65,52 @@ export default function AdminWorkspace({
               {contactCopy.description}
             </p>
           </div>
-
-          <div
-            role="tablist"
-            aria-label={contactCopy.navLabel}
-            className="mt-7 flex border-t border-[var(--color-line)] pt-4"
-          >
-            <Button
-              variant={tab === "inquiries" ? "primary" : "ghost"}
-              size="sm"
-              onClick={() => setTab("inquiries")}
-              role="tab"
-              aria-selected={tab === "inquiries"}
-              className="min-h-11 rounded-[0.25rem]"
-            >
-              {articlesCopy.tabContactLabel}
-            </Button>
-            <Button
-              variant={tab === "articles" ? "primary" : "ghost"}
-              size="sm"
-              onClick={() => setTab("articles")}
-              role="tab"
-              aria-selected={tab === "articles"}
-              className="min-h-11 rounded-[0.25rem]"
-            >
-              {articlesCopy.tabArticlesLabel}
-            </Button>
-          </div>
         </section>
 
-        {tab === "inquiries" ? (
-          <AdminContactInquiries locale={locale} copy={contactCopy} />
-        ) : (
-          <AdminArticles locale={locale} copy={articlesCopy} />
-        )}
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_12rem]">
+          <div className="min-w-0 order-2 lg:order-1">
+            {tab === "inquiries" ? (
+              <AdminContactInquiries locale={locale} copy={contactCopy} />
+            ) : tab === "articles" ? (
+              <AdminArticles locale={locale} copy={articlesCopy} />
+            ) : (
+              <AdminChatTab locale={locale} copy={contactCopy} />
+            )}
+          </div>
+
+          <aside className="order-1 lg:order-2">
+            <nav className={glassCompactPanelClass}>
+              <div className="border-b border-[var(--color-line)] px-4 py-3">
+                <p className={labelClass}>Menu</p>
+              </div>
+              <div className="divide-y divide-[var(--color-line)]">
+                {[
+                  { id: "inquiries" as const, label: articlesCopy.tabContactLabel },
+                  { id: "articles" as const, label: articlesCopy.tabArticlesLabel },
+                  { id: "chat" as const, label: "Chat" },
+                ].map((item) => {
+                  const isActive = tab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setTab(item.id)}
+                      role="tab"
+                      aria-selected={isActive}
+                      className={`w-full px-4 py-3.5 text-left font-mono text-[0.72rem] uppercase tracking-[0.08em] transition-colors ${
+                        isActive
+                          ? "border-l-2 border-[var(--color-accent)] bg-[rgba(111,247,166,0.08)] text-[var(--color-accent)]"
+                          : "border-l-2 border-transparent text-[var(--color-soft)] hover:text-[var(--color-text)] hover:bg-[#090b0a]"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
+          </aside>
+        </div>
       </div>
     </main>
   );
