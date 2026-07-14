@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import profileImage from "../../public/assets/profile.jpg";
 import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import { contacts, socialLinks } from "../lib/site";
 import { getLocalizedSitePath } from "../lib/site-url";
@@ -69,7 +70,7 @@ export function PortfolioShell({
           <div className="editorial-reveal relative lg:justify-self-end">
             <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden bg-[var(--color-panel)]">
               <Image
-                src="/assets/profile.jpg"
+                src={profileImage}
                 fill
                 sizes="(max-width:1024px) 90vw, 420px"
                 priority
