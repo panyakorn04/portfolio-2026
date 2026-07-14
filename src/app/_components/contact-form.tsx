@@ -4,9 +4,10 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
-import { Button } from "./button";
 import { submitContact } from "./contact-actions";
 import { initialContactState } from "./contact-form-state";
+import { Button } from "./ui/button";
+import { formLabel, inputClass } from "./ui/typography";
 
 type ContactFormCopy = PortfolioDictionary["contactForm"];
 
@@ -14,11 +15,6 @@ type ContactFormProps = {
   locale: Locale;
   copy: ContactFormCopy;
 };
-
-const inputClass =
-  "mt-2 w-full rounded-[1rem] border border-[var(--color-line)] bg-[rgba(6,12,9,0.82)] px-3.5 py-3 text-sm text-[var(--color-text)] outline-none transition-colors placeholder:text-[var(--color-soft)] focus:border-[var(--color-line-strong)]";
-const labelClass =
-  "font-mono text-[0.62rem] uppercase tracking-[0.06em] tabular-nums text-[var(--color-soft)]";
 
 function SubmitButton({ copy }: { copy: ContactFormCopy }) {
   const { pending } = useFormStatus();
@@ -44,7 +40,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
   return (
     <div className="border-t border-[var(--color-line)] py-6 sm:py-8">
       <div className="flex items-center justify-between gap-3">
-        <p className={labelClass}>{copy.panelLabel}</p>
+        <p className={formLabel}>{copy.panelLabel}</p>
         <span className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[0.62rem] uppercase text-[var(--color-accent)]">
           POST /api/contact
         </span>
@@ -63,7 +59,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
         <input type="hidden" name="locale" value={locale} />
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="contact-name" className={labelClass}>
+            <label htmlFor="contact-name" className={formLabel}>
               {copy.nameLabel}
             </label>
             <input
@@ -82,7 +78,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
           </div>
 
           <div>
-            <label htmlFor="contact-email" className={labelClass}>
+            <label htmlFor="contact-email" className={formLabel}>
               {copy.emailLabel}
             </label>
             <input
@@ -103,7 +99,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="contact-company" className={labelClass}>
+            <label htmlFor="contact-company" className={formLabel}>
               {copy.companyLabel}
             </label>
             <input
@@ -116,7 +112,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
           </div>
 
           <div>
-            <label htmlFor="contact-subject" className={labelClass}>
+            <label htmlFor="contact-subject" className={formLabel}>
               {copy.subjectLabel}
             </label>
             <input
@@ -135,7 +131,7 @@ export default function ContactForm({ locale, copy }: ContactFormProps) {
         </div>
 
         <div>
-          <label htmlFor="contact-message" className={labelClass}>
+          <label htmlFor="contact-message" className={formLabel}>
             {copy.messageLabel}
           </label>
           <textarea

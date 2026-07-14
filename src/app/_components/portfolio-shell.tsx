@@ -7,69 +7,10 @@ import { getLocalizedSitePath } from "../_data/site-url";
 import ChatDemo from "./chat-demo";
 import ContactForm from "./contact-form";
 import { FlagshipCaseStudy } from "./flagship-case-study";
-import MotionReveal from "./motion-reveal";
 import Navbar from "./navbar";
-
-const eyebrow =
-  "font-mono text-[.68rem] uppercase tracking-[.14em] text-[var(--color-soft)]";
-const body = "text-[.95rem] leading-[1.8] text-[var(--color-muted)] sm:text-base";
-const button =
-  "inline-flex min-h-11 items-center justify-center border px-5 py-2.5 text-sm font-semibold transition-colors";
-const primary = `${button} border-[var(--color-accent)] bg-[var(--color-accent)] text-[#07110d] hover:bg-[#75e4ae]`;
-const secondary = `${button} border-[var(--color-line-strong)] text-[var(--color-text)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]`;
-
-function Section({
-  id,
-  index,
-  kicker,
-  title,
-  text,
-  children,
-}: {
-  id: string;
-  index: string;
-  kicker: string;
-  title: string;
-  text?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section
-      id={id}
-      className="scroll-mt-24 border-t border-[var(--color-line)] py-20 sm:py-28"
-    >
-      <MotionReveal>
-        <header className="grid gap-5 lg:grid-cols-[8rem_minmax(0,1fr)_minmax(16rem,.55fr)] lg:items-start">
-          <p className={`${eyebrow} text-[var(--color-accent)]`}>{index}</p>
-          <div>
-            <p className={eyebrow}>{kicker}</p>
-            <h2 className="mt-4 max-w-3xl text-balance text-[clamp(1rem,4vw,3.4rem)] font-semibold leading-[1.1]">
-              {title}
-            </h2>
-          </div>
-          {text ? <p className={`${body} text-pretty lg:pt-7`}>{text}</p> : null}
-        </header>
-        <div className="mt-12 sm:mt-16">{children}</div>
-      </MotionReveal>
-    </section>
-  );
-}
-
-function Bullets({ items }: { items: string[] }) {
-  return (
-    <ul className="grid gap-3">
-      {items.map((item) => (
-        <li key={item} className={`${body} flex gap-4 text-pretty`}>
-          <span
-            aria-hidden
-            className="mt-[.75em] h-px w-5 shrink-0 bg-[var(--color-accent)]"
-          />
-          <span>{item}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
+import Bullets from "./ui/bullets";
+import Section from "./ui/section";
+import { body, eyebrow, linkButtonPrimary, linkButtonSecondary } from "./ui/typography";
 
 export type PortfolioArticleSummary = {
   slug: string;
@@ -101,7 +42,7 @@ export function PortfolioShell({
           id="top"
           className="grid min-h-[calc(100svh-4.5rem)] items-center gap-12 py-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,.65fr)] lg:py-24"
         >
-          <MotionReveal>
+          <div>
             <p className={`${eyebrow} text-[var(--color-accent)]`}>
               {hero.heroKicker} · Bangkok
             </p>
@@ -118,18 +59,18 @@ export function PortfolioShell({
               </div>
             </div>
             <div className="mt-9 flex flex-wrap gap-3">
-              <a href="#work" className={primary}>
+              <a href="#work" className={linkButtonPrimary}>
                 {hero.viewWork} ↓
               </a>
-              <Link href="/Panyakorn_Boonyong_Resume.pdf" className={secondary}>
+              <Link href="/Panyakorn_Boonyong_Resume.pdf" className={linkButtonSecondary}>
                 {hero.downloadResume}
               </Link>
-              <a href="#contact" className={secondary}>
+              <a href="#contact" className={linkButtonSecondary}>
                 {hero.contactMe}
               </a>
             </div>
-          </MotionReveal>
-          <MotionReveal className="relative lg:justify-self-end">
+          </div>
+          <div className="editorial-reveal relative lg:justify-self-end">
             <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden bg-[var(--color-panel)]">
               <Image
                 src="/assets/profile.jpg"
@@ -161,7 +102,7 @@ export function PortfolioShell({
                 </div>
               ))}
             </div>
-          </MotionReveal>
+          </div>
         </section>
 
         <Section
@@ -332,7 +273,7 @@ export function PortfolioShell({
             </div>
             <Link
               href={getLocalizedSitePath(locale, "/articles")}
-              className={`${secondary} mt-8`}
+              className={`${linkButtonSecondary} mt-8`}
             >
               {articleCopy.listLabel}
             </Link>

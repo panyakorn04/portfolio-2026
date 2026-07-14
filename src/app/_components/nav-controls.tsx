@@ -6,9 +6,9 @@ import { useMemo } from "react";
 import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
 import { useActiveSection } from "../_hooks/use-active-section";
-import { buttonBase, buttonVariants } from "./button";
 import MobileNav from "./mobile-nav";
 import ReadingProgress from "./reading-progress";
+import { buttonBase, buttonVariants } from "./ui/button";
 
 type NavControlsProps = {
   alternateLocale: Locale;

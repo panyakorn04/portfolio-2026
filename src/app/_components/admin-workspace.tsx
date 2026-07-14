@@ -8,7 +8,7 @@ import { bodyClass, eyeClass, glassPanelClass } from "../_data/admin-styles";
 import type { Locale } from "../_data/portfolio";
 import AdminArticles from "./admin-articles";
 import AdminContactInquiries from "./admin-contact-inquiries";
-import { Button } from "./button";
+import { Button } from "./ui/button";
 
 type Tab = "inquiries" | "articles";
 

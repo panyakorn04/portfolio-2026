@@ -1,9 +1,7 @@
 import type { PortfolioDictionary } from "../_data/portfolio";
+import { copy, label } from "./ui/typography";
 
 type CaseStudy = PortfolioDictionary["sections"]["flagshipCaseStudy"];
-const label =
-  "font-mono text-[.66rem] uppercase tracking-[.14em] text-[var(--color-accent)]";
-const copy = "text-[.9rem] leading-[1.75] text-[var(--color-muted)]";
 
 export function FlagshipCaseStudy({ study }: { study: CaseStudy }) {
   return (

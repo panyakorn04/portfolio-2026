@@ -17,7 +17,7 @@ import {
   inputClass as sharedInputClass,
 } from "../_data/admin-styles";
 import type { Locale } from "../_data/portfolio";
-import { Button } from "./button";
+import { Button } from "./ui/button";
 
 type AdminCopy = (typeof adminDirectoryCopy)[Locale];
 

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { articleDirectoryCopy } from "../_data/articles";
 import type { Locale, PortfolioDictionary } from "../_data/portfolio";
-import { Button, buttonBase, buttonVariants } from "./button";
+import { Button, buttonBase, buttonVariants } from "./ui/button";
 
 type MobileNavProps = {
   activeSectionId: string | null;

@@ -9,7 +9,7 @@ import {
   inputClass as sharedInputClass,
 } from "../_data/admin-styles";
 import type { Locale } from "../_data/portfolio";
-import { Button, buttonBase, buttonSizes, buttonVariants } from "./button";
+import { Button, buttonBase, buttonSizes, buttonVariants } from "./ui/button";
 
 type ArticleStatus = "draft" | "published";
 
