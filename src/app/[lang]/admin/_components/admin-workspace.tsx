@@ -67,18 +67,8 @@ export default function AdminWorkspace({
           </div>
         </section>
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_12rem]">
-          <div className="min-w-0 order-2 lg:order-1">
-            {tab === "inquiries" ? (
-              <AdminContactInquiries locale={locale} copy={contactCopy} />
-            ) : tab === "articles" ? (
-              <AdminArticles locale={locale} copy={articlesCopy} />
-            ) : (
-              <AdminChatTab locale={locale} copy={contactCopy} />
-            )}
-          </div>
-
-          <aside className="order-1 lg:order-2">
+        <div className="grid gap-5 lg:grid-cols-[12rem_minmax(0,1fr)]">
+          <aside>
             <nav className={glassCompactPanelClass}>
               <div className="border-b border-[var(--color-line)] px-4 py-3">
                 <p className={labelClass}>Menu</p>
@@ -110,6 +100,16 @@ export default function AdminWorkspace({
               </div>
             </nav>
           </aside>
+
+          <div className="min-w-0">
+            {tab === "inquiries" ? (
+              <AdminContactInquiries locale={locale} copy={contactCopy} />
+            ) : tab === "articles" ? (
+              <AdminArticles locale={locale} copy={articlesCopy} />
+            ) : (
+              <AdminChatTab locale={locale} copy={contactCopy} />
+            )}
+          </div>
         </div>
       </div>
     </main>
