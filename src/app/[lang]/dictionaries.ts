@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { Locale, PortfolioDictionary } from "../_data/portfolio";
+import type { Locale, PortfolioDictionary } from "../../lib/portfolio";
 
 const dictionaries: Record<Locale, () => Promise<PortfolioDictionary>> = {
   en: () =>

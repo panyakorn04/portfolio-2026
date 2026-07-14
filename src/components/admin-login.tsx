@@ -2,15 +2,15 @@
 
 import { useState, useTransition } from "react";
 
-import type { adminDirectoryCopy } from "../_data/admin";
+import type { adminDirectoryCopy } from "../lib/admin";
 import {
   bodyClass,
   eyeClass,
   glassPanelClass,
   inputClass,
   labelClass,
-} from "../_data/admin-styles";
-import type { Locale } from "../_data/portfolio";
+} from "../lib/admin-styles";
+import type { Locale } from "../lib/portfolio";
 import { Button, buttonBase, buttonSizes, buttonVariants } from "./ui/button";
 
 type AdminCopy = (typeof adminDirectoryCopy)[Locale];

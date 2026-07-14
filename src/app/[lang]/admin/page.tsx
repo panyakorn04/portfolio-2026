@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import AdminWorkspace from "../../_components/admin-workspace";
-import { adminDirectoryCopy } from "../../_data/admin";
-import { adminArticlesCopy } from "../../_data/admin-articles";
-import { hasLocale } from "../../_data/portfolio";
-import { getLocalizedSitePath, getMetadataBase } from "../../_data/site-url";
+import AdminWorkspace from "../../../components/admin-workspace";
+import { adminDirectoryCopy } from "../../../lib/admin";
+import { adminArticlesCopy } from "../../../lib/admin-articles";
+import { hasLocale } from "../../../lib/portfolio";
+import { getLocalizedSitePath, getMetadataBase } from "../../../lib/site-url";
 
 export async function generateMetadata({
   params,

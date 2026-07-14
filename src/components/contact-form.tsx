@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
-import type { Locale, PortfolioDictionary } from "../_data/portfolio";
+import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import { submitContact } from "./contact-actions";
 import { initialContactState } from "./contact-form-state";
 import { Button } from "./ui/button";

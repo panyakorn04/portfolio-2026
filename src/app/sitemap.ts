@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 
-import { getArticleSlugs } from "@/app/_data/articles-api";
+import { getArticleSlugs } from "../lib/articles-api";
 
-import { locales } from "./_data/portfolio";
-import { getSiteUrl } from "./_data/site-url";
+import { locales } from "../lib/portfolio";
+import { getSiteUrl } from "../lib/site-url";
 
 async function getArticleSlugsForSitemap() {
   try {

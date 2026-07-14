@@ -1,7 +1,7 @@
 import "../globals.css";
 
-import { jetbrainsMono, kanit, spaceGrotesk } from "../_data/fonts";
-import { defaultLocale } from "../_data/portfolio";
+import { jetbrainsMono, kanit, spaceGrotesk } from "../../lib/fonts";
+import { defaultLocale } from "../../lib/portfolio";
 
 export default function RedirectRootLayout({
   children,

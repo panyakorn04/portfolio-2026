@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 import "./globals.css";
-import { jetbrainsMono, kanit, spaceGrotesk } from "./_data/fonts";
+import { jetbrainsMono, kanit, spaceGrotesk } from "../lib/fonts";
 
 export default function GlobalError({
   error,

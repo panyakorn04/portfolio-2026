@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import LegalPage from "../../_components/legal-page";
-import { hasLocale } from "../../_data/portfolio";
+import LegalPage from "../../../components/legal-page";
+import { hasLocale } from "../../../lib/portfolio";
 import {
   getAbsoluteSiteUrl,
   getLocalizedSitePath,
   getMetadataBase,
-} from "../../_data/site-url";
+} from "../../../lib/site-url";
 import { getDictionary } from "../dictionaries";
 
 export async function generateMetadata({

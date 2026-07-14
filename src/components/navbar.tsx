@@ -1,4 +1,4 @@
-import type { Locale, PortfolioDictionary } from "../_data/portfolio";
+import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import NavControls from "./nav-controls";
 
 export default function Navbar({

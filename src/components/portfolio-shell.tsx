@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { articleDirectoryCopy } from "../_data/articles";
-import type { Locale, PortfolioDictionary } from "../_data/portfolio";
-import { contacts, socialLinks } from "../_data/site";
-import { getLocalizedSitePath } from "../_data/site-url";
+import { articleDirectoryCopy } from "../lib/articles";
+import type { Locale, PortfolioDictionary } from "../lib/portfolio";
+import { contacts, socialLinks } from "../lib/site";
+import { getLocalizedSitePath } from "../lib/site-url";
 import ChatDemo from "./chat-demo";
 import ContactForm from "./contact-form";
 import { FlagshipCaseStudy } from "./flagship-case-study";

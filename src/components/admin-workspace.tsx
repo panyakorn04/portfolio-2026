@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import type { adminDirectoryCopy } from "../_data/admin";
-import type { adminArticlesCopy } from "../_data/admin-articles";
-import { bodyClass, eyeClass, glassPanelClass } from "../_data/admin-styles";
-import type { Locale } from "../_data/portfolio";
+import type { adminDirectoryCopy } from "../lib/admin";
+import type { adminArticlesCopy } from "../lib/admin-articles";
+import { bodyClass, eyeClass, glassPanelClass } from "../lib/admin-styles";
+import type { Locale } from "../lib/portfolio";
 import AdminArticles from "./admin-articles";
 import AdminContactInquiries from "./admin-contact-inquiries";
 import { Button } from "./ui/button";

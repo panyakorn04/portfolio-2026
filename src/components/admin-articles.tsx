@@ -2,13 +2,13 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 
-import type { AdminArticlesCopy } from "../_data/admin-articles";
+import type { AdminArticlesCopy } from "../lib/admin-articles";
 import {
   glassCompactPanelClass,
   labelClass,
   inputClass as sharedInputClass,
-} from "../_data/admin-styles";
-import type { Locale } from "../_data/portfolio";
+} from "../lib/admin-styles";
+import type { Locale } from "../lib/portfolio";
 import { Button, buttonBase, buttonSizes, buttonVariants } from "./ui/button";
 
 type ArticleStatus = "draft" | "published";

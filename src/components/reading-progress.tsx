@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { useReadingProgress } from "../_hooks/use-reading-progress";
+import { useReadingProgress } from "../hooks/use-reading-progress";
 
 const NAV_HEIGHT_PX = 64;
 

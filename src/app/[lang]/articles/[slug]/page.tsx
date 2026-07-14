@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { findArticle, getArticleSlugs } from "@/app/_data/articles-api";
-import { buttonBase, buttonSizes, buttonVariants } from "../../../_components/ui/button";
-import { articleDirectoryCopy } from "../../../_data/articles";
-import { hasLocale, locales } from "../../../_data/portfolio";
-import { getLocalizedSitePath, getMetadataBase } from "../../../_data/site-url";
+import { findArticle, getArticleSlugs } from "@/lib/articles-api";
+import {
+  buttonBase,
+  buttonSizes,
+  buttonVariants,
+} from "../../../../components/ui/button";
+import { articleDirectoryCopy } from "../../../../lib/articles";
+import { hasLocale, locales } from "../../../../lib/portfolio";
+import { getLocalizedSitePath, getMetadataBase } from "../../../../lib/site-url";
 
 export const revalidate = 300;
 

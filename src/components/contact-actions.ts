@@ -1,6 +1,6 @@
 "use server";
 
-import type { Locale } from "../_data/portfolio";
+import type { Locale } from "../lib/portfolio";
 import type {
   ContactFieldErrors,
   ContactFieldName,

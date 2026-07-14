@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-
-import { articleDirectoryCopy } from "../_data/articles";
-import type { Locale, PortfolioDictionary } from "../_data/portfolio";
-import { useActiveSection } from "../_hooks/use-active-section";
+import { useActiveSection } from "../hooks/use-active-section";
+import { articleDirectoryCopy } from "../lib/articles";
+import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import MobileNav from "./mobile-nav";
 import ReadingProgress from "./reading-progress";
 import { buttonBase, buttonVariants } from "./ui/button";

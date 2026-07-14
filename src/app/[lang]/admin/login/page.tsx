@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
-import AdminLogin from "../../../_components/admin-login";
-import { adminDirectoryCopy } from "../../../_data/admin";
-import { hasLocale } from "../../../_data/portfolio";
-import { getLocalizedSitePath, getMetadataBase } from "../../../_data/site-url";
+import AdminLogin from "../../../../components/admin-login";
+import { adminDirectoryCopy } from "../../../../lib/admin";
+import { hasLocale } from "../../../../lib/portfolio";
+import { getLocalizedSitePath, getMetadataBase } from "../../../../lib/site-url";
 
 function getApiBaseUrl() {
   return (

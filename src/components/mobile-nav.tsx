@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { articleDirectoryCopy } from "../_data/articles";
-import type { Locale, PortfolioDictionary } from "../_data/portfolio";
+import { articleDirectoryCopy } from "../lib/articles";
+import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import { Button, buttonBase, buttonVariants } from "./ui/button";
 
 type MobileNavProps = {

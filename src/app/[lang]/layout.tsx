@@ -3,9 +3,9 @@ import "../globals.css";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { jetbrainsMono, kanit, spaceGrotesk } from "../_data/fonts";
-import { hasLocale, locales } from "../_data/portfolio";
-import { getMetadataBase } from "../_data/site-url";
+import { jetbrainsMono, kanit, spaceGrotesk } from "../../lib/fonts";
+import { hasLocale, locales } from "../../lib/portfolio";
+import { getMetadataBase } from "../../lib/site-url";
 import { getDictionary } from "./dictionaries";
 
 export function generateStaticParams() {
