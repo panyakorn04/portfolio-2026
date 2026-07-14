@@ -153,14 +153,7 @@ bun run build
 
 The deploy workflow runs on every push to `main` and can also be triggered manually from GitHub Actions using **Run workflow**. It builds a Docker image tar, uploads it to the VPS, loads it with Docker, and restarts the `frontend` service in `/opt/apps/docker-compose.yml`.
 
-GitHub repository secrets used by deployment:
-
-| Secret | Example | Required |
-|---|---|---|
-| `VPS_HOST` | `76.13.185.117` | Yes |
-| `VPS_USER` | `deploy` | Yes |
-| `VPS_SSH_KEY` | Private SSH key with access to the VPS | Yes |
-| `FRONTEND_IMAGE` | `ghcr.io/panyakorn04/portfolio-2026:latest` | Yes |
+GitHub repository secrets used by deployment are managed in the repository Settings → Secrets and variables → Actions. Required secrets include `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, and `FRONTEND_IMAGE`.
 
 The VPS frontend service should receive only frontend env vars:
 
@@ -193,7 +186,7 @@ public/Panyakorn_Boonyong_Resume.pdf
 
 ## Deploying elsewhere
 
-The current production target is the VPS at `76.13.185.117` behind Caddy. If you deploy this frontend elsewhere, keep the build command:
+The current production target is the VPS behind Caddy. If you deploy this frontend elsewhere, keep the build command:
 
 ```bash
 bun run deploy:prepare
