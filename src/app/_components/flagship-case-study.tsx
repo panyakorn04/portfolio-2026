@@ -15,7 +15,7 @@ export function FlagshipCaseStudy({ study }: { study: CaseStudy }) {
             <span className="h-px flex-1 bg-[var(--color-line)]" />
             <span className={label}>{study.liveBadge}</span>
           </div>
-          <h3 className="mt-7 text-balance text-[clamp(2.3rem,5vw,5rem)] font-semibold leading-[.95] tracking-[-.065em]">
+          <h3 className="mt-7 text-balance text-[clamp(1.3rem,3vw,3rem)] font-semibold leading-[1.1]">
             {study.title}
           </h3>
           <p className={`${copy} mt-7 max-w-2xl text-pretty text-base`}>

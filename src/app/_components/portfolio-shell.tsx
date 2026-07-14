@@ -43,7 +43,7 @@ function Section({
           <p className={`${eyebrow} text-[var(--color-accent)]`}>{index}</p>
           <div>
             <p className={eyebrow}>{kicker}</p>
-            <h2 className="mt-4 max-w-3xl text-balance text-[clamp(2rem,5vw,4.4rem)] font-semibold leading-[.98] tracking-[-.055em]">
+            <h2 className="mt-4 max-w-3xl text-balance text-[clamp(1rem,4vw,3.4rem)] font-semibold leading-[1.1]">
               {title}
             </h2>
           </div>
@@ -105,7 +105,7 @@ export function PortfolioShell({
             <p className={`${eyebrow} text-[var(--color-accent)]`}>
               {hero.heroKicker} · Bangkok
             </p>
-            <h1 className="mt-7 max-w-5xl text-balance text-[clamp(3rem,7.8vw,7.4rem)] font-semibold leading-[.88] tracking-[-.075em]">
+            <h1 className="mt-7 max-w-5xl text-balance text-[clamp(3rem,4.8vw,4.4rem)] font-semibold leading-[1.1]">
               {hero.heroTitle}
             </h1>
             <div className="mt-9 grid gap-7 border-t border-[var(--color-line)] pt-7 md:grid-cols-[minmax(0,1fr)_15rem]">
@@ -183,7 +183,7 @@ export function PortfolioShell({
                 </p>
                 <div>
                   <p className={eyebrow}>{project.eyebrow}</p>
-                  <h3 className="mt-3 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">
+                  <h3 className="mt-3 text-2xl font-semibold tracking-[-.04em] sm:text-xl">
                     {project.title}
                   </h3>
                   <p className={`${body} mt-4`}>{project.description}</p>
