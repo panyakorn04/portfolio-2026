@@ -19,6 +19,7 @@ import {
   adminLabelClass as labelClass,
 } from "@/components/ui/typography";
 import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
+import AdminChatConversation from "./admin-chat-conversation";
 
 type AdminCopy = PortfolioDictionary["adminWorkspace"];
 
@@ -1143,6 +1144,16 @@ export default function AdminContactInquiries({
               <p className={`${bodyClass} mt-4`}>{copy.summaryEmptyLabel}</p>
             )}
           </section>
+
+          {detailInquiry ? (
+            <AdminChatConversation
+              locale={locale}
+              copy={copy}
+              inquirySubject={detailInquiry.subject}
+              contactEmail={detailInquiry.email}
+              contactName={detailInquiry.name}
+            />
+          ) : null}
         </div>
       </div>
     </div>
