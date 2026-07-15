@@ -19,6 +19,12 @@
       "skillPath": "skills/migrate-radix-to-base/SKILL.md",
       "computedHash": "e1f2030ee5059be3dff0812ca0e4b995ee9fa3132176f049ebe6c90346a6755e"
     },
+    "multi-stage-dockerfile": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/multi-stage-dockerfile/SKILL.md",
+      "computedHash": "698bf93a84dae18fd7bd0b1d35c21427307fde78fbdf4624be9726f5f98189ca"
+    },
     "nextjs-code-review": {
       "source": "giuseppe-trisciuoglio/developer-kit",
       "sourceType": "github",
