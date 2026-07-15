@@ -286,8 +286,13 @@ jobs:
       - name: Verify registry connectivity
         run: |
           set -euo pipefail
-          curl -fsS --max-time 10 "https://ghcr.io/v2/" -o /dev/null && \
-            echo "🟢 GHCR reachable" || { echo "❌ GHCR unreachable"; exit 1; }
+          # Check GHCR is reachable — /v2/ returns 401 without auth, which is fine
+          http_code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 "https://ghcr.io/v2/" || echo "000")
+          if [ "$http_code" = "000" ]; then
+            echo "❌ GHCR unreachable (no response)"
+            exit 1
+          fi
+          echo "🟢 GHCR reachable (HTTP ${http_code})"
 
   # ==================================================================
   # APPROVAL GATE — manual approval before production deploy
