@@ -1,32 +1,111 @@
-# Panyakorn Boonyong Portfolio
+# Panyakorn Boonyong — Portfolio 2026
 
-Modern bilingual portfolio for Panyakorn Boonyong, built with Next.js, TypeScript, and Tailwind CSS.
+[![CI](https://github.com/panyakorn04/portfolio-2026/actions/workflows/ci.yml/badge.svg)](https://github.com/panyakorn04/portfolio-2026/actions/workflows/ci.yml)
+[![Deploy Frontend to VPS](https://github.com/panyakorn04/portfolio-2026/actions/workflows/deploy-vps.yml/badge.svg)](https://github.com/panyakorn04/portfolio-2026/actions/workflows/deploy-vps.yml)
 
-## Tech stack
+Production portfolio and content experience for Panyakorn Boonyong. The site combines a bilingual editorial portfolio, backend-powered articles and contact workflows, a streaming AI assistant, and a backend-session-aware administration workspace.
 
-- Next.js 16 App Router
-- React 19
-- TypeScript
+เว็บไซต์พอร์ตโฟลิโอภาษาไทย–อังกฤษที่รวมผลงาน บทความ ระบบติดต่อ ผู้ช่วย AI แบบ streaming และพื้นที่ผู้ดูแล โดยแยก frontend ออกจาก backend และฐานข้อมูลอย่างชัดเจน
+
+- Website: https://panyakorn.com
+- English: https://panyakorn.com/en
+- Thai: https://panyakorn.com/th
+- Backend API: https://api.panyakorn.com
+- Frontend repository: https://github.com/panyakorn04/portfolio-2026
+- Backend repository: https://github.com/panyakorn04/portfolio-backend-2026
+
+## What is included
+
+- Localized English and Thai routes, metadata, legal pages, sitemap, and robots output
+- Editorial portfolio sections for selected work, experience, skills, and the wider portfolio ecosystem
+- Backend-driven article directory and localized article detail pages with five-minute revalidation
+- Contact form with native form constraints, a server-action proxy, backend validation, and persistence
+- Streaming portfolio assistant with recent conversations, backend sessions, and local-storage fallback
+- Backend-session-aware admin workspace for inquiries, articles, sessions, and user management
+- Visitor-to-human handoff with persisted chat sessions, status filtering, and admin replies
+- Responsive navigation, loading/error/not-found states, accessible form controls, and optimized local assets
+- Same-origin `/api/*` proxying to keep browser cookies and SSE traffic out of cross-origin CORS paths
+- Immutable Docker image deployment to a VPS through GitHub Actions and GHCR
+- Failure-only Agent Loop reporter that creates a GitHub issue and requests advisory analysis from `qwen2.5-coder:7b`
+
+## Architecture
+
+```text
+Browser
+  ├─ /en, /th, /articles, /admin
+  └─ same-origin /api/*
+            │
+            ▼
+portfolio-2026
+Next.js 16 App Router
+            │
+            │ Next rewrite / Caddy proxy
+            ▼
+portfolio-backend-2026
+Go API
+            │
+            ├─ Supabase/PostgreSQL
+            ├─ Redis
+            ├─ portfolio-site skill profile
+            └─ Ollama
+```
+
+This repository is frontend-only. API behavior, authentication, persistence, migrations, Redis, and AI-provider integration belong to `panyakorn04/portfolio-backend-2026`.
+
+## Technology
+
+- Next.js 16 App Router with standalone output
+- React 19 and TypeScript
 - Tailwind CSS 4
-- Kanit font via `next/font/google`
+- Bun 1.3.14
+- Biome 2.5
+- Radix UI primitives and class-variance-authority
+- Kanit, Space Grotesk, and JetBrains Mono via `next/font/google`
+- Docker Buildx, GHCR, Docker Compose, and Caddy
+- GitHub Actions CI/CD and React Doctor PR analysis
+
+## Routes
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Redirects to the default locale |
+| `/en`, `/th` | Localized portfolio home |
+| `/[lang]/articles` | Localized article directory |
+| `/[lang]/articles/[slug]` | Backend-powered article detail |
+| `/[lang]/privacy` | Privacy policy |
+| `/[lang]/terms` | Terms of use |
+| `/[lang]/admin/login` | Admin sign-in |
+| `/[lang]/admin` | Admin workspace; excluded from search indexing |
+| `/sitemap.xml`, `/robots.txt` | Search-engine metadata |
 
 ## Local development
 
+Requirements:
+
+- Bun 1.3.14 or a compatible Bun 1.3 release
+- Access to the public production API, or a locally running compatible backend
+
 ```bash
-bun install
+git clone https://github.com/panyakorn04/portfolio-2026.git
+cd portfolio-2026
+bun install --frozen-lockfile
 cp .env.example .env.local
 bun run dev
 ```
 
-Open:
+Open http://localhost:3000. The root route redirects to the default locale.
 
-```text
-http://localhost:3000
+For a fresh development server that uses the live API without editing `.env.local`:
+
+```bash
+bun run dev:live-api
 ```
 
-Local browser API calls should stay same-origin so cookies/SSE work without CORS issues:
+## Environment variables
 
-```text
+`.env.example` contains the safe frontend configuration:
+
+```dotenv
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_API_URL=
 BUILD_API_BASE_URL=https://api.panyakorn.com
@@ -34,114 +113,80 @@ FRONTEND_API_BASE_URL=https://api.panyakorn.com
 PORTFOLIO_API_TIMEOUT_MS=3000
 ```
 
-With `NEXT_PUBLIC_API_URL` empty, browser calls use `/api/*`; `next.config.ts` rewrites those requests to `FRONTEND_API_BASE_URL`. This makes the chat stream and contact form work locally through the Next dev server instead of calling `https://api.panyakorn.com` cross-origin.
+| Variable | Used for |
+| --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL and metadata base |
+| `NEXT_PUBLIC_API_URL` | Optional browser-visible API base; intentionally empty for same-origin `/api/*` requests |
+| `BUILD_API_BASE_URL` | Public API used while prerendering article pages during local, CI, and Docker builds |
+| `FRONTEND_API_BASE_URL` | Server-side rewrite target; use the public API locally and `http://backend:8888` inside the VPS Compose network |
+| `PORTFOLIO_API_TIMEOUT_MS` | Timeout for server-side portfolio API reads; defaults to 3000 ms |
 
-You can also start a fresh live-API dev server without editing env files:
+Do not add database or backend secrets to this frontend. `scripts/check-env.mjs` warns when variables such as `DATABASE_URL`, `POSTGRES_*`, or `REDIS_URL` are present.
+
+## API integration
+
+Browser requests remain same-origin and are forwarded by Next.js during local development or by the production proxy stack.
+
+Public functionality used by the site includes:
+
+```text
+GET    /api/health
+GET    /api/articles?lang=en&limit=4
+GET    /api/articles/[slug]?lang=th
+POST   /api/contact
+POST   /api/portfolio/assistant/chat/stream
+POST   /api/portfolio/assistant/chat
+GET    /api/portfolio/assistant/sessions/latest?locale=en
+POST   /api/portfolio/assistant/sessions
+DELETE /api/portfolio/assistant/sessions/[id]
+POST   /api/portfolio/assistant/sessions/[id]/request-human
+```
+
+The assistant attempts streaming first and falls back to the non-streaming chat endpoint when necessary. Backend chat sessions are preferred; local storage remains a resilience fallback for recent conversations.
+
+Admin components use the backend's `/api/admin/*` session, article, inquiry, chat-session, and user endpoints. The Chat tab loads persisted conversations, distinguishes AI, pending-human, and human-assisted states, and sends replies through `/api/admin/chat/sessions/[id]/reply`. The browser receives only a session cookie—no static backend admin token is embedded in this application.
+
+## Contact flow
+
+```text
+Visitor submits the localized form
+  → browser constraints check required fields and lengths
+  → React server action forwards a normalized payload
+  → POST /api/contact
+  → Go backend validates and persists the inquiry
+  → optional backend webhook delivery
+  → localized success or error state
+```
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `bun run dev` | Start the Next.js development server |
+| `bun run dev:live-api` | Start development with the production API as the rewrite target |
+| `bun test` | Run Bun tests |
+| `bun run lint` | Run Biome checks |
+| `bun run format` | Format supported files with Biome |
+| `bun run build` | Create the production Next.js build |
+| `bun run verify` | Run tests, lint, and production build |
+| `bun run env:check` | Validate required frontend environment variables |
+| `bun run deploy:prepare` | Validate environment variables and build |
+| `bun run doctor` | Run React Doctor locally |
+
+Canonical local verification:
 
 ```bash
-bun run dev:live-api
+bun run verify
+git diff --check
 ```
 
-For production on the VPS, `FRONTEND_API_BASE_URL` is set to `http://backend:8888` so server-rendered pages and `/api/*` rewrites call the backend over the Docker network.
+The repository-managed pre-push hook runs `bun run lint` and `bun run build`. It is installed by the package `prepare` script when Git is available.
 
-`BUILD_API_BASE_URL` is used only while prerendering article pages during `next build`, so CI and Docker image builds can use the public API even when runtime server-side calls use the internal Docker hostname.
+## CI and pull-request checks
 
-Do not set `DATABASE_URL`, `POSTGRES_*`, or `REDIS_URL` on the frontend service. Database credentials belong to the Go backend repository: `panyakorn04/portfolio-backend-2026`.
+### CI
 
-
-## Backend API integration
-
-Production frontend data is served by the separate Go backend at `https://api.panyakorn.com`. Caddy also routes `/api/*` on `panyakorn.com` to the backend.
-
-Available public backend endpoints used by the frontend:
-
-```text
-GET  https://api.panyakorn.com/api/health
-GET  https://api.panyakorn.com/api/articles?lang=en&limit=2
-GET  https://api.panyakorn.com/api/articles/[slug]?lang=th
-POST https://api.panyakorn.com/api/contact
-POST https://api.panyakorn.com/api/portfolio/assistant/chat
-```
-
-Example contact payload:
-
-```json
-{
-  "name": "Jane Doe",
-  "email": "jane@example.com",
-  "company": "Acme Studio",
-  "subject": "Project inquiry",
-  "message": "I would like to discuss a frontend and AI integration project.",
-  "locale": "en"
-}
-```
-
-`POST /api/contact` is handled by the backend API. The frontend form posts to same-origin `/api/contact`, and the frontend server or Caddy forwards that request to the backend for validation, database persistence, and optional webhook delivery.
-
-All backend/API implementation files live in `panyakorn04/portfolio-backend-2026`; this repo contains only the frontend and the API client used by server-rendered pages.
-
-## Portfolio assistant
-
-The floating portfolio chat now calls the backend assistant endpoint instead of using only local mock replies:
-
-```text
-Browser → /api/portfolio/assistant/chat/stream → Next rewrite/Caddy → backend → portfolio-site skill profile → Ollama
-```
-
-The backend injects only the public-safe `portfolio-site` skills from `panyakorn04/custom-ai-skills`, so this assistant should answer visitor questions about Panyakorn's profile, services, stack, contact, and collaboration while avoiding private VPS/admin/deployment details. The UI streams live tokens from the backend; if the stream fails it shows an error message rather than a local canned answer.
-
-Production preparation commands:
-
-```bash
-bun run env:check      # verifies frontend env vars exist
-bun run deploy:prepare # env check + production build
-```
-
-## Contact form flow
-
-The portfolio contact section includes a live form wired to `POST https://api.panyakorn.com/api/contact`.
-
-Runtime flow:
-
-```text
-Visitor submits form
-→ Browser posts to /api/contact
-→ Next rewrite/Caddy forwards to Go backend
-→ Go backend validates request
-→ Go backend saves inquiry to PostgreSQL
-→ Optional backend webhook forwards the same payload
-→ UI shows success or error state
-```
-
-Notes:
-
-- Frontend containers must not receive database credentials.
-- Database migrations and admin bootstrap belong to the backend repository.
-
-## Production check
-
-```bash
-bun run lint
-bun run build
-```
-
-## CI/CD
-
-This repository includes GitHub Actions workflows:
-
-```text
-.github/workflows/ci.yml          # Runs lint + production build
-.github/workflows/deploy-vps.yml  # Builds Docker image tar and deploys frontend to the VPS
-```
-
-### CI behavior
-
-CI runs on:
-
-- Pull requests into `main`
-- Pushes to `main`
-
-It executes:
+`.github/workflows/ci.yml` runs on pushes to `main` and pull requests targeting `main`:
 
 ```bash
 bun install --frozen-lockfile
@@ -149,67 +194,102 @@ bun run lint
 bun run build
 ```
 
-### CD behavior for VPS
+### React Doctor
 
-The deploy workflow runs on every push to `main` and can also be triggered manually from GitHub Actions using **Run workflow**. It builds a Docker image tar, uploads it to the VPS, loads it with Docker, and restarts the `frontend` service in `/opt/apps/docker-compose.yml`.
+`.github/workflows/react-doctor.yml` runs advisory React Doctor analysis for pull requests. It can publish a sticky summary, inline findings, and a commit status without blocking the pull request by default.
 
-GitHub repository secrets used by deployment are managed in the repository Settings → Secrets and variables → Actions. Required secrets include `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, and `FRONTEND_IMAGE`.
+## Production deployment
 
-The VPS frontend service should receive only frontend env vars:
+`.github/workflows/deploy-vps.yml` runs on every push to `main` and through manual `workflow_dispatch`.
 
-```text
-NEXT_PUBLIC_SITE_URL=https://panyakorn.com
-NEXT_PUBLIC_API_URL=
-FRONTEND_API_BASE_URL=http://backend:8888
-```
+Deployment sequence:
 
-## Content to update before publishing
+1. Install dependencies, lint, and build the Next.js application.
+2. Build the standalone Docker image with Buildx.
+3. Push `latest`, the full commit SHA, and the short SHA to GHCR.
+4. Establish pinned-host-key SSH access to the VPS.
+5. Pull the immutable image and recreate only the `frontend` Compose service.
+6. Probe `https://panyakorn.com/th` until healthy.
+7. Roll back to the previous image if the health gate fails.
 
-- GitHub: https://github.com/panyakorn04
-- LinkedIn: https://www.linkedin.com/in/eee-panyakorn-512b17304/
-- Add custom domain after deployment
-- Replace private project descriptions with approved screenshots or sanitized mockups if available
-- Add measurable metrics / impact once confirmed
-
-## Important files
+Required GitHub Actions secrets:
 
 ```text
-src/app/[lang]/page.tsx           # Localized portfolio page content
-src/app/[lang]/layout.tsx         # Localized metadata and root layout
-src/app/(root)/page.tsx           # Redirect from / to default locale
-src/app/sitemap.ts                # Localized sitemap.xml output
-src/app/robots.ts                 # robots.txt output
-src/app/globals.css               # Global styles
-public/assets/profile.jpg         # Profile photo
-public/Panyakorn_Boonyong_Resume.pdf
+VPS_HOST
+VPS_USER
+VPS_SSH_KEY
+VPS_KNOWN_HOSTS
 ```
 
-## Deploying elsewhere
+The workflow uses the built-in short-lived `GITHUB_TOKEN` for GHCR access. No separate `FRONTEND_IMAGE` secret is required.
 
-The current production target is the VPS behind Caddy. If you deploy this frontend elsewhere, keep the build command:
+Production frontend environment:
 
-```bash
-bun run deploy:prepare
-```
-
-Required production env vars:
-
-```text
+```dotenv
 NEXT_PUBLIC_SITE_URL=https://panyakorn.com
 NEXT_PUBLIC_API_URL=
 BUILD_API_BASE_URL=https://api.panyakorn.com
-FRONTEND_API_BASE_URL=https://api.panyakorn.com
+FRONTEND_API_BASE_URL=http://backend:8888
+PORTFOLIO_API_TIMEOUT_MS=3000
 ```
 
-Do not configure frontend database env vars.
+### Failure reporting
 
-## Backend split
+If `Build and deploy` fails, the dependent reporter job:
 
-The backend is already split to `panyakorn04/portfolio-backend-2026`. Use that repository for:
+- queries completed failed jobs through the GitHub Actions API,
+- retrieves job logs directly while the workflow is still active,
+- filters actionable error lines,
+- creates or reuses a commit-scoped issue with `deploy-failure`, `agent-loop`, and `needs-fix` labels,
+- asks `qwen2.5-coder:7b` for advisory root-cause analysis,
+- validates the required response sections before posting the issue comment.
 
-- database migrations
-- admin user creation
-- contact persistence
-- article CRUD
-- Redis/Postgres configuration
-- backend API deployment
+The reporter does not modify code automatically. A human or coding agent reviews the issue, applies the smallest fix, and pushes a new commit; the deployment workflow then runs again.
+
+## Project structure
+
+```text
+.github/
+  scripts/report-deploy-failure.sh   Failure log collection and advisory AI report
+  workflows/                         CI, deploy, and React Doctor workflows
+.githooks/pre-push                   Local lint/build gate
+public/
+  assets/profile.jpg                 Optimized profile image
+  Panyakorn_Boonyong_Resume.pdf      Public résumé
+scripts/check-env.mjs                Frontend environment validation
+src/
+  app/
+    (root)/                           Root redirects and unlocalized legal redirects
+    [lang]/                           Localized portfolio, articles, legal, and admin routes
+      _components/                    Portfolio shell and lazy-loaded chat UI
+      _hooks/                         Streaming chat and session state
+      admin/_components/              Inquiries, articles, chat, sessions, and users UI
+    dictionaries/                    English and Thai copy
+    globals.css                      Global Tailwind theme and application styles
+  components/                        Shared navigation, contact, legal, and UI primitives
+  hooks/                             Shared browser hooks
+  lib/                               Portfolio types/data, API reads, fonts, and site utilities
+Dockerfile                           Multi-stage Bun build and non-root Node runtime
+next.config.ts                       Standalone output, API rewrites, images, and security headers
+```
+
+## Security boundaries
+
+- The frontend receives no database credentials, service-role keys, Redis URLs, or backend admin token.
+- Browser API traffic defaults to same-origin `/api/*`.
+- Admin authentication uses backend-managed sessions and cookies.
+- Admin pages are marked `noindex, nofollow`.
+- Security headers include CSP frame/object restrictions, HSTS, `nosniff`, referrer policy, and permissions policy.
+- The production image runs as a non-root `nextjs` user.
+- VPS deploy credentials and the GHCR token are not persisted by the workflow.
+
+## Related repositories
+
+- Backend API and persistence: https://github.com/panyakorn04/portfolio-backend-2026
+- AI workflow studio: https://github.com/panyakorn04/ai-workflow-studio
+- Custom AI skill profiles: https://github.com/panyakorn04/custom-ai-skills
+- Custom AI console/theme: https://github.com/panyakorn04/open-webui-theme
+
+## License
+
+No open-source license is currently declared. All rights reserved unless the repository owner states otherwise.
