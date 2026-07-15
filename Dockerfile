@@ -46,8 +46,8 @@ ENV PORTFOLIO_API_TIMEOUT_MS=3000
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs && chown -R nextjs:nodejs /app
 
 COPY --link --from=builder /app/public ./public
-COPY --link --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --link --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 EXPOSE 3000
