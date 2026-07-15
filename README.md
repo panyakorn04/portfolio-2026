@@ -235,7 +235,7 @@ The repository does not contain the production Compose or Caddy configuration. P
 - `flock` and `curl` must be installed.
 - `/opt/apps/docker-compose.yml` must exist and define a service named `frontend`.
 - The Compose network must provide the backend as `http://backend:8888`.
-- `/opt/apps/.env` must be readable by `VPS_USER` without exposing it to other users; production currently uses owner-only mode `600`.
+- `/opt/apps/.env` must be readable by `VPS_USER` without exposing it to other users; production uses `root:deploy` ownership with mode `640` so only root and the deploy group can read it.
 - The deploy user must be able to create `/opt/apps/.production-deploy.lock` and run Docker commands.
 - Caddy or an equivalent reverse proxy must terminate TLS, route the site, and make `https://panyakorn.com/th` reachable for the health gate.
 - `VPS_KNOWN_HOSTS` must contain the pinned host key under the exact value stored in `VPS_HOST`; generate and verify that entry out of band before saving the secret.
