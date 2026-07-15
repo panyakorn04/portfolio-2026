@@ -1,7 +1,6 @@
 # Panyakorn Boonyong — Portfolio 2026
 
-[![CI](https://github.com/panyakorn04/portfolio-2026/actions/workflows/ci.yml/badge.svg)](https://github.com/panyakorn04/portfolio-2026/actions/workflows/ci.yml)
-[![Deploy Frontend to VPS](https://github.com/panyakorn04/portfolio-2026/actions/workflows/deploy-vps.yml/badge.svg)](https://github.com/panyakorn04/portfolio-2026/actions/workflows/deploy-vps.yml)
+[![Frontend CI/CD](https://github.com/panyakorn04/portfolio-2026/actions/workflows/ci.yml/badge.svg)](https://github.com/panyakorn04/portfolio-2026/actions/workflows/ci.yml)
 
 Production portfolio and content experience for Panyakorn Boonyong. The site combines a bilingual editorial portfolio, backend-powered articles and contact workflows, a streaming AI assistant, and a backend-session-aware administration workspace.
 
@@ -184,9 +183,15 @@ The repository-managed pre-push hook runs `bun run lint` and `bun run build`. It
 
 ## CI and pull-request checks
 
-### CI
+### Unified CI/CD workflow
 
-`.github/workflows/ci.yml` runs on pull requests targeting `main`. Pushes to `main` are validated by the production workflow, avoiding a duplicate Next.js build:
+`.github/workflows/ci.yml` is the repository's only GitHub Actions workflow. Event-gated jobs keep pull-request validation separate from production delivery while preserving one source of truth:
+
+- Pull requests targeting `main` run rollout preflight checks, Biome, tests, a Next.js build, a standalone runtime/static-asset smoke test, and advisory React Doctor analysis.
+- Pushes to `main` and manual `workflow_dispatch` runs execute the immutable-image production pipeline.
+- Pull-request runs cancel superseded commits; production runs share a non-cancelling deployment queue.
+
+The pull-request quality gate runs:
 
 ```bash
 bun install --frozen-lockfile
@@ -195,13 +200,11 @@ bun run test
 bun run build
 ```
 
-### React Doctor
-
-`.github/workflows/react-doctor.yml` runs advisory React Doctor analysis for pull requests. It can publish a sticky summary, inline findings, and a commit status without blocking the pull request by default.
+React Doctor can publish a sticky summary, inline findings, and a commit status without blocking the pull request by default.
 
 ## Production deployment
 
-`.github/workflows/deploy-vps.yml` runs on every push to `main` and through manual `workflow_dispatch`.
+The production jobs in `.github/workflows/ci.yml` run on every non-ignored push to `main` and through manual `workflow_dispatch`.
 
 Deployment sequence:
 
@@ -264,7 +267,7 @@ If `Build and deploy` fails, the dependent reporter job:
 - asks `qwen2.5-coder:7b` for advisory root-cause analysis,
 - validates the required response sections before posting the issue comment.
 
-The redacted excerpt is sent over HTTPS to the public, unauthenticated `https://api.panyakorn.com/api/ai/chat` endpoint. GitHub's built-in masking and the reporter's redaction are defense in depth, not a guarantee that arbitrary command output is secret-free; workflow steps should never print credentials. The reporter does not modify code automatically. A human or coding agent reviews the issue, applies the smallest fix, and pushes a new commit; the deployment workflow then runs again.
+The redacted excerpt is sent over HTTPS to the public, unauthenticated `https://api.panyakorn.com/api/ai/chat` endpoint. GitHub's built-in masking and the reporter's redaction are defense in depth, not a guarantee that arbitrary command output is secret-free; workflow steps should never print credentials. The reporter does not modify code automatically. A human or coding agent reviews the issue, applies the smallest fix, and pushes a new commit; the production jobs in the unified workflow then run again.
 
 ## Project structure
 
@@ -272,7 +275,7 @@ The redacted excerpt is sent over HTTPS to the public, unauthenticated `https://
 .github/
   scripts/report-deploy-failure.sh   Failure log collection and advisory AI report
   scripts/smoke-test-image.sh        Exact-image Docker health and HTTP gate
-  workflows/                         CI, deploy, and React Doctor workflows
+  workflows/ci.yml                  Unified PR validation, React Doctor, deploy, rollback, and failure reporting
 .githooks/pre-push                   Local lint/build gate
 public/
   assets/profile.jpg                 Optimized profile image
