@@ -12,5 +12,7 @@ CLAUDE.md
 skills-lock.json
 tsconfig.tsbuildinfo
 .DS_Store
+.ssh
+id_*
 coverage
 .vercel

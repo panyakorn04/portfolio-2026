@@ -27,6 +27,13 @@ RUN --mount=type=cache,target=/app/.next/cache \
 
 FROM node:24-alpine@sha256:a0b9bf06e4e6193cf7a0f58816cc935ff8c2a908f81e6f1a95432d679c54fbfd AS runner
 WORKDIR /app
+
+LABEL org.opencontainers.image.title="portfolio-2026" \
+      org.opencontainers.image.description="Panyakorn Boonyong Portfolio" \
+      org.opencontainers.image.source="https://github.com/panyakorn04/portfolio-2026" \
+      org.opencontainers.image.version="${VERSION:-0.1.73}" \
+      org.opencontainers.image.licenses="MIT"
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
@@ -36,11 +43,11 @@ ENV NEXT_PUBLIC_API_URL=
 ENV FRONTEND_API_BASE_URL=http://backend:8888
 ENV PORTFOLIO_API_TIMEOUT_MS=3000
 
-RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
+RUN addgroup -S nodejs && adduser -S nextjs -G nodejs && chown -R nextjs:nodejs /app
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --link --from=builder /app/public ./public
+COPY --link --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --link --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 EXPOSE 3000
