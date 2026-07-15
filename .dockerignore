@@ -2,8 +2,15 @@ node_modules
 .next
 .git
 .github
+.agents
+.githooks
 .env*
 Dockerfile
 README.md
+AGENTS.md
+CLAUDE.md
+skills-lock.json
+tsconfig.tsbuildinfo
+.DS_Store
 coverage
 .vercel
