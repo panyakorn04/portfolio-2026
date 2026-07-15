@@ -117,7 +117,7 @@ PORTFOLIO_API_TIMEOUT_MS=3000
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Canonical site URL and metadata base |
 | `NEXT_PUBLIC_API_URL` | Optional browser-visible API base; intentionally empty for same-origin `/api/*` requests |
-| `BUILD_API_BASE_URL` | Public API used while prerendering article pages during local, CI, and Docker builds |
+| `BUILD_API_BASE_URL` | First-priority base URL for server-side article reads whenever it is set; CI and Docker use it for prerendering |
 | `FRONTEND_API_BASE_URL` | Server-side rewrite target; use the public API locally and `http://backend:8888` inside the VPS Compose network |
 | `PORTFOLIO_API_TIMEOUT_MS` | Timeout for server-side portfolio API reads; defaults to 3000 ms |
 
@@ -223,6 +223,21 @@ VPS_KNOWN_HOSTS
 
 The workflow uses the built-in short-lived `GITHUB_TOKEN` for GHCR access. No separate `FRONTEND_IMAGE` secret is required.
 
+### VPS prerequisites
+
+The repository does not contain the production Compose or Caddy configuration. Provision the target host before enabling deployment:
+
+- Docker Engine and Docker Compose must be installed and available to `VPS_USER`.
+- `flock` and `curl` must be installed.
+- `/opt/apps/docker-compose.yml` must exist and define a service named `frontend`.
+- The Compose network must provide the backend as `http://backend:8888`.
+- `/opt/apps/.env` must be readable by `VPS_USER` without exposing it to other users; production currently uses owner-only mode `600`.
+- The deploy user must be able to create `/opt/apps/.production-deploy.lock` and run Docker commands.
+- Caddy or an equivalent reverse proxy must terminate TLS, route the site, and make `https://panyakorn.com/th` reachable for the health gate.
+- `VPS_KNOWN_HOSTS` must contain the pinned host key under the exact value stored in `VPS_HOST`; generate and verify that entry out of band before saving the secret.
+
+These are externally managed infrastructure prerequisites, not resources created by this frontend repository.
+
 Production frontend environment:
 
 ```dotenv
@@ -240,11 +255,12 @@ If `Build and deploy` fails, the dependent reporter job:
 - queries completed failed jobs through the GitHub Actions API,
 - retrieves job logs directly while the workflow is still active,
 - filters actionable error lines,
-- creates or reuses a commit-scoped issue with `deploy-failure`, `agent-loop`, and `needs-fix` labels,
+- redacts common credential, signed-URL, GitHub-token, and JWT shapes,
+- creates or updates the required labels and then creates or reuses a commit-scoped issue,
 - asks `qwen2.5-coder:7b` for advisory root-cause analysis,
 - validates the required response sections before posting the issue comment.
 
-The reporter does not modify code automatically. A human or coding agent reviews the issue, applies the smallest fix, and pushes a new commit; the deployment workflow then runs again.
+The redacted excerpt is sent over HTTPS to the public, unauthenticated `https://api.panyakorn.com/api/ai/chat` endpoint. GitHub's built-in masking and the reporter's redaction are defense in depth, not a guarantee that arbitrary command output is secret-free; workflow steps should never print credentials. The reporter does not modify code automatically. A human or coding agent reviews the issue, applies the smallest fix, and pushes a new commit; the deployment workflow then runs again.
 
 ## Project structure
 

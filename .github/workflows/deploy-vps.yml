@@ -105,7 +105,7 @@ jobs:
             -i "$HOME/.ssh/deploy_key"
             -o BatchMode=yes
             -o StrictHostKeyChecking=yes
-            -o HostKeyAlias=76.13.185.117
+            -o HostKeyAlias="$VPS_HOST"
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts"
             -o ConnectTimeout=30
             -o ServerAliveInterval=15

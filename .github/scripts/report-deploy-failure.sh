@@ -69,6 +69,26 @@ else
   fi
 fi
 
+# GitHub masks registered Actions secrets, but failure output can still contain
+# unregistered credentials or signed URLs. Redact common secret shapes before
+# sending the excerpt to the public backend analysis endpoint.
+FAIL_LOGS=$(printf "%s" "$FAIL_LOGS" | python3 -c '
+import re
+import sys
+
+text = sys.stdin.read()
+patterns = [
+    (r"(Authorization:\s*[A-Za-z]+\s+)\S+", r"\1[REDACTED]"),
+    (r"((?:token|password|secret|api[_-]?key)\s*[=:]\s*)\S+", r"\1[REDACTED]"),
+    (r"([?&](?:token|key|secret|signature|sig)=)[^&\s]+", r"\1[REDACTED]"),
+    (r"\bgh[pousr]_[A-Za-z0-9_]{20,}\b", "[REDACTED_GITHUB_TOKEN]"),
+    (r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b", "[REDACTED_JWT]"),
+]
+for pattern, replacement in patterns:
+    text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+sys.stdout.write(text)
+')
+
 if echo "$FAIL_LOGS" | grep -qiE "timeout|connection refused|ssh: connect|dial tcp.*22"; then
   echo "Note: Possible transient SSH/network issue detected"
   FAIL_LOGS="TRANSIENT? ${FAIL_LOGS}"
@@ -76,6 +96,22 @@ fi
 
 # 2. Find existing open issue for this SHA or create a new one
 echo "=== Finding or creating issue ==="
+gh label create "deploy-failure" \
+  --repo "${GITHUB_REPOSITORY}" \
+  --color "D93F0B" \
+  --description "Production deployment failure" \
+  --force >/dev/null
+gh label create "agent-loop" \
+  --repo "${GITHUB_REPOSITORY}" \
+  --color "5319E7" \
+  --description "Automated agent feedback loop" \
+  --force >/dev/null
+gh label create "needs-fix" \
+  --repo "${GITHUB_REPOSITORY}" \
+  --color "B60205" \
+  --description "Needs a corrective change" \
+  --force >/dev/null
+
 EXISTING=$(gh issue list \
   --repo "${GITHUB_REPOSITORY}" \
   --state open \
