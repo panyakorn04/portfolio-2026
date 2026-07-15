@@ -186,11 +186,12 @@ The repository-managed pre-push hook runs `bun run lint` and `bun run build`. It
 
 ### CI
 
-`.github/workflows/ci.yml` runs on pushes to `main` and pull requests targeting `main`:
+`.github/workflows/ci.yml` runs on pull requests targeting `main`. Pushes to `main` are validated by the production workflow, avoiding a duplicate Next.js build:
 
 ```bash
 bun install --frozen-lockfile
 bun run lint
+bun run test
 bun run build
 ```
 
@@ -204,13 +205,16 @@ bun run build
 
 Deployment sequence:
 
-1. Install dependencies, lint, and build the Next.js application.
-2. Build the standalone Docker image with Buildx.
+1. Install dependencies, lint, and run tests.
+2. Build the standalone Next.js application once inside the Docker Buildx image.
 3. Push `latest`, the full commit SHA, and the short SHA to GHCR.
-4. Establish pinned-host-key SSH access to the VPS.
-5. Pull the immutable image and recreate only the `frontend` Compose service.
-6. Probe `https://panyakorn.com/th` until healthy.
-7. Roll back to the previous image if the health gate fails.
+4. Run the exact image through its Docker health check and a `/robots.txt` HTTP probe.
+5. Establish pinned-host-key SSH access to the VPS.
+6. Pull the immutable image and recreate only the `frontend` Compose service.
+7. Probe `https://panyakorn.com/th` until healthy.
+8. Roll back to the previous image if the health gate fails.
+
+Documentation, repository skills, hooks, and PR-only workflow changes do not trigger a production image rebuild.
 
 Required GitHub Actions secrets:
 
@@ -267,6 +271,7 @@ The redacted excerpt is sent over HTTPS to the public, unauthenticated `https://
 ```text
 .github/
   scripts/report-deploy-failure.sh   Failure log collection and advisory AI report
+  scripts/smoke-test-image.sh        Exact-image Docker health and HTTP gate
   workflows/                         CI, deploy, and React Doctor workflows
 .githooks/pre-push                   Local lint/build gate
 public/

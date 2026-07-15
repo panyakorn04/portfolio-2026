@@ -26,17 +26,19 @@ jobs:
   react-doctor:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - uses: millionco/react-doctor@v2
+      - uses: millionco/react-doctor@938008119a288f2fb47c66a69cd9279a21f31784 # v2.2.7
+        with:
+          version: "0.5.8"
         # Advisory by default: React Doctor reports findings on every PR — a
         # sticky summary comment, inline review comments, and a commit status
         # with the health score — but never fails the check, so it won't red-X
         # a teammate's PR on day one. When your team trusts the signal, graduate
-        # the gate: uncomment the block below and set blocking to "error" (fail
-        # on new error-severity findings) or "warning" (fail on any finding).
+        # the gate by adding `blocking: error` under `with` above (fail on new
+        # error-severity findings) or `blocking: warning` (fail on any finding).
         # Full reference: https://www.react.doctor/ci
-        # with:
+        # Additional inputs:
         #   blocking: error          # Gate level: "none" (advisory, the default) | "warning" | "error"
         #   scope: full              # On PRs, scan the whole project instead of just changed files
         #   comment: false           # Disable the sticky PR summary comment
