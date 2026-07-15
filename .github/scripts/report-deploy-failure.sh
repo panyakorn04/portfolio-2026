@@ -14,10 +14,50 @@ COMMIT_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
 echo "Commit: $SHORT_SHA"
 echo "Run: $RUN_URL"
 
-# 1. Collect recent failure logs
+# 1. Collect logs from completed failed jobs. The overall workflow is still
+# running while this reporter executes, so run-level --log-failed may not be
+# available yet. Job-level logs are available as soon as each failed job ends.
 echo "=== Collecting failure logs ==="
-FAIL_LOGS=$(gh run view "$GITHUB_RUN_ID" --log-failed 2>/dev/null | tail -100 || echo "Logs unavailable")
-FAIL_LOGS=$(printf "%s" "$FAIL_LOGS" | head -c 5500)
+FAIL_LOGS=""
+LOG_ATTEMPT=1
+MAX_LOG_ATTEMPTS=4
+
+while [ "$LOG_ATTEMPT" -le "$MAX_LOG_ATTEMPTS" ] && [ -z "$FAIL_LOGS" ]; do
+  FAILED_JOB_IDS=$(gh api \
+    "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?per_page=100" \
+    --jq '.jobs[] | select(.conclusion == "failure") | .id' 2>/dev/null || true)
+
+  while IFS= read -r JOB_ID; do
+    [ -n "$JOB_ID" ] || continue
+    JOB_LOG=$(gh run view "$GITHUB_RUN_ID" \
+      --repo "$GITHUB_REPOSITORY" \
+      --job "$JOB_ID" \
+      --log-failed 2>/dev/null || true)
+    if [ -n "$JOB_LOG" ]; then
+      FAIL_LOGS="${FAIL_LOGS}${JOB_LOG}
+"
+    fi
+  done <<< "$FAILED_JOB_IDS"
+
+  if [ -z "$FAIL_LOGS" ] && [ "$LOG_ATTEMPT" -lt "$MAX_LOG_ATTEMPTS" ]; then
+    echo "Failed-job logs not ready; retrying (${LOG_ATTEMPT}/${MAX_LOG_ATTEMPTS})"
+    sleep 5
+  fi
+  LOG_ATTEMPT=$((LOG_ATTEMPT + 1))
+done
+
+if [ -z "$FAIL_LOGS" ]; then
+  FAIL_LOGS=$(gh run view "$GITHUB_RUN_ID" \
+    --repo "$GITHUB_REPOSITORY" \
+    --log-failed 2>/dev/null || true)
+fi
+
+if [ -z "$FAIL_LOGS" ]; then
+  FAIL_LOGS="Logs unavailable after ${MAX_LOG_ATTEMPTS} attempts"
+else
+  # Preserve the end of the log where the actionable error normally appears.
+  FAIL_LOGS=$(printf "%s" "$FAIL_LOGS" | tail -c 5500)
+fi
 
 if echo "$FAIL_LOGS" | grep -qiE "timeout|connection refused|ssh: connect|dial tcp.*22"; then
   echo "Note: Possible transient SSH/network issue detected"
