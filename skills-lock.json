@@ -7,6 +7,12 @@
       "skillPath": "skills/deploy-to-vercel/SKILL.md",
       "computedHash": "03e0eaaa9bf13ba1e7ffa387f5893de6f324c0868c627001f179395a8feaa7c9"
     },
+    "devops-rollout-plan": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/devops-rollout-plan/SKILL.md",
+      "computedHash": "9c71bc5839febec1c42fdd6f5aed3beb3fa9df399460f0d20310124abd77cc31"
+    },
     "migrate-radix-to-base": {
       "source": "shadcn/ui",
       "sourceType": "github",
