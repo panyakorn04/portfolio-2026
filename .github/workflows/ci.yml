@@ -18,6 +18,9 @@ on:
 
 permissions:
   contents: read
+  deployments: write
+  pull-requests: write
+  issues: write
 
 concurrency:
   group: ${{ github.event_name == 'pull_request' && format('ci-{0}', github.event.pull_request.number) || 'deploy-frontend-production' }}
@@ -208,14 +211,122 @@ jobs:
         #   directory: apps/web      # Scan a sub-directory (default: ".")
         #   project: "web,admin"     # In a monorepo, scan specific workspace project(s)
 
+  # ==================================================================
+  # DEPLOYMENT PREFLIGHT — window guard, rollback worthiness, infra check
+  # ==================================================================
+  deploy-preflight:
+    name: Preflight (window + rollback + infra)
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      window_ok: ${{ steps.window-check.outputs.window_ok }}
+      previous_image: ${{ steps.rollback-worthiness.outputs.previous_image }}
+    steps:
+      - name: Check deployment window
+        id: window-check
+        env:
+          FORCE_DEPLOY: ${{ secrets.FORCE_DEPLOY_WINDOW_OVERRIDE }}
+        run: |
+          set -euo pipefail
+          if [ "${FORCE_DEPLOY:-false}" = "true" ]; then
+            echo "window_ok=true" >> "$GITHUB_OUTPUT"
+            echo "🟢 Deployment window guard bypassed via FORCE_DEPLOY_WINDOW_OVERRIDE"
+            exit 0
+          fi
+          day_of_week=$(date -u +%u)
+          hour_utc=$(date -u +%H)
+          minute_utc=$(date -u +%M)
+          # Blocked: Fri >= 15:00 UTC → Sun 23:00 UTC, and Mon before 06:00 UTC
+          if [ "$day_of_week" -eq 5 ] && { [ "$hour_utc" -gt 15 ] || { [ "$hour_utc" -eq 15 ] && [ "$minute_utc" -ge 0 ]; }; }; then
+            echo "window_ok=false" >> "$GITHUB_OUTPUT"
+            echo "❌ Deployment window blocked: Friday after 15:00 UTC"
+            exit 1
+          fi
+          if [ "$day_of_week" -eq 6 ] || [ "$day_of_week" -eq 7 ]; then
+            echo "window_ok=false" >> "$GITHUB_OUTPUT"
+            echo "❌ Deployment window blocked: weekend"
+            exit 1
+          fi
+          if [ "$day_of_week" -eq 1 ] && { [ "$hour_utc" -lt 6 ]; }; then
+            echo "window_ok=false" >> "$GITHUB_OUTPUT"
+            echo "❌ Deployment window blocked: Monday before 06:00 UTC"
+            exit 1
+          fi
+          echo "window_ok=true" >> "$GITHUB_OUTPUT"
+          echo "🟢 Deployment window OK ($(date -u -Iseconds))"
+
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Verify rollback worthiness
+        id: rollback-worthiness
+        env:
+          IMAGE_REPO: ghcr.io/panyakorn04/portfolio-2026
+        run: |
+          set -euo pipefail
+          last_successful=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?per_page=5&status=success&event=push" \
+            --jq '.workflow_runs[0].head_sha // ""' 2>/dev/null || true)
+          if [ -n "$last_successful" ] && [ "$last_successful" != "$GITHUB_SHA" ]; then
+            previous_tag="${last_successful:0:7}"
+            echo "Checking rollback image: ${IMAGE_REPO}:${previous_tag}"
+            if docker manifest inspect "${IMAGE_REPO}:${previous_tag}" >/dev/null 2>&1; then
+              echo "previous_image=${IMAGE_REPO}:${previous_tag}" >> "$GITHUB_OUTPUT"
+              echo "🟢 Rollback image available: ${IMAGE_REPO}:${previous_tag}"
+            else
+              echo "previous_image=" >> "$GITHUB_OUTPUT"
+              echo "⚠️ Previous image not found in GHCR; rollback will use :latest"
+            fi
+          else
+            echo "previous_image=" >> "$GITHUB_OUTPUT"
+            echo "ℹ️ No previous successful deployment found; first deploy assumed"
+          fi
+
+      - name: Verify registry connectivity
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 10 "https://ghcr.io/v2/" -o /dev/null && \
+            echo "🟢 GHCR reachable" || { echo "❌ GHCR unreachable"; exit 1; }
+
+  # ==================================================================
+  # APPROVAL GATE — manual approval before production deploy
+  # ==================================================================
+  deploy-approval:
+    name: Approval gate
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: [deploy-preflight]
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320  # 72h
+    environment:
+      name: production
+      url: https://panyakorn.com
+    steps:
+      - name: Awaiting manual approval
+        run: |
+          echo "## ⏳ Deployment approval requested" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Preflight Check | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| --- | --- |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Deployment window | ${{ needs.deploy-preflight.outputs.window_ok == 'true' && '✅ Pass' || '❌ Fail' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Rollback image | ${{ needs.deploy-preflight.outputs.previous_image || '⚠️ None (first deploy)' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Registry connectivity | ✅ Pass |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Preflight checks passed. Review and approve via Environments to deploy." >> "$GITHUB_STEP_SUMMARY"
+
+  # ==================================================================
+  # BUILD AND DEPLOY — runs after preflight + approval
+  # ==================================================================
   build-test-deploy:
     name: Build and deploy
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: [deploy-approval]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: read
       packages: write
+      deployments: write
     env:
       IMAGE_REPO: ghcr.io/panyakorn04/portfolio-2026
       IMAGE_TAG: ${{ github.sha }}
@@ -274,6 +385,24 @@ jobs:
       - name: Smoke test exact image
         run: bash .github/scripts/smoke-test-image.sh "${IMAGE_REPO}:${IMAGE_TAG}"
 
+      - name: Notify deployment start
+        if: secrets.DEPLOY_WEBHOOK_URL != ''
+        env:
+          WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          curl -fsS -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$(jo \
+              text="🚀 Portfolio-2026 deployment starting" \
+              attachments="$(jo -a "$(jo \
+                title="Commit: ${GITHUB_SHA:0:7}" \
+                title_link="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" \
+                text="Branch: ${GITHUB_REF_NAME} | Preflight ✅ | Awaiting deploy..." \
+                color="good" \
+              )")" \
+            )" 2>/dev/null || echo "⚠️ Webhook notification skipped (curl/jo error)"
+
       - name: Prepare pinned SSH client
         env:
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
@@ -327,26 +456,75 @@ jobs:
           docker pull "$FRONTEND_IMAGE"
           FRONTEND_IMAGE="$FRONTEND_IMAGE" docker compose up -d --no-deps frontend
 
+          # ── Phase 1: Immediate health check (0-1 min) ──
+          echo "Phase 1/3: Immediate health check"
           for health_attempt in $(seq 1 20); do
             if curl -fsS --max-time 10 https://panyakorn.com/th >/dev/null; then
               docker image prune -f >/dev/null
-              echo "Frontend deployment healthy: $FRONTEND_IMAGE"
-              exit 0
+              echo "Frontend deployment initial health: PASS"
+              break
+            fi
+            if [ "$health_attempt" -eq 20 ]; then
+              echo "Phase 1 failed — escalating to rollback" >&2
+              break 2  # breaks out of the outer for-attempt loop, skipping sustained monitoring
             fi
             sleep 3
           done
 
-          echo "Frontend health gate failed" >&2
+          # ── Phase 2: Short-term verification (1-3 min) ──
+          echo "Phase 2/3: Short-term sustained observation (3 checks @ 30s)"
+          short_term_ok=true
+          for st_attempt in $(seq 1 3); do
+            sleep 30
+            if curl -fsS --max-time 10 https://panyakorn.com/th >/dev/null; then
+              echo "  Short-term check ${st_attempt}/3: OK"
+            else
+              echo "  Short-term check ${st_attempt}/3: FAIL" >&2
+              short_term_ok=false
+            fi
+          done
+          if [ "$short_term_ok" = false ]; then
+            echo "Phase 2 failed — initiating rollback" >&2
+            break 2
+          fi
+          echo "Phase 2 complete: short-term stability verified"
+
+          # ── Phase 3: Medium-term verification (3-8 min) ──
+          echo "Phase 3/3: Medium-term sustained observation (5 checks @ 60s)"
+          medium_term_ok=true
+          for mt_attempt in $(seq 1 5); do
+            sleep 60
+            if curl -fsS --max-time 10 https://panyakorn.com/th >/dev/null; then
+              echo "  Medium-term check ${mt_attempt}/5: OK"
+            else
+              echo "  Medium-term check ${mt_attempt}/5: FAIL" >&2
+              medium_term_ok=false
+            fi
+          done
+          if [ "$medium_term_ok" = false ]; then
+            echo "Phase 3 failed — initiating rollback" >&2
+            break 2
+          fi
+          echo "Phase 3 complete: sustained stability verified"
+          echo "✅ ALL PHASES PASSED — deployment healthy: $FRONTEND_IMAGE"
+          exit 0
+
+          # ── Rollback procedure ──
+          # Rollback only runs when Phase 1, 2, or 3 failed
+          echo "Initiating rollback" >&2
+          previous_image=$(docker inspect frontend --format '{{.Config.Image}}' 2>/dev/null || true)
           if [ -n "$previous_image" ] && [ "$previous_image" != "$FRONTEND_IMAGE" ]; then
             echo "Rolling back frontend to $previous_image" >&2
             FRONTEND_IMAGE="$previous_image" docker compose up -d --no-deps frontend
             for rollback_attempt in $(seq 1 10); do
               if curl -fsS --max-time 10 https://panyakorn.com/th >/dev/null; then
-                echo "Frontend rollback healthy: $previous_image" >&2
+                echo "Rollback healthy: $previous_image" >&2
                 break
               fi
               sleep 3
             done
+          else
+            echo "No previous image to rollback to" >&2
           fi
           exit 1
           REMOTE_SCRIPT
@@ -362,6 +540,66 @@ jobs:
 
           echo "Deployment failed after 3 SSH attempts" >&2
           exit 1
+
+      - name: Notify deployment outcome
+        if: always() && secrets.DEPLOY_WEBHOOK_URL != ''
+        env:
+          WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+          DEPLOY_RESULT: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          if [ "$DEPLOY_RESULT" = "success" ]; then
+            color="good"
+            text="✅ Portfolio-2026 deployment succeeded"
+          else
+            color="danger"
+            text="❌ Portfolio-2026 deployment failed"
+          fi
+          curl -fsS -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$(jo \
+              text="$text" \
+              attachments="$(jo -a "$(jo \
+                title="Commit: ${GITHUB_SHA:0:7}" \
+                title_link="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" \
+                text="Result: ${DEPLOY_RESULT} | Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+                color="$color" \
+              )")" \
+            )" 2>/dev/null || echo "⚠️ Webhook notification skipped"
+
+      - name: Post-deployment summary
+        if: always()
+        run: |
+          {
+            echo "## 📋 Post-deployment summary"
+            echo ""
+            echo "| Item | Detail |"
+            echo "| --- | --- |"
+            echo "| Commit | ${GITHUB_SHA:0:7} |"
+            echo "| Branch | ${GITHUB_REF_NAME} |"
+            echo "| Trigger | ${GITHUB_EVENT_NAME} |"
+            echo "| Image | ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG }} |"
+            echo "| Status | ${{ job.status }} |"
+            echo "| Preflight window | ${{ needs.deploy-preflight.outputs.window_ok }} |"
+            echo "| Rollback image | ${{ needs.deploy-preflight.outputs.previous_image || 'N/A' }} |"
+            echo "| Run URL | https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} |"
+            echo ""
+            if [ "${{ job.status }}" = "success" ]; then
+              echo "**✅ Deployment completed successfully.**"
+              echo "- Immediate verification: passed (health check after deploy)"
+              echo "- Short-term verification: passed (3 checks @ 30s)"
+              echo "- Medium-term verification: passed (5 checks @ 60s)"
+              echo ""
+              echo "**Post-deployment tasks (next 24h):**"
+              echo "- [ ] Monitor error rates at https://panyakorn.com"
+              echo "- [ ] Verify no regressions in 1h, 6h, 24h"
+              echo "- [ ] Check API integration health"
+            else
+              echo "**❌ Deployment failed.** Review the rollback logs above."
+            fi
+            echo ""
+            echo "*Auto-generated by ci.yml | $(date -u -Iseconds)*"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   report-deploy-failure:
     name: Report failure to Agent Loop (qwen2.5-coder)
