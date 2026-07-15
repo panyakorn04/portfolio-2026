@@ -29,10 +29,12 @@ while [ "$LOG_ATTEMPT" -le "$MAX_LOG_ATTEMPTS" ] && [ -z "$FAIL_LOGS" ]; do
 
   while IFS= read -r JOB_ID; do
     [ -n "$JOB_ID" ] || continue
-    JOB_LOG=$(gh run view "$GITHUB_RUN_ID" \
-      --repo "$GITHUB_REPOSITORY" \
-      --job "$JOB_ID" \
-      --log-failed 2>/dev/null || true)
+    # Use the job-log REST endpoint directly. `gh run view --job --log-failed`
+    # still rejects logs until the entire workflow run is completed, but this
+    # reporter itself keeps the run active.
+    JOB_LOG=$(gh api \
+      "repos/${GITHUB_REPOSITORY}/actions/jobs/${JOB_ID}/logs" \
+      2>/dev/null || true)
     if [ -n "$JOB_LOG" ]; then
       FAIL_LOGS="${FAIL_LOGS}${JOB_LOG}
 "
@@ -55,8 +57,16 @@ fi
 if [ -z "$FAIL_LOGS" ]; then
   FAIL_LOGS="Logs unavailable after ${MAX_LOG_ATTEMPTS} attempts"
 else
-  # Preserve the end of the log where the actionable error normally appears.
-  FAIL_LOGS=$(printf "%s" "$FAIL_LOGS" | tail -c 5500)
+  # Job logs also contain successful post-job cleanup after the failed step.
+  # Prefer explicit failure/error lines so cleanup cannot push the root cause
+  # outside the prompt budget; fall back to the end of the raw log.
+  ACTIONABLE_LOGS=$(printf "%s" "$FAIL_LOGS" | \
+    grep -iE '##\[error\]|permission denied|connection timed out|connection refused|ssh: connect|dial tcp|fatal:|error:|failed|failure' || true)
+  if [ -n "$ACTIONABLE_LOGS" ]; then
+    FAIL_LOGS=$(printf "%s" "$ACTIONABLE_LOGS" | tail -c 5500)
+  else
+    FAIL_LOGS=$(printf "%s" "$FAIL_LOGS" | tail -c 5500)
+  fi
 fi
 
 if echo "$FAIL_LOGS" | grep -qiE "timeout|connection refused|ssh: connect|dial tcp.*22"; then
