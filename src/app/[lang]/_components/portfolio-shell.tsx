@@ -15,7 +15,6 @@ import { contacts, socialLinks } from "@/lib/site";
 import { getLocalizedSitePath } from "@/lib/site-url";
 import profileImage from "../../../../public/assets/profile.jpg";
 import ChatDemo from "./chat-demo-loader";
-import { FlagshipCaseStudy } from "./flagship-case-study";
 
 export type PortfolioArticleSummary = {
   slug: string;
@@ -115,10 +114,6 @@ export function PortfolioShell({
           title={sections.workTitle}
           text={sections.workText}
         >
-          <FlagshipCaseStudy
-            study={sections.flagshipCaseStudy}
-            ui={dictionary.flagshipCaseStudyUi}
-          />
           <div className="mt-20 border-t border-[var(--color-line)]">
             {sections.featuredWork.map((project, i) => (
               <article

@@ -60,67 +60,6 @@
     "workEyebrow": "ผลงานที่เลือกมา",
     "workTitle": "ประสบการณ์จากโปรเจกต์จริง นำเสนอในรูปแบบที่ปลอดภัยต่อ portfolio",
     "workText": "ส่วนนี้ไม่เปิดเผยชื่อโปรเจกต์จริง แต่ยังคงสื่อสารขอบเขตงาน บทบาท และความลึกด้านเทคนิคของงานที่ส่งมอบได้ชัดเจน",
-    "flagshipCaseStudy": {
-      "eyebrow": "Flagship · ระบบจัดการ AI workflow",
-      "liveBadge": "ใช้งานจริงบน production",
-      "title": "AI Workflow Studio — จากไอเดีย workflow สู่การรันบน production ที่ตรวจสอบได้",
-      "summary": "ผมสร้าง operations console แยกสำหรับค้นหาและจัดการ agentic workflows, เริ่มรันงานผ่าน session ที่ยืนยันตัวตน และติดตามแต่ละ execution stage แบบสด ทำให้เรื่อง AI ใน portfolio เป็นโปรดักต์ที่ใช้งานได้จริง ไม่ใช่แค่ prototype",
-      "problemLabel": "โจทย์ที่ต้องแก้",
-      "problem": "เมื่อ workflow definition, สถานะการรัน, approval, cost และ failure กระจายอยู่หลายเครื่องมือ การดูแล agent workflow จะซับซ้อนขึ้น Studio จึงต้องรวม workflow inventory กับ execution timeline ที่เชื่อถือได้ โดยไม่ส่ง backend credential ไปไว้ใน browser",
-      "solutionLabel": "แนวทางที่สร้าง",
-      "solution": "Control plane แบบ responsive ด้วย Next.js เชื่อมกับ Portfolio Go API ข้อมูล overview ฝั่ง public ยังแสดงผลได้อย่างปลอดภัยเมื่อ backend สะดุด ส่วนคำสั่ง Run ใช้ admin session และ stage ที่บันทึกไว้จะส่งผ่าน same-origin SSE proxy พร้อม validation, reconnect และ fallback",
-      "architectureLabel": "เส้นทาง production · portfolio → studio → backend → Supabase",
-      "architecture": [
-        { "label": "Portfolio", "detail": "เล่า case study และพาผู้ชมไปทดลองโปรดักต์จริง" },
-        {
-          "label": "Workflow Studio",
-          "detail": "แสดง workflows, metrics, run controls และ execution inspector แบบสด"
-        },
-        {
-          "label": "Go backend",
-          "detail": "ดูแล admin session, mutation, SSE, rate limit และ audit"
-        },
-        {
-          "label": "Supabase",
-          "detail": "เก็บ workflows, executions และ execution stages ผ่าน backend"
-        }
-      ],
-      "capabilitiesLabel": "วงจรของ workflow",
-      "capabilities": [
-        "ค้นหาและกรอง workflow ตามสถานะ พร้อมดู execution history ที่บันทึกไว้",
-        "ติดตาม timeline ราย stage ของแต่ละ execution ผ่าน SSE พร้อม reconnect และ fallback state",
-        "ดูสัญญาณการทำงาน เช่น run volume, success, latency และ cost ที่ระบบบันทึกไว้"
-      ],
-      "securityLabel": "ขอบเขตความปลอดภัย",
-      "security": [
-        "คำสั่ง Run ที่ต้องยืนยันตัวตนผ่าน session-backed BFF ซึ่งส่งต่อเฉพาะ admin cookie ที่กำหนด",
-        "Backend มี mutation rate limiting และ persistent audit records สำหรับป้องกันและตรวจสอบ action",
-        "Browser เรียก same-origin routes ทำให้ credential และ internal backend origin อยู่ฝั่ง server"
-      ],
-      "outcomesLabel": "สิ่งที่ส่งขึ้น production แล้ว",
-      "outcomes": [
-        "เปิดใช้งานจริงที่ studio.panyakorn.com เป็นแอป production แยกที่รองรับ responsive layout",
-        "CI ตรวจ test, lint, build และ deployment script ก่อน publish image แบบ immutable SHA tag",
-        "Deploy ขึ้น VPS แบบ health-gated พร้อมคืน previous image อัตโนมัติเมื่อไม่ผ่าน และ rollback ด้วย SHA ได้"
-      ],
-      "liveLabel": "เปิด Studio เวอร์ชันจริง",
-      "sourceLabel": "ดู source ฝั่ง frontend",
-      "backendLabel": "ดู source ฝั่ง backend",
-      "liveHref": "https://studio.panyakorn.com",
-      "sourceHref": "https://github.com/panyakorn04/ai-workflow-studio",
-      "backendHref": "https://github.com/panyakorn04/portfolio-backend-2026",
-      "stack": [
-        "Next.js 16",
-        "React 19",
-        "TypeScript",
-        "Go",
-        "Supabase",
-        "SSE",
-        "Docker",
-        "GitHub Actions"
-      ],
-      "note": "custom-ai-skills และ n8n/workers เป็น integration ที่วางไว้สำหรับ reusable agent tools และงานที่รันนาน โดย case study นี้ไม่ได้ระบุว่าสองส่วนนี้อยู่ใน Studio runtime ที่ deploy แล้ว"
-    },
     "featuredWork": [
       {
         "eyebrow": "แพลตฟอร์มการเงิน",
@@ -666,20 +605,5 @@
     "heading": "An unexpected error occurred.",
     "text": "เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง",
     "retryLabel": "Try again · ลองอีกครั้ง"
-  },
-  "flagshipCaseStudyUi": {
-    "studioTitle": "AI Workflow Studio",
-    "studioSubtitle": "Execution inspector / production",
-    "liveStatusLabel": "Live",
-    "workflowsLabel": "Workflows",
-    "workflowNames": [
-      "Content intelligence",
-      "Competitive research",
-      "Meeting action center"
-    ],
-    "workflowStatuses": ["RUNNING", "ACTIVE"],
-    "productionPathTitle": "Production system path",
-    "liveBadge": "LIVE",
-    "capabilityBadges": ["SSE", "Session", "Shipped"]
   }
 }

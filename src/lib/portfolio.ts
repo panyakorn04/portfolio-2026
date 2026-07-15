@@ -57,32 +57,6 @@ export type PortfolioDictionary = {
     workEyebrow: string;
     workTitle: string;
     workText: string;
-    flagshipCaseStudy: {
-      eyebrow: string;
-      liveBadge: string;
-      title: string;
-      summary: string;
-      problemLabel: string;
-      problem: string;
-      solutionLabel: string;
-      solution: string;
-      architectureLabel: string;
-      architecture: Array<{ label: string; detail: string }>;
-      capabilitiesLabel: string;
-      capabilities: string[];
-      securityLabel: string;
-      security: string[];
-      outcomesLabel: string;
-      outcomes: string[];
-      liveLabel: string;
-      sourceLabel: string;
-      backendLabel: string;
-      liveHref: string;
-      sourceHref: string;
-      backendHref: string;
-      stack: string[];
-      note: string;
-    };
     featuredWork: Array<{
       eyebrow: string;
       title: string;
@@ -390,17 +364,6 @@ export type PortfolioDictionary = {
     heading: string;
     text: string;
     retryLabel: string;
-  };
-  flagshipCaseStudyUi: {
-    studioTitle: string;
-    studioSubtitle: string;
-    liveStatusLabel: string;
-    workflowsLabel: string;
-    workflowNames: string[];
-    workflowStatuses: string[];
-    productionPathTitle: string;
-    liveBadge: string;
-    capabilityBadges: string[];
   };
 };
 
