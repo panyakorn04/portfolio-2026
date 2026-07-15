@@ -386,11 +386,14 @@ jobs:
         run: bash .github/scripts/smoke-test-image.sh "${IMAGE_REPO}:${IMAGE_TAG}"
 
       - name: Notify deployment start
-        if: secrets.DEPLOY_WEBHOOK_URL != ''
         env:
           WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
         run: |
           set -euo pipefail
+          if [ -z "${WEBHOOK_URL:-}" ]; then
+            echo "No webhook URL configured — skipping notification"
+            exit 0
+          fi
           curl -fsS -X POST "$WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d "$(jo \
@@ -542,12 +545,16 @@ jobs:
           exit 1
 
       - name: Notify deployment outcome
-        if: always() && secrets.DEPLOY_WEBHOOK_URL != ''
+        if: always()
         env:
           WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
           DEPLOY_RESULT: ${{ job.status }}
         run: |
           set -euo pipefail
+          if [ -z "${WEBHOOK_URL:-}" ]; then
+            echo "No webhook URL configured — skipping notification"
+            exit 0
+          fi
           if [ "$DEPLOY_RESULT" = "success" ]; then
             color="good"
             text="✅ Portfolio-2026 deployment succeeded"
