@@ -3,7 +3,7 @@ set -euo pipefail
 
 # report-deploy-failure.sh
 # Runs on deploy failure to analyze and create structured GitHub Issue + LLM comment
-# Called from .github/workflows/deploy-vps.yml
+# Called from the production failure-reporting job in .github/workflows/ci.yml
 
 echo "=== Deploy Failure Reporter (qwen2.5-coder:7b) ==="
 
