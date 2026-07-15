@@ -18,12 +18,9 @@ This repo ships project skills in `.agents/skills/`. Activate them proactively (
 - **ui-ux-pro-max** — advanced UI/UX design patterns for polished frontend interfaces.
 - **deploy-to-vercel** — deploy Next.js apps with correct config and environment setup (if deploying to Vercel).
 - **web-design-guidelines** — web design best practices for layout, color, typography, and responsive design.
-- **supabase** — Supabase client: auth, storage, realtime, edge functions, and migrations.
-- **supabase-postgres-best-practices** — Postgres patterns for Supabase: schema design, RLS, indexing, and query performance.
 - **writing-guidelines** — content and documentation writing standards.
 - **vercel-optimize** — Vercel Optimize integration for A/B testing and feature flags.
 - **vercel-cli-with-tokens** — Vercel CLI usage with authentication tokens.
-- **vercel-react-native-skills** — React Native best practices (if working on mobile).
 - **vercel-react-view-transitions** — React view transitions and animations.
 - **migrate-radix-to-base** — migration helpers from Radix UI to Base UI.
 
