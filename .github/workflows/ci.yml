@@ -17,6 +17,12 @@ jobs:
     name: Lint and build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_SITE_URL: https://panyakorn.com
+      NEXT_PUBLIC_API_URL: ""
+      BUILD_API_BASE_URL: https://api.panyakorn.com
+      FRONTEND_API_BASE_URL: http://backend:8888
+      PORTFOLIO_API_TIMEOUT_MS: 3000
 
     steps:
       - name: Checkout repository
@@ -30,17 +36,129 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Validate rollout preflight
+        id: preflight
+        run: |
+          set -euo pipefail
+          test -f Dockerfile
+          test -f .dockerignore
+          test -r .github/scripts/smoke-test-image.sh
+          test -f .github/workflows/deploy-vps.yml
+          bun run env:check
+
       - name: Run Biome
+        id: lint
         run: bun run lint
 
       - name: Run tests
+        id: test
         run: bun run test
 
       - name: Build Next.js app
-        env:
-          NEXT_PUBLIC_SITE_URL: https://panyakorn.com
-          NEXT_PUBLIC_API_URL: ""
-          BUILD_API_BASE_URL: https://api.panyakorn.com
-          FRONTEND_API_BASE_URL: http://backend:8888
-          PORTFOLIO_API_TIMEOUT_MS: 3000
+        id: build
         run: bun run build
+
+      - name: Smoke test standalone runtime
+        id: runtime-smoke
+        run: |
+          set -euo pipefail
+          log_file="$(mktemp)"
+          server_pid=""
+
+          cleanup() {
+            if [ -n "$server_pid" ] && kill -0 "$server_pid" 2>/dev/null; then
+              kill -TERM "$server_pid" 2>/dev/null || true
+              wait "$server_pid" 2>/dev/null || true
+            fi
+            rm -f "$log_file"
+          }
+          trap cleanup EXIT
+
+          install -d .next/standalone/public .next/standalone/.next/static
+          cp -R public/. .next/standalone/public/
+          cp -R .next/static/. .next/standalone/.next/static/
+
+          static_asset="$(
+            node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const root = ".next/standalone/.next/static";
+          const directories = [root];
+          let file = "";
+
+          while (directories.length > 0 && !file) {
+            const directory = directories.shift();
+            for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+              const candidate = path.join(directory, entry.name);
+              if (entry.isDirectory()) directories.push(candidate);
+              else {
+                file = candidate;
+                break;
+              }
+            }
+          }
+
+          if (!file) process.exit(1);
+          const relative = path.relative(root, file).split(path.sep).join("/");
+          console.log(`/_next/static/${relative}`);
+          NODE
+          )"
+          test -n "$static_asset"
+
+          PORT=3100 HOSTNAME=127.0.0.1 node .next/standalone/server.js >"$log_file" 2>&1 &
+          server_pid=$!
+
+          for attempt in $(seq 1 30); do
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              echo "Standalone server exited before becoming ready" >&2
+              cat "$log_file" >&2
+              exit 1
+            fi
+
+            if curl -fsS --max-time 5 http://127.0.0.1:3100/robots.txt >/dev/null \
+              && curl -fsS --max-time 5 "http://127.0.0.1:3100${static_asset}" >/dev/null; then
+              echo "Standalone runtime smoke test passed"
+              exit 0
+            fi
+
+            sleep 1
+          done
+
+          echo "Standalone runtime did not become ready within 30 seconds" >&2
+          cat "$log_file" >&2
+          exit 1
+
+      - name: Publish rollout readiness summary
+        if: always()
+        env:
+          PREFLIGHT_OUTCOME: ${{ steps.preflight.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          SMOKE_OUTCOME: ${{ steps.runtime-smoke.outcome }}
+        run: |
+          if [ "$PREFLIGHT_OUTCOME" = success ] \
+            && [ "$LINT_OUTCOME" = success ] \
+            && [ "$TEST_OUTCOME" = success ] \
+            && [ "$BUILD_OUTCOME" = success ] \
+            && [ "$SMOKE_OUTCOME" = success ]; then
+            decision="GO — ready for immutable image build and deployment after merge"
+          else
+            decision="NO-GO — resolve failed or skipped checks before merge"
+          fi
+
+          {
+            echo "## Rollout readiness"
+            echo
+            echo "| Gate | Outcome |"
+            echo "| --- | --- |"
+            echo "| Preflight | $PREFLIGHT_OUTCOME |"
+            echo "| Biome | $LINT_OUTCOME |"
+            echo "| Tests | $TEST_OUTCOME |"
+            echo "| Next.js build | $BUILD_OUTCOME |"
+            echo "| Standalone runtime smoke | $SMOKE_OUTCOME |"
+            echo
+            echo "**Decision:** $decision"
+            echo
+            echo "Production deployment remains gated by the exact-image smoke test, public health verification, and automatic rollback in \`deploy-vps.yml\`."
+          } >> "$GITHUB_STEP_SUMMARY"
