@@ -122,6 +122,9 @@ export function useChatDemo(copy: ChatCopy) {
   const [isLoadingLatest, setIsLoadingLatest] = useState(false);
   const [threadId, setThreadId] = useState(createChatSessionId);
   const [recentSessions, setRecentSessions] = useState<ChatRecentSession[]>([]);
+  const [humanRequestState, setHumanRequestState] = useState<
+    "idle" | "pending" | "requested"
+  >("idle");
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatLogRef = useRef<HTMLDivElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -541,6 +544,24 @@ export function useChatDemo(copy: ChatCopy) {
     replaceMessages(storedSession.messages);
   }
 
+  async function handleRequestHuman() {
+    if (isWaiting || !sessionId) return;
+    setHumanRequestState("pending");
+    try {
+      const res = await fetch(
+        `/api/portfolio/assistant/sessions/${sessionId}/request-human`,
+        {
+          method: "POST",
+        },
+      );
+      if (res.ok) {
+        setHumanRequestState("requested");
+      }
+    } catch {
+      setHumanRequestState("idle");
+    }
+  }
+
   async function handleDeleteRecentChat(recentId: string) {
     if (isWaiting) {
       return;
@@ -588,9 +609,11 @@ export function useChatDemo(copy: ChatCopy) {
     handleDraftKeyDown,
     handleNewChat,
     handleQuickPrompt,
+    handleRequestHuman,
     handleSelectLatestChat,
     handleSelectRecentChat,
     handleSubmit,
+    humanRequestState,
     isClosing,
     isLoadingLatest,
     isOpen,

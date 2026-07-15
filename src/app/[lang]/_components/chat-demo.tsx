@@ -17,9 +17,11 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
     handleDraftKeyDown,
     handleNewChat,
     handleQuickPrompt,
+    handleRequestHuman,
     handleSelectLatestChat,
     handleSelectRecentChat,
     handleSubmit,
+    humanRequestState,
     isClosing,
     isLoadingLatest,
     isOpen,
@@ -43,12 +45,14 @@ export default function ChatDemo({ copy }: { copy: ChatCopy }) {
       isOpen={isOpen}
       isWaiting={isWaiting}
       messages={messages}
+      humanRequestState={humanRequestState}
       onClose={closeChat}
       onDeleteRecentChat={handleDeleteRecentChat}
       onDraftChange={handleDraftChange}
       onDraftKeyDown={handleDraftKeyDown}
       onNewChat={handleNewChat}
       onQuickPrompt={handleQuickPrompt}
+      onRequestHuman={handleRequestHuman}
       onSelectLatestChat={handleSelectLatestChat}
       onSelectRecentChat={handleSelectRecentChat}
       onSubmit={handleSubmit}

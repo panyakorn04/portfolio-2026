@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   adminBodyClass as bodyClass,
@@ -13,60 +13,92 @@ type AdminCopy = PortfolioDictionary["adminWorkspace"];
 
 type ChatMessage = {
   id: string;
-  role: "admin" | "contact";
+  role: string;
+  type: string;
   text: string;
   createdAt: string;
+  metadata?: Record<string, unknown> | null;
 };
+
+type ApiResponse<T> = { ok: boolean; data: T };
 
 export default function AdminChatConversation({
   locale,
-  inquirySubject,
-  contactEmail,
-  contactName,
+  sessionId,
+  sessionTitle,
+  sessionStatus,
+  copy,
+  onStatusChange,
 }: {
   locale: Locale;
+  sessionId: string;
+  sessionTitle: string;
+  sessionStatus: string;
   copy?: AdminCopy;
-  inquirySubject: string;
-  contactEmail: string;
-  contactName: string;
+  onStatusChange?: () => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(sessionStatus);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const fetchMessages = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/chat/sessions/${sessionId}`);
+      if (!res.ok) throw new Error("Failed to load messages");
+      const json: ApiResponse<{
+        id: string;
+        threadId: string;
+        status: string;
+        messages: ChatMessage[];
+      }> = await res.json();
+      if (json.ok) {
+        setMessages(json.data.messages ?? []);
+        setStatus(json.data.status);
+      }
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
+  }, [sessionId]);
+
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   });
 
-  function handleSend() {
+  async function handleSend() {
     const text = draft.trim();
     if (!text || isSending) return;
 
-    const newMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "admin",
-      text,
-      createdAt: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setDraft("");
     setIsSending(true);
-
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: "contact",
-          text: "",
-          createdAt: new Date().toISOString(),
-        },
-      ]);
+    try {
+      const res = await fetch(`/api/admin/chat/sessions/${sessionId}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+      if (!res.ok) throw new Error("Failed to send reply");
+      const json: ApiResponse<ChatMessage> = await res.json();
+      if (json.ok) {
+        setMessages((prev) => [...prev, json.data]);
+        setDraft("");
+        setStatus("human");
+        onStatusChange?.();
+      }
+    } catch {
+      // silent
+    } finally {
       setIsSending(false);
-    }, 800);
+    }
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -76,22 +108,43 @@ export default function AdminChatConversation({
     }
   }
 
+  function statusLabel(s: string) {
+    switch (s) {
+      case "pending_human":
+        return "Pending human";
+      case "human":
+        return "Human-assisted";
+      default:
+        return "AI auto";
+    }
+  }
+
+  function isAdminMessage(msg: ChatMessage) {
+    return msg.metadata?.source === "admin";
+  }
+
+  function isSystemEvent(msg: ChatMessage) {
+    return msg.type === "request_human" || msg.type === "human_takeover";
+  }
+
   return (
     <section className={glassCompactPanelClass}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-line)] p-4 sm:p-5">
         <div className="min-w-0 space-y-1">
           <p className={labelClass}>Conversation</p>
           <p className="text-sm font-semibold text-[var(--color-text)] truncate">
-            {inquirySubject}
+            {sessionTitle}
           </p>
-          <p className={bodyClass}>
-            {contactName} · {contactEmail}
-          </p>
+          <p className={`${bodyClass} text-[var(--color-soft)]`}>{statusLabel(status)}</p>
         </div>
       </div>
 
       <div className="flex min-h-80 flex-col gap-3 overflow-y-auto p-4 sm:p-5 [scrollbar-color:rgba(111,247,166,0.35)_transparent] [scrollbar-width:thin]">
-        {messages.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-1 items-center justify-center py-12">
+            <p className={`${bodyClass}`}>{copy?.loadingLabel ?? "Loading..."}</p>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 py-12 text-center">
             <div className="flex size-10 items-center justify-center rounded-full border border-[var(--color-line)] bg-[#090b0a]">
               <svg
@@ -111,13 +164,28 @@ export default function AdminChatConversation({
               </svg>
             </div>
             <p className={`${bodyClass} max-w-sm`}>
-              Start a conversation with this contact.
+              No messages in this conversation yet.
             </p>
           </div>
         ) : (
           <>
             {messages.map((msg) => {
-              const isAdmin = msg.role === "admin";
+              const isAdmin = isAdminMessage(msg);
+              const isSystem = isSystemEvent(msg);
+
+              if (isSystem) {
+                return (
+                  <div key={msg.id} className="flex justify-center py-1">
+                    <span className="rounded-full bg-[#090b0a] px-3 py-1 font-mono text-[0.55rem] text-[var(--color-soft)] border border-[var(--color-line)]">
+                      {msg.type === "request_human"
+                        ? "Visitor requested human contact"
+                        : "Admin took over"}
+                    </span>
+                  </div>
+                );
+              }
+
+              const isUser = msg.role === "user" && !isAdmin;
 
               return (
                 <div
@@ -127,7 +195,7 @@ export default function AdminChatConversation({
                   {!isAdmin ? (
                     <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border border-[var(--color-line)] bg-[#090b0a]">
                       <span className="font-mono text-[9px] text-[var(--color-soft)]">
-                        C
+                        {isUser ? "V" : "AI"}
                       </span>
                     </div>
                   ) : (
@@ -142,9 +210,16 @@ export default function AdminChatConversation({
                     className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                       isAdmin
                         ? "rounded-br-sm border border-[rgba(111,247,166,0.22)] bg-[rgba(111,247,166,0.12)]"
-                        : "rounded-tl-sm border border-[var(--color-line)] bg-[#090b0a]"
+                        : isUser
+                          ? "rounded-tl-sm border border-[var(--color-line)] bg-[#090b0a]"
+                          : "rounded-tl-sm border border-[rgba(111,247,166,0.12)] bg-[rgba(111,247,166,0.05)]"
                     }`}
                   >
+                    {isAdmin && msg.metadata?.adminName ? (
+                      <p className="mb-1 font-mono text-[0.55rem] uppercase tracking-wider text-[var(--color-accent)]">
+                        {msg.metadata.adminName as string}
+                      </p>
+                    ) : null}
                     <p
                       className={`whitespace-pre-wrap text-pretty text-[0.82rem] leading-relaxed ${
                         msg.text
@@ -152,7 +227,7 @@ export default function AdminChatConversation({
                           : "text-[var(--color-soft)] italic"
                       }`}
                     >
-                      {msg.text || "Waiting for reply..."}
+                      {msg.text || "..."}
                     </p>
                     {msg.createdAt ? (
                       <p
@@ -172,22 +247,6 @@ export default function AdminChatConversation({
                 </div>
               );
             })}
-
-            {isSending ? (
-              <div className="flex justify-start">
-                <div className="rounded-2xl rounded-tl-sm border border-[var(--color-line)] bg-[#090b0a] px-4 py-3">
-                  <div className="flex items-center gap-1.5">
-                    {[0, 150, 300].map((delay) => (
-                      <span
-                        key={delay}
-                        className="h-1.5 w-1.5 rounded-full bg-[var(--color-soft)] animate-bounce motion-reduce:animate-none"
-                        style={{ animationDelay: `${delay}ms` }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : null}
 
             <div ref={chatEndRef} aria-hidden="true" />
           </>

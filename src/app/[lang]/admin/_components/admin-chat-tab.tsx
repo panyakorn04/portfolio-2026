@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   adminBodyClass as bodyClass,
   glassCompactPanelClass,
@@ -11,47 +11,111 @@ import AdminChatConversation from "./admin-chat-conversation";
 
 type AdminCopy = PortfolioDictionary["adminWorkspace"];
 
-const mockInquiries = [
-  {
-    id: "1",
-    name: "Jane Doe",
-    email: "jane@example.com",
-    subject: "Project inquiry — AI integration",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "John Smith",
-    email: "john@acme.com",
-    subject: "Frontend collaboration opportunity",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    name: "Alice Wong",
-    email: "alice@startup.io",
-    subject: "Consulting for web platform redesign",
-    createdAt: new Date().toISOString(),
-  },
-];
+type ChatSession = {
+  id: string;
+  threadId: string;
+  locale: string;
+  title: string | null;
+  status: string;
+  messageQty: number;
+  updatedAt: string;
+  createdAt: string;
+};
 
-export default function AdminChatTab({ locale }: { locale: Locale; copy?: AdminCopy }) {
+type ApiResponse<T> = { ok: boolean; data: T };
+
+export default function AdminChatTab({
+  locale,
+  copy,
+}: {
+  locale: Locale;
+  copy?: AdminCopy;
+}) {
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [total, setTotal] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selected = mockInquiries.find((i) => i.id === selectedId) ?? null;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("");
+
+  const fetchSessions = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({ limit: "50" });
+      if (statusFilter) params.set("status", statusFilter);
+      const res = await fetch(`/api/admin/chat/sessions?${params}`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error?.message ?? "Failed to load chat sessions");
+      }
+      const json: ApiResponse<{ sessions: ChatSession[]; total: number }> =
+        await res.json();
+      if (json.ok) {
+        setSessions(json.data.sessions);
+        setTotal(json.data.total);
+        if (selectedId && !json.data.sessions.find((s) => s.id === selectedId)) {
+          setSelectedId(null);
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter, selectedId]);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  const selected = sessions.find((s) => s.id === selectedId) ?? null;
+
+  function statusBadge(status: string) {
+    switch (status) {
+      case "pending_human":
+        return "text-[#facc15] border-[#facc15]/40 bg-[#facc15]/10";
+      case "human":
+        return "text-[#6ff7a6] border-[#6ff7a6]/40 bg-[#6ff7a6]/10";
+      default:
+        return "text-[var(--color-soft)] border-[var(--color-line)] bg-transparent";
+    }
+  }
 
   return (
     <div className="grid gap-5 xl:grid-cols-[18rem_minmax(0,1fr)]">
       <section className={glassCompactPanelClass}>
         <div className="border-b border-[var(--color-line)] p-4">
-          <p className={labelClass}>Inbox</p>
+          <div className="flex items-center justify-between">
+            <p className={labelClass}>{copy?.inquiriesLabel ?? "Conversations"}</p>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setSelectedId(null);
+              }}
+              className="max-w-28 truncate rounded border border-[var(--color-line)] bg-transparent px-2 py-1 font-mono text-[0.6rem] text-[var(--color-soft)] outline-none"
+              aria-label={copy?.statusFilterLabel ?? "Filter status"}
+            >
+              <option value="">All</option>
+              <option value="active">AI</option>
+              <option value="pending_human">Pending</option>
+              <option value="human">Human</option>
+            </select>
+          </div>
         </div>
         <div className="divide-y divide-[var(--color-line)]">
-          {mockInquiries.length === 0 ? (
-            <p className={`${bodyClass} p-4`}>No conversations yet.</p>
+          {loading ? (
+            <p className={`${bodyClass} p-4`}>{copy?.loadingLabel ?? "Loading..."}</p>
+          ) : error ? (
+            <p className={`${bodyClass} p-4 text-[#f87171]`}>{error}</p>
+          ) : sessions.length === 0 ? (
+            <p className={`${bodyClass} p-4`}>
+              {copy?.emptyLabel ?? "No conversations yet."}
+            </p>
           ) : (
-            mockInquiries.map((item) => {
+            sessions.map((item) => {
               const isActive = item.id === selectedId;
-
               return (
                 <button
                   key={item.id}
@@ -63,27 +127,53 @@ export default function AdminChatTab({ locale }: { locale: Locale; copy?: AdminC
                       : "hover:bg-[#090b0a] border-l-2 border-transparent"
                   }`}
                 >
-                  <p className="text-sm font-semibold text-[var(--color-text)] truncate">
-                    {item.subject}
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold text-[var(--color-text)] truncate">
+                      {item.title ?? "Untitled"}
+                    </p>
+                    <span
+                      className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[0.5rem] uppercase leading-none ${statusBadge(item.status)}`}
+                    >
+                      {item.status === "pending_human"
+                        ? "!"
+                        : item.status === "human"
+                          ? "human"
+                          : "ai"}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-[var(--color-muted)]">
+                    {item.messageQty} messages
                   </p>
-                  <p className="mt-0.5 text-xs text-[var(--color-muted)]">{item.name}</p>
                   <p className="mt-0.5 font-mono text-[0.58rem] text-[var(--color-soft)]">
-                    {item.email}
+                    {new Date(item.updatedAt).toLocaleDateString(locale, {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
                 </button>
               );
             })
           )}
         </div>
+        {total > sessions.length ? (
+          <div className="border-t border-[var(--color-line)] p-3 text-center font-mono text-[0.6rem] text-[var(--color-soft)]">
+            {total} total
+          </div>
+        ) : null}
       </section>
 
       <div className="min-w-0">
         {selected ? (
           <AdminChatConversation
+            key={selected.id}
             locale={locale}
-            inquirySubject={selected.subject}
-            contactEmail={selected.email}
-            contactName={selected.name}
+            sessionId={selected.id}
+            sessionTitle={selected.title ?? "Untitled"}
+            sessionStatus={selected.status}
+            copy={copy}
+            onStatusChange={fetchSessions}
           />
         ) : (
           <section className={glassCompactPanelClass}>

@@ -356,7 +356,10 @@
         "text": "Hi! I'm here to help you learn more about Panyakorn — his frontend work, AI experience, product thinking, and what kind of team he'd thrive in. What would you like to know?"
       }
     ],
-    "streamError": "Sorry, I'm having trouble connecting right now. Please try again in a moment."
+    "streamError": "Sorry, I'm having trouble connecting right now. Please try again in a moment.",
+    "requestHumanLabel": "Contact the owner",
+    "requestingHumanLabel": "Requesting...",
+    "humanRequestedLabel": "The owner has been notified. They may respond here."
   },
   "contactLabels": {
     "email": "Email",
@@ -544,6 +547,7 @@
   "adminArticles": {
     "tabContactLabel": "Inquiries",
     "tabArticlesLabel": "Articles",
+    "tabChatLabel": "Chat",
     "panelLabel": "articles://manage",
     "title": "Articles",
     "description": "Write, edit, and publish bilingual articles. Each article carries an English and a Thai translation.",

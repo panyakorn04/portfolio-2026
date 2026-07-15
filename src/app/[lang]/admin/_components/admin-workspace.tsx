@@ -29,7 +29,7 @@ export default function AdminWorkspace({
   const tabLabel: Record<Tab, string> = {
     inquiries: articlesCopy.tabContactLabel,
     articles: articlesCopy.tabArticlesLabel,
-    chat: "Chat",
+    chat: articlesCopy.tabChatLabel,
   };
 
   return (
@@ -77,7 +77,7 @@ export default function AdminWorkspace({
                 {[
                   { id: "inquiries" as const, label: articlesCopy.tabContactLabel },
                   { id: "articles" as const, label: articlesCopy.tabArticlesLabel },
-                  { id: "chat" as const, label: "Chat" },
+                  { id: "chat" as const, label: articlesCopy.tabChatLabel },
                 ].map((item) => {
                   const isActive = tab === item.id;
                   return (

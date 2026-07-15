@@ -150,6 +150,9 @@ export type PortfolioDictionary = {
     deleteChatLabel: string;
     emptyState: string;
     streamError: string;
+    requestHumanLabel: string;
+    requestingHumanLabel: string;
+    humanRequestedLabel: string;
     starterConversation: Array<{
       role: "assistant" | "user";
       text: string;
@@ -303,6 +306,7 @@ export type PortfolioDictionary = {
   adminArticles: {
     tabContactLabel: string;
     tabArticlesLabel: string;
+    tabChatLabel: string;
     panelLabel: string;
     title: string;
     description: string;

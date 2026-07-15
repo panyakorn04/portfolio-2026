@@ -16,6 +16,7 @@ type ChatDemoViewProps = {
   chatLogRef: RefObject<HTMLDivElement | null>;
   copy: ChatCopy;
   draft: string;
+  humanRequestState: "idle" | "pending" | "requested";
   isClosing: boolean;
   isLoadingLatest: boolean;
   isOpen: boolean;
@@ -27,6 +28,7 @@ type ChatDemoViewProps = {
   onDraftKeyDown: (event: ReactKeyboardEvent<HTMLTextAreaElement>) => void;
   onNewChat: () => void;
   onQuickPrompt: (prompt: string) => void;
+  onRequestHuman: () => void;
   onSelectLatestChat: () => void;
   onSelectRecentChat: (sessionId: string) => void;
   onSubmit: () => void;
@@ -55,6 +57,7 @@ export default function ChatDemoView({
   chatLogRef,
   copy,
   draft,
+  humanRequestState,
   isClosing,
   isLoadingLatest,
   isOpen,
@@ -66,6 +69,7 @@ export default function ChatDemoView({
   onDraftKeyDown,
   onNewChat,
   onQuickPrompt,
+  onRequestHuman,
   onSelectLatestChat,
   onSelectRecentChat,
   onSubmit,
@@ -75,6 +79,10 @@ export default function ChatDemoView({
 }: ChatDemoViewProps) {
   const show = isOpen || isClosing;
   const hasUserMessages = messages.some((m) => m.role === "user");
+  const hasHumanExchange = messages.filter((m) => m.role === "user").length >= 2;
+  const hasBackendSession = Boolean(
+    activeSessionKey && !activeSessionKey.startsWith("portfolio-widget-"),
+  );
   const [activeTab, setActiveTab] = useState<"new" | "recent">("new");
   const titledSessions = recentSessions.filter((s) => s.title?.trim());
 
@@ -339,6 +347,35 @@ export default function ChatDemoView({
                           />
                         </div>
                       </div>
+                    </div>
+                  ) : null}
+
+                  {activeTab === "new" &&
+                  hasHumanExchange &&
+                  humanRequestState === "idle" &&
+                  hasBackendSession ? (
+                    <div className="flex justify-center pt-1">
+                      <button
+                        type="button"
+                        onClick={onRequestHuman}
+                        className="rounded-full border border-[rgba(250,204,21,0.3)] bg-[rgba(250,204,21,0.08)] px-4 py-1.5 font-mono text-[0.6rem] uppercase tracking-[0.06em] text-[#facc15] transition-colors hover:border-[rgba(250,204,21,0.5)] hover:bg-[rgba(250,204,21,0.14)]"
+                      >
+                        {copy.requestHumanLabel}
+                      </button>
+                    </div>
+                  ) : null}
+                  {humanRequestState === "pending" ? (
+                    <div className="flex justify-center pt-1">
+                      <span className="rounded-full border border-[rgba(250,204,21,0.3)] bg-[rgba(250,204,21,0.08)] px-4 py-1.5 font-mono text-[0.6rem] text-[#facc15]">
+                        {copy.requestingHumanLabel}
+                      </span>
+                    </div>
+                  ) : null}
+                  {humanRequestState === "requested" ? (
+                    <div className="flex justify-center pt-1">
+                      <span className="rounded-full border border-[var(--color-accent)] bg-[rgba(111,247,166,0.08)] px-4 py-1.5 font-mono text-[0.6rem] text-[var(--color-accent)]">
+                        {copy.humanRequestedLabel}
+                      </span>
                     </div>
                   ) : null}
                 </>
