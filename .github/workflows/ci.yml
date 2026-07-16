@@ -462,7 +462,7 @@ jobs:
           echo "$GHCR_TOKEN" | docker login ghcr.io -u panyakorn04 --password-stdin >/dev/null
           previous_image=$(docker inspect frontend --format '{{.Config.Image}}' 2>/dev/null || true)
           docker pull "$FRONTEND_IMAGE"
-          FRONTEND_IMAGE="$FRONTEND_IMAGE" docker compose up -d --no-deps frontend
+          FRONTEND_IMAGE="$FRONTEND_IMAGE" docker compose up -d --no-deps --force-recreate frontend
 
           # ── Phase 1: Immediate health check (0-1 min) ──
           echo "Phase 1/3: Immediate health check"
