@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   adminBodyClass as bodyClass,
   glassCompactPanelClass,
@@ -38,6 +38,9 @@ export default function AdminChatTab({
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("");
 
+  const selectedIdRef = useRef(selectedId);
+  selectedIdRef.current = selectedId;
+
   const fetchSessions = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -54,7 +57,10 @@ export default function AdminChatTab({
       if (json.ok) {
         setSessions(json.data.sessions);
         setTotal(json.data.total);
-        if (selectedId && !json.data.sessions.find((s) => s.id === selectedId)) {
+        if (
+          selectedIdRef.current &&
+          !json.data.sessions.find((s) => s.id === selectedIdRef.current)
+        ) {
           setSelectedId(null);
         }
       }
@@ -63,7 +69,7 @@ export default function AdminChatTab({
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, selectedId]);
+  }, [statusFilter]);
 
   useEffect(() => {
     fetchSessions();
