@@ -20,7 +20,7 @@ type ArticleTranslation = {
   summary: string;
   lead: string;
   readingTime: string;
-  sections: { heading: string; paragraphs: string[] }[];
+  content: string;
 };
 
 type ArticleRecord = {
@@ -49,7 +49,7 @@ type DraftTranslation = {
   summary: string;
   lead: string;
   readingTime: string;
-  sections: { heading: string; paragraphs: string[] }[];
+  content: string;
 };
 
 type DraftArticle = {
@@ -68,7 +68,7 @@ function emptyTranslation(): DraftTranslation {
     summary: "",
     lead: "",
     readingTime: "",
-    sections: [{ heading: "", paragraphs: [""] }],
+    content: "",
   };
 }
 
@@ -96,13 +96,7 @@ function toDraft(article: ArticleRecord): DraftArticle {
       summary: translation.summary,
       lead: translation.lead,
       readingTime: translation.readingTime,
-      sections:
-        translation.sections.length > 0
-          ? translation.sections.map((section) => ({
-              heading: section.heading,
-              paragraphs: section.paragraphs.length > 0 ? [...section.paragraphs] : [""],
-            }))
-          : [{ heading: "", paragraphs: [""] }],
+      content: translation.content,
     };
   };
 
@@ -201,25 +195,6 @@ export default function AdminArticles({
               [activeLocale]: {
                 ...current.translations[activeLocale],
                 [field]: value,
-              },
-            },
-          }
-        : current,
-    );
-  }
-
-  function updateSections(
-    updater: (sections: DraftTranslation["sections"]) => DraftTranslation["sections"],
-  ) {
-    setDraft((current) =>
-      current
-        ? {
-            ...current,
-            translations: {
-              ...current.translations,
-              [activeLocale]: {
-                ...current.translations[activeLocale],
-                sections: updater(current.translations[activeLocale].sections),
               },
             },
           }
@@ -596,128 +571,17 @@ export default function AdminArticles({
               ) : null}
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <span className={labelClass}>{copy.sectionsLabel}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() =>
-                    updateSections((sections) => [
-                      ...sections,
-                      { heading: "", paragraphs: [""] },
-                    ])
-                  }
-                >
-                  {copy.addSectionLabel}
-                </Button>
-              </div>
-
-              {activeTranslation.sections.map((section, sectionIndex) => (
-                <div
-                  // biome-ignore lint/suspicious/noArrayIndexKey: editable ordered list without stable ids
-                  key={sectionIndex}
-                  className="rounded-[0.25rem] border border-[var(--color-line)] bg-[#090b0a] p-3 sm:p-4"
-                >
-                  <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-end">
-                    <div className="space-y-1.5 flex-1">
-                      <Label>{copy.sectionHeadingLabel}</Label>
-                      <Input
-                        value={section.heading}
-                        onChange={(event) =>
-                          updateSections((sections) =>
-                            sections.map((item, index) =>
-                              index === sectionIndex
-                                ? { ...item, heading: event.target.value }
-                                : item,
-                            ),
-                          )
-                        }
-                      />
-                    </div>
-                    {activeTranslation.sections.length > 1 ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          updateSections((sections) =>
-                            sections.filter((_, index) => index !== sectionIndex),
-                          )
-                        }
-                      >
-                        {copy.removeSectionLabel}
-                      </Button>
-                    ) : null}
-                  </div>
-
-                  <div className="mt-3 space-y-2">
-                    {section.paragraphs.map((paragraph, paragraphIndex) => (
-                      <div
-                        key={paragraphIndex.toString()}
-                        className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-start"
-                      >
-                        <Textarea
-                          className="min-h-[4rem] flex-1"
-                          value={paragraph}
-                          onChange={(event) =>
-                            updateSections((sections) =>
-                              sections.map((item, index) =>
-                                index === sectionIndex
-                                  ? {
-                                      ...item,
-                                      paragraphs: item.paragraphs.map((value, idx) =>
-                                        idx === paragraphIndex
-                                          ? event.target.value
-                                          : value,
-                                      ),
-                                    }
-                                  : item,
-                              ),
-                            )
-                          }
-                        />
-                        {section.paragraphs.length > 1 ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              updateSections((sections) =>
-                                sections.map((item, index) =>
-                                  index === sectionIndex
-                                    ? {
-                                        ...item,
-                                        paragraphs: item.paragraphs.filter(
-                                          (_, idx) => idx !== paragraphIndex,
-                                        ),
-                                      }
-                                    : item,
-                                ),
-                              )
-                            }
-                          >
-                            {copy.removeParagraphLabel}
-                          </Button>
-                        ) : null}
-                      </div>
-                    ))}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        updateSections((sections) =>
-                          sections.map((item, index) =>
-                            index === sectionIndex
-                              ? { ...item, paragraphs: [...item.paragraphs, ""] }
-                              : item,
-                          ),
-                        )
-                      }
-                    >
-                      {copy.addParagraphLabel}
-                    </Button>
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-1.5">
+              <Label>{copy.contentLabel}</Label>
+              <Textarea
+                className="min-h-[24rem] font-mono text-[0.84rem] leading-relaxed"
+                value={activeTranslation.content}
+                onChange={(event) => updateTranslation("content", event.target.value)}
+                placeholder={copy.contentPlaceholder}
+              />
+              <p className="mt-1 text-[0.72rem] text-[var(--color-soft)]">
+                {copy.contentHelp}
+              </p>
             </div>
           </div>
 
