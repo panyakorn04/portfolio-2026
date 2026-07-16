@@ -62,6 +62,17 @@
     "workText": "These highlights avoid confidential project names while still showing the scope, responsibilities, and technical depth behind the shipped work.",
     "featuredWork": [
       {
+        "eyebrow": "E-Commerce",
+        "title": "Bilingual storefront and automation system",
+        "description": "Owned the storefront frontend from architecture through production delivery, covering the product catalog, cart, checkout and payment, customer accounts, flash sales, and reseller or commission logic.",
+        "bullets": [
+          "Built the storefront end-to-end, from catalog and cart experiences through account, checkout, and payment journeys.",
+          "Developed flash-sale flows, reseller and commission logic, CMS-driven content, and bilingual customer experiences.",
+          "Self-hosted n8n with Docker to build automation pipelines connecting LLM outputs with web services and downstream workflow steps."
+        ],
+        "stack": ["Next.js", "React", "CMS", "n8n", "Docker", "Payments"]
+      },
+      {
         "eyebrow": "Financial platform",
         "title": "Exchange-style web experience",
         "description": "Frontend modules for market pages, trading and convert journeys, dashboard, wallet, deposit, withdrawal, fiat and OTC flows, and transaction history.",
@@ -82,17 +93,6 @@
           "Shared UI components inside a pnpm and Turborepo monorepo with strict TypeScript boundaries."
         ],
         "stack": ["React Query", "Auth0", "SSE", "WebSocket", "Turborepo", "LLM"]
-      },
-      {
-        "eyebrow": "Commerce",
-        "title": "Bilingual storefront and automation flows",
-        "description": "Commerce and reseller features covering product catalog, cart, checkout and payment, customer accounts, flash sales, commission logic, and CMS-driven content.",
-        "bullets": [
-          "Built account, checkout, payment, and reseller or commission user journeys.",
-          "Created mobile deep-link previews, store fallback, and Open Graph sharing infrastructure.",
-          "Self-hosted n8n with Docker to connect LLM outputs into downstream workflow steps."
-        ],
-        "stack": ["Next.js", "CMS", "n8n", "Docker", "Open Graph", "Payments"]
       },
       {
         "eyebrow": "Streaming platform",

@@ -576,13 +576,11 @@ export default function AdminArticles({
 
             <div className="space-y-1.5">
               <Label>{copy.contentLabel}</Label>
-              <div className="dark rounded-md border border-input overflow-hidden">
-                <MdxEditorField
-                  value={activeTranslation.content}
-                  onChange={(md) => updateTranslation("content", md)}
-                  placeholder={copy.contentPlaceholder}
-                />
-              </div>
+              <MdxEditorField
+                value={activeTranslation.content}
+                onChange={(md) => updateTranslation("content", md)}
+                placeholder={copy.contentPlaceholder}
+              />
               <p className="mt-1 text-[0.72rem] text-[var(--color-soft)]">
                 {copy.contentHelp}
               </p>

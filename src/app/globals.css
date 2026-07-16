@@ -193,6 +193,27 @@ html {
     background: var(--background);
     scroll-behavior: smooth;
     scroll-padding-top: 6.5rem;
+    scrollbar-color: var(--color-line-strong) var(--bg-deep);
+    scrollbar-width: thin;
+}
+
+html::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+html::-webkit-scrollbar-track {
+    background: var(--bg-deep);
+}
+
+html::-webkit-scrollbar-thumb {
+    border: 2px solid var(--bg-deep);
+    border-radius: 9999px;
+    background: var(--color-line-strong);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-border);
 }
 
 body {
