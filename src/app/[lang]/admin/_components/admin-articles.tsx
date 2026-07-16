@@ -577,6 +577,7 @@ export default function AdminArticles({
             <div className="space-y-1.5">
               <Label>{copy.contentLabel}</Label>
               <MdxEditorField
+                key={`${draft.id ?? "new"}-${activeLocale}`}
                 value={activeTranslation.content}
                 onChange={(md) => updateTranslation("content", md)}
                 placeholder={copy.contentPlaceholder}
