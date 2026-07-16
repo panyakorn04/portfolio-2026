@@ -1,10 +1,7 @@
 import type { NextConfig } from "next";
+import { getApiBaseUrl } from "./src/lib/api-base-url";
 
-const apiBaseUrl = (
-    process.env.FRONTEND_API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_URL ??
-    "https://api.panyakorn.com"
-).replace(/\/+$/, "");
+const apiBaseUrl = getApiBaseUrl();
 
 const nextConfig: NextConfig = {
     output: "standalone",

@@ -36,13 +36,7 @@ function isContactField(value: string): value is ContactFieldName {
   return (CONTACT_FIELDS as string[]).includes(value);
 }
 
-function getApiBaseUrl() {
-  return (
-    process.env.FRONTEND_API_BASE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_API_URL?.trim() ||
-    "https://api.panyakorn.com"
-  ).replace(/\/+$/, "");
-}
+import { getApiBaseUrl } from "@/lib/api-base-url";
 
 export async function submitContact(
   _prevState: ContactFormState,
