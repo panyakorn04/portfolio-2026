@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import { getApiBaseUrl } from "@/lib/api-base-url";
 import { hasLocale } from "../../../../lib/portfolio";
 import { getLocalizedSitePath, getMetadataBase } from "../../../../lib/site-url";
 import { getDictionary } from "../../dictionaries";
 import AdminLogin from "../_components/admin-login";
-
-function getApiBaseUrl() {
-  return (
-    process.env.FRONTEND_API_BASE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_API_URL?.trim() ||
-    "https://api.panyakorn.com"
-  ).replace(/\/+$/, "");
-}
 
 async function isAuthenticated() {
   const cookieHeader = (await cookies()).toString();

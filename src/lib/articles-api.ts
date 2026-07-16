@@ -38,14 +38,7 @@ type NextFetchInit = RequestInit & {
   };
 };
 
-function getApiBaseUrl() {
-  return (
-    process.env.BUILD_API_BASE_URL?.trim() ||
-    process.env.FRONTEND_API_BASE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_API_URL?.trim() ||
-    "https://api.panyakorn.com"
-  ).replace(/\/+$/, "");
-}
+import { getApiBaseUrl } from "@/lib/api-base-url";
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
