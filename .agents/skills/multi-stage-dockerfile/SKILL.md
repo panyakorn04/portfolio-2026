@@ -44,3 +44,22 @@ Your goal is to help me create efficient multi-stage Dockerfiles that follow bes
 - Consider parallelization in build steps when possible
 - Set appropriate environment variables like NODE_ENV=production to optimize runtime behavior
 - Use appropriate healthchecks for the application type with the HEALTHCHECK instruction
+
+## Pitfalls
+
+### `COPY --link` with `--chown` requires user to exist in parent image
+
+`COPY --link --chown=myuser:mygroup ...` creates a layer that links directly to the **parent image**, bypassing the current build state. If `myuser` was created earlier in the same Dockerfile (e.g., `RUN adduser -S myuser`), **it will fail** with `invalid user index: -1` because that user doesn't exist in the parent image.
+
+**Fix:** Either use numeric UID/GID (`--chown=1000:1000`) or drop `--link` from chowned COPY instructions:
+
+```dockerfile
+# ❌ Fails: nextjs user exists only in current stage, not in parent image
+COPY --link --chown=nextjs:nodejs --from=builder /app/output ./
+
+# ✅ Works: regular COPY respects current build state
+COPY --from=builder --chown=nextjs:nodejs /app/output ./
+
+# ✅ Also works: COPY --link without --chown (parent image has root)
+COPY --link --from=builder /app/public ./public
+```

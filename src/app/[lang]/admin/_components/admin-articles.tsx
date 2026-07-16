@@ -11,6 +11,7 @@ import {
   adminLabelClass as labelClass,
 } from "@/components/ui/typography";
 import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
+import MdxEditorField from "./admin-mdx-editor";
 
 type ArticleStatus = "draft" | "published";
 
@@ -573,12 +574,13 @@ export default function AdminArticles({
 
             <div className="space-y-1.5">
               <Label>{copy.contentLabel}</Label>
-              <Textarea
-                className="min-h-[24rem] font-mono text-[0.84rem] leading-relaxed"
-                value={activeTranslation.content}
-                onChange={(event) => updateTranslation("content", event.target.value)}
-                placeholder={copy.contentPlaceholder}
-              />
+              <div className="dark rounded-md border border-input overflow-hidden">
+                <MdxEditorField
+                  value={activeTranslation.content}
+                  onChange={(md) => updateTranslation("content", md)}
+                  placeholder={copy.contentPlaceholder}
+                />
+              </div>
               <p className="mt-1 text-[0.72rem] text-[var(--color-soft)]">
                 {copy.contentHelp}
               </p>
