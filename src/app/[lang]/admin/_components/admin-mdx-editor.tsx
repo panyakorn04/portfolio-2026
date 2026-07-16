@@ -47,6 +47,12 @@ const contentThemeClass = [
   "min-h-[24rem] px-5 py-4 focus:outline-none",
   "text-[0.9rem] leading-[1.9] text-[var(--foreground)]",
   "selection:bg-[var(--accent-glow)]",
+  "[&_h1]:mt-8 [&_h1]:mb-3 [&_h1]:text-[1.65rem] [&_h1]:font-semibold [&_h1]:leading-[1.2] [&_h1]:tracking-[-0.025em] [&_h1]:text-[var(--color-text)]",
+  "[&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:border-t [&_h2]:border-[var(--color-line)] [&_h2]:pt-6 [&_h2]:text-[1.32rem] [&_h2]:font-semibold [&_h2]:leading-[1.3] [&_h2]:text-[var(--color-text)]",
+  "[&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-[1.12rem] [&_h3]:font-semibold [&_h3]:leading-[1.4] [&_h3]:text-[var(--color-text)]",
+  "[&_h4]:mt-5 [&_h4]:mb-2 [&_h4]:text-[1rem] [&_h4]:font-semibold [&_h4]:text-[var(--color-text)]",
+  "[&_h5]:mt-4 [&_h5]:mb-2 [&_h5]:text-[0.92rem] [&_h5]:font-semibold [&_h5]:text-[var(--color-text)]",
+  "[&_h6]:mt-4 [&_h6]:mb-2 [&_h6]:font-mono [&_h6]:text-[0.78rem] [&_h6]:font-semibold [&_h6]:uppercase [&_h6]:tracking-[0.08em] [&_h6]:text-[var(--color-soft)]",
 ].join(" ");
 
 export default function MdxEditorField({
