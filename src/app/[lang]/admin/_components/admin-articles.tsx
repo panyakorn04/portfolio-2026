@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,8 @@ import {
   adminLabelClass as labelClass,
 } from "@/components/ui/typography";
 import type { Locale, PortfolioDictionary } from "@/lib/portfolio";
-import MdxEditorField from "./admin-mdx-editor";
+
+const MdxEditorField = dynamic(() => import("./admin-mdx-editor"), { ssr: false });
 
 type ArticleStatus = "draft" | "published";
 
