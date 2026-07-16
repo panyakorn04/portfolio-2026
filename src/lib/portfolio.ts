@@ -345,13 +345,9 @@ export type PortfolioDictionary = {
     fieldLeadLabel: string;
     fieldReadingTimeLabel: string;
     fieldReadingTimePlaceholder: string;
-    sectionsLabel: string;
-    sectionHeadingLabel: string;
-    sectionParagraphLabel: string;
-    addSectionLabel: string;
-    removeSectionLabel: string;
-    addParagraphLabel: string;
-    removeParagraphLabel: string;
+    contentLabel: string;
+    contentPlaceholder: string;
+    contentHelp: string;
     requestFailedLabel: string;
     validationFailedLabel: string;
     viewPublicLabel: string;

@@ -3,11 +3,6 @@ import { cache } from "react";
 
 type ArticleLocale = "en" | "th";
 
-type ArticleSection = {
-  heading: string;
-  paragraphs: string[];
-};
-
 export type ArticleListItem = {
   slug: string;
   category: string;
@@ -19,7 +14,7 @@ export type ArticleListItem = {
 };
 
 export type ArticleDetail = ArticleListItem & {
-  sections: ArticleSection[];
+  content: string;
 };
 
 type ApiSuccess<T> = {
@@ -77,40 +72,15 @@ function parseListItem(value: unknown): ArticleListItem | null {
   };
 }
 
-function parseSection(value: unknown): ArticleSection | null {
-  if (
-    !isObject(value) ||
-    !isNonEmptyString(value.heading) ||
-    !Array.isArray(value.paragraphs)
-  ) {
-    return null;
-  }
-
-  const paragraphs = value.paragraphs
-    .filter(isNonEmptyString)
-    .map((paragraph) => paragraph.trim());
-
-  if (paragraphs.length === 0) {
-    return null;
-  }
-
-  return {
-    heading: value.heading.trim(),
-    paragraphs,
-  };
-}
-
 function parseArticleDetail(value: unknown): ArticleDetail | null {
   const item = parseListItem(value);
-  if (!item || !isObject(value) || !Array.isArray(value.sections)) {
+  if (!item || !isObject(value)) {
     return null;
   }
 
   return {
     ...item,
-    sections: value.sections
-      .map(parseSection)
-      .filter((section): section is ArticleSection => section !== null),
+    content: typeof value.content === "string" ? value.content : "",
   };
 }
 

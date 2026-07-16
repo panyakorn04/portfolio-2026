@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
 
 import { findArticle, getArticleSlugs } from "@/lib/articles-api";
 import { buttonVariants } from "../../../../components/ui/button";
@@ -32,6 +35,14 @@ export async function generateStaticParams() {
 const panelClass = "border-t border-[var(--color-line)] py-8 sm:py-12";
 const titleClass = `${fontDisplayClass} text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-balance`;
 const bodyClass = "text-[0.96rem] leading-[1.9] text-[var(--color-muted)] sm:text-[1rem]";
+const headingClass = "text-[1.32rem] font-semibold text-[var(--color-text)] mt-8 mb-3";
+const codeClass =
+  "rounded bg-[var(--color-panel)] px-1.5 py-0.5 font-mono text-[0.84em] text-[var(--color-accent)]";
+const preClass =
+  "overflow-x-auto rounded border border-[var(--color-line)] bg-[#090b0a] p-4 text-[0.84rem] leading-relaxed";
+const blockquoteClass =
+  "border-l-2 border-[var(--color-accent)] pl-4 italic text-[var(--color-soft)]";
+const listClass = "ml-5 space-y-1.5 text-[var(--color-muted)]";
 
 export async function generateMetadata({
   params,
@@ -139,23 +150,77 @@ export default async function ArticleDetailPage({
           <div className="mt-6 space-y-6">
             <p className={`${bodyClass} text-pretty`}>{article.lead}</p>
 
-            {article.sections.map((section) => (
-              <section
-                key={section.heading}
-                className="border-t border-[var(--color-line)] pt-6"
+            <div className="prose-custom">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                  h2: ({ children }) => (
+                    <h2
+                      className={`${headingClass} border-t border-[var(--color-line)] pt-6`}
+                    >
+                      {children}
+                    </h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="mt-6 text-[1.12rem] font-semibold text-[var(--color-text)]">
+                      {children}
+                    </h3>
+                  ),
+                  p: ({ children }) => (
+                    <p className={`${bodyClass} text-pretty`}>{children}</p>
+                  ),
+                  code: ({ className, children, ...props }) => {
+                    const isInline = !className;
+                    return isInline ? (
+                      <code className={codeClass} {...props}>
+                        {children}
+                      </code>
+                    ) : (
+                      <pre className={preClass}>
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      </pre>
+                    );
+                  },
+                  blockquote: ({ children }) => (
+                    <blockquote className={blockquoteClass}>{children}</blockquote>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className={`${listClass} list-disc`}>{children}</ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className={`${listClass} list-decimal`}>{children}</ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="text-[0.96rem] leading-[1.9] text-[var(--color-muted)] sm:text-[1rem]">
+                      {children}
+                    </li>
+                  ),
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      className="text-[var(--color-accent)] underline underline-offset-2 hover:no-underline"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {children}
+                    </a>
+                  ),
+                  hr: () => <hr className="border-t border-[var(--color-line)] my-8" />,
+                  img: ({ src, alt }) => (
+                    <img
+                      src={src}
+                      alt={alt ?? ""}
+                      className="my-6 rounded border border-[var(--color-line)] max-w-full h-auto"
+                    />
+                  ),
+                }}
               >
-                <h2 className="text-[1.32rem] font-semibold text-[var(--color-text)]">
-                  {section.heading}
-                </h2>
-                <div className="mt-3 space-y-4">
-                  {section.paragraphs.map((paragraph) => (
-                    <p key={paragraph} className={`${bodyClass} text-pretty`}>
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              </section>
-            ))}
+                {article.content}
+              </ReactMarkdown>
+            </div>
           </div>
         </article>
       </div>
