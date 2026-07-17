@@ -6,7 +6,9 @@ import {
   CodeToggle,
   CreateLink,
   headingsPlugin,
+  InsertImage,
   InsertThematicBreak,
+  imagePlugin,
   ListsToggle,
   linkDialogPlugin,
   linkPlugin,
@@ -19,6 +21,8 @@ import {
   toolbarPlugin,
   UndoRedo,
 } from "@mdxeditor/editor";
+
+import { uploadArticleImage } from "./admin-image-upload";
 
 import "@mdxeditor/editor/style.css";
 
@@ -86,6 +90,7 @@ export default function MdxEditorField({
               <ListsToggle />
               <Separator />
               <CreateLink />
+              <InsertImage />
               <InsertThematicBreak />
             </>
           ),
@@ -95,6 +100,7 @@ export default function MdxEditorField({
         quotePlugin(),
         linkPlugin(),
         linkDialogPlugin(),
+        imagePlugin({ imageUploadHandler: uploadArticleImage }),
         thematicBreakPlugin(),
         markdownShortcutPlugin(),
       ]}
