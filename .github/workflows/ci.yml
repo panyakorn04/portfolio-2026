@@ -478,6 +478,11 @@ jobs:
           echo "$GHCR_TOKEN" | docker login ghcr.io -u panyakorn04 --password-stdin >/dev/null
           previous_image=$(docker inspect frontend --format '{{.Config.Image}}' 2>/dev/null || true)
           docker pull "$FRONTEND_IMAGE"
+          # Fix .env permissions via Docker daemon (runs as root) if deploy user can't read it
+          if [ ! -r .env ]; then
+            echo ".env is not readable — fixing permissions via Docker..."
+            docker run --rm -v /opt/apps/.env:/.env busybox:latest chmod 644 /.env
+          fi
           FRONTEND_IMAGE="$FRONTEND_IMAGE" docker compose up -d --no-deps --force-recreate frontend
 
           # ── Phase 1: Immediate health check (0-1 min) ──
