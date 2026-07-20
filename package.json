@@ -1,12 +1,13 @@
 {
   "name": "portfolio",
-  "version": "0.1.93",
+  "version": "0.1.95",
   "private": true,
   "packageManager": "bun@1.3.14",
   "overrides": {
     "postcss": "^8.5.15"
   },
   "scripts": {
+    "analyze": "ANALYZE=true next build",
     "dev": "next dev",
     "dev:live-api": "NEXT_PUBLIC_SITE_URL=http://localhost:3000 NEXT_PUBLIC_API_URL= FRONTEND_API_BASE_URL=https://api.panyakorn.com BUILD_API_BASE_URL=https://api.panyakorn.com next dev",
     "build": "next build",
@@ -37,11 +38,11 @@
     "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.6.0",
-    "three": "^0.184.0",
     "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.0",
+    "@next/bundle-analyzer": "^16.2.10",
     "@tailwindcss/postcss": "^4",
     "@types/bun": "^1.3.14",
     "@types/node": "^20",

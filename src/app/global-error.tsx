@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import { useEffect } from "react";
 
 import "./globals.css";
@@ -21,6 +22,7 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error(error);
+    posthog.captureException(error);
   }, [error]);
 
   const panelClass = `mx-auto max-w-2xl ${glassCardClass}`;

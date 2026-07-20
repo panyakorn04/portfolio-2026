@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import type { Locale } from "../lib/portfolio";
 import type {
   ContactFieldErrors,
@@ -37,11 +38,16 @@ function isContactField(value: string): value is ContactFieldName {
 }
 
 import { getApiBaseUrl } from "@/lib/api-base-url";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function submitContact(
   _prevState: ContactFormState,
   formData: FormData,
 ): Promise<ContactFormState> {
+  const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
+  if (!rateLimit(`contact:${ip}`, 3)) {
+    return { status: "error", message: null, fieldErrors: {} };
+  }
   const payload = {
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),

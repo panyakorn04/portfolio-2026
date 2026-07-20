@@ -1,7 +1,12 @@
+import { createRequire } from "module";
 import type { NextConfig } from "next";
 import { getApiBaseUrl } from "./src/lib/api-base-url";
 
 const apiBaseUrl = getApiBaseUrl();
+
+const withBundleAnalyzer = process.env.ANALYZE === "true"
+  ? createRequire(import.meta.url)("@next/bundle-analyzer")({ enabled: true })
+  : (config: NextConfig) => config;
 
 const nextConfig: NextConfig = {
     output: "standalone",
@@ -20,7 +25,21 @@ const nextConfig: NextConfig = {
     },
     async headers() {
         const securityHeaders = [
-            { key: "Content-Security-Policy", value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'" },
+            {
+              key: "Content-Security-Policy",
+              value: [
+                "default-src 'self'",
+                "script-src 'self' 'unsafe-eval' https://us-assets.i.posthog.com",
+                "style-src 'self' 'unsafe-inline'",
+                "img-src 'self' data: blob: https://api.panyakorn.com",
+                "font-src 'self' data:",
+                "connect-src 'self' https://api.panyakorn.com https://us.i.posthog.com",
+                "frame-ancestors 'none'",
+                "object-src 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+              ].join("; "),
+            },
             { key: "X-Content-Type-Options", value: "nosniff" },
             { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
             { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
@@ -49,4 +68,4 @@ const nextConfig: NextConfig = {
     },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
