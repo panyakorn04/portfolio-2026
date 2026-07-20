@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
-
-import { defaultLocale } from "../../lib/portfolio";
+// Caddy handles / → /en redirect at the proxy level (301)
+// This page is never reached in production.
 
 export default function Home() {
-  redirect(`/${defaultLocale}`);
+  return null;
 }
