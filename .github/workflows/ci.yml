@@ -418,12 +418,12 @@ jobs:
           curl -fsS -X POST "$WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d "$(jo \
-              text="🚀 Portfolio-2026 deployment starting" \
-              attachments="$(jo -a "$(jo \
+              content="🚀 Portfolio-2026 deployment starting" \
+              embeds="$(jo -a "$(jo \
                 title="Commit: ${GITHUB_SHA:0:7}" \
-                title_link="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" \
-                text="Branch: ${GITHUB_REF_NAME} | Preflight ✅ | Awaiting deploy..." \
-                color="good" \
+                url="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" \
+                description="Branch: ${GITHUB_REF_NAME} | Preflight ✅ | Awaiting deploy..." \
+                color=3066993 \
               )")" \
             )" 2>/dev/null || echo "⚠️ Webhook notification skipped (curl/jo error)"
 
@@ -576,21 +576,21 @@ jobs:
             exit 0
           fi
           if [ "$DEPLOY_RESULT" = "success" ]; then
-            color="good"
-            text="✅ Portfolio-2026 deployment succeeded"
+            discord_color=3066993
+            content="✅ Portfolio-2026 deployment succeeded"
           else
-            color="danger"
-            text="❌ Portfolio-2026 deployment failed"
+            discord_color=15548997
+            content="❌ Portfolio-2026 deployment failed"
           fi
           curl -fsS -X POST "$WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d "$(jo \
-              text="$text" \
-              attachments="$(jo -a "$(jo \
+              content="$content" \
+              embeds="$(jo -a "$(jo \
                 title="Commit: ${GITHUB_SHA:0:7}" \
-                title_link="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" \
-                text="Result: ${DEPLOY_RESULT} | Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
-                color="$color" \
+                url="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" \
+                description="Result: ${DEPLOY_RESULT} | Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+                color="$discord_color" \
               )")" \
             )" 2>/dev/null || echo "⚠️ Webhook notification skipped"
 
