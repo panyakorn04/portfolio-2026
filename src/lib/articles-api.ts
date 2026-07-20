@@ -43,7 +43,7 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-function parseListItem(value: unknown): ArticleListItem | null {
+export function parseListItem(value: unknown): ArticleListItem | null {
   if (!isObject(value)) {
     return null;
   }
@@ -72,7 +72,7 @@ function parseListItem(value: unknown): ArticleListItem | null {
   };
 }
 
-function parseArticleDetail(value: unknown): ArticleDetail | null {
+export function parseArticleDetail(value: unknown): ArticleDetail | null {
   const item = parseListItem(value);
   if (!item || !isObject(value)) {
     return null;

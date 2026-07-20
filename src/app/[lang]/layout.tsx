@@ -63,6 +63,12 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
       className={`${kanit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <a
+          href="#main-content"
+          className="fixed -translate-y-full focus:translate-y-0 left-4 top-4 z-50 rounded bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-black transition-transform focus:outline-2 focus:outline-offset-2 focus:outline-[var(--color-accent)]"
+        >
+          Skip to content
+        </a>
         <PostHogProvider>
           {children}
           <PostHogPageView />

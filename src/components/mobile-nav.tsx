@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { Locale, PortfolioDictionary } from "../lib/portfolio";
 import { Button, buttonVariants } from "./ui/button";
@@ -19,6 +19,8 @@ type MobileNavProps = {
   >;
 };
 
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export default function MobileNav({
   activeSectionId,
   alternateLocale,
@@ -28,6 +30,8 @@ export default function MobileNav({
   ui,
 }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const actionButtonClass = `${buttonVariants({ variant: "action" })} px-[0.92rem] py-[0.68rem] text-[0.66rem] tabular-nums sm:px-[0.9rem] sm:py-[0.68rem] sm:text-[0.7rem]`;
 
   useEffect(() => {
@@ -38,14 +42,38 @@ export default function MobileNav({
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsOpen(false);
+        return;
+      }
+
+      if (event.key === "Tab" && menuRef.current) {
+        const focusable = menuRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
+    menuRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      toggleRef.current?.focus();
+    }
   }, [isOpen]);
 
   function closeMenu() {
@@ -74,6 +102,7 @@ export default function MobileNav({
       <div className="relative md:hidden">
         {/* Hamburger toggle button */}
         <Button
+          ref={toggleRef}
           type="button"
           aria-controls="mobile-menu"
           aria-label={isOpen ? ui.closeMenuLabel : ui.menuLabel}
@@ -119,6 +148,7 @@ export default function MobileNav({
 
         {/* Drawer — slides in from the left */}
         <div
+          ref={menuRef}
           id="mobile-menu"
           hidden={!isOpen}
           role="dialog"

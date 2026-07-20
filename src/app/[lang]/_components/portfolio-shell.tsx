@@ -38,7 +38,11 @@ export function PortfolioShell({
 }) {
   const { hero, sections, ui, articleDirectory: articleCopy } = dictionary;
   return (
-    <main lang={locale} className="min-h-screen overflow-x-clip text-[var(--color-text)]">
+    <main
+      id="main-content"
+      lang={locale}
+      className="min-h-screen overflow-x-clip text-[var(--color-text)]"
+    >
       <Navbar locale={locale} dictionary={dictionary} />
       <div className="mx-auto max-w-[88rem] px-5 sm:px-8 lg:px-12">
         <section
