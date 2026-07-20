@@ -320,18 +320,16 @@ jobs:
           echo "Preflight checks passed. Review and approve via Environments to deploy." >> "$GITHUB_STEP_SUMMARY"
 
   # ==================================================================
-  # BUILD AND DEPLOY — runs after preflight + approval
+  # BUILD AND SMOKE TEST — runs on PR + push; builds Docker image and verifies it
   # ==================================================================
-  build-test-deploy:
-    name: Build and deploy
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    needs: [deploy-approval]
+  build-and-smoke:
+    name: Build and smoke test
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     permissions:
       contents: read
       packages: write
-      deployments: write
     env:
       IMAGE_REPO: ghcr.io/panyakorn04/portfolio-2026
       IMAGE_TAG: ${{ github.sha }}
@@ -390,6 +388,24 @@ jobs:
       - name: Smoke test exact image
         run: bash .github/scripts/smoke-test-image.sh "${IMAGE_REPO}:${IMAGE_TAG}"
 
+  # ==================================================================
+  # DEPLOY TO VPS — runs after preflight + approval (push/main only)
+  # ==================================================================
+  deploy-to-vps:
+    name: Deploy to VPS
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: [deploy-approval, build-and-smoke]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+      deployments: write
+    env:
+      IMAGE_REPO: ghcr.io/panyakorn04/portfolio-2026
+      IMAGE_TAG: ${{ github.sha }}
+
+    steps:
       - name: Notify deployment start
         env:
           WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
@@ -474,7 +490,7 @@ jobs:
             fi
             if [ "$health_attempt" -eq 20 ]; then
               echo "Phase 1 failed — escalating to rollback" >&2
-              break 2  # breaks out of the outer for-attempt loop, skipping sustained monitoring
+              break 2
             fi
             sleep 3
           done
@@ -518,7 +534,6 @@ jobs:
           exit 0
 
           # ── Rollback procedure ──
-          # Rollback only runs when Phase 1, 2, or 3 failed
           echo "Initiating rollback" >&2
           previous_image=$(docker inspect frontend --format '{{.Config.Image}}' 2>/dev/null || true)
           if [ -n "$previous_image" ] && [ "$previous_image" != "$FRONTEND_IMAGE" ]; then
@@ -615,8 +630,8 @@ jobs:
 
   report-deploy-failure:
     name: Report failure to Agent Loop (qwen2.5-coder)
-    needs: build-test-deploy
-    if: always() && needs.build-test-deploy.result == 'failure'
+    needs: deploy-to-vps
+    if: always() && needs.deploy-to-vps.result == 'failure'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
