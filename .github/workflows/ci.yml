@@ -471,10 +471,9 @@ jobs:
           # Ensure .env is readable by docker compose
           if [ -f .env ]; then
             stat -c '%A %U:%G' .env
-            sudo -n chmod 644 .env || echo "⚠️ sudo chmod failed, trying other methods"
-            if [ ! -r .env ]; then
-              chmod 644 .env || true
-            fi
+            sudo -n chown "$(whoami):$(whoami)" .env 2>/dev/null || true
+            chmod 644 .env 2>/dev/null || true
+            ls -l .env
           fi
 
           docker_config=$(mktemp -d)
