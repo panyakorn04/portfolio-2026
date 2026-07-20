@@ -468,6 +468,11 @@ jobs:
           exec 9>/opt/apps/.production-deploy.lock
           flock -w 600 9
 
+          # Ensure .env is readable by docker compose
+          if [ -f .env ]; then
+            chmod 644 .env
+          fi
+
           docker_config=$(mktemp -d)
           cleanup() {
             rm -rf "$docker_config"
