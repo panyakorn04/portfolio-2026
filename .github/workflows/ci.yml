@@ -469,8 +469,8 @@ jobs:
           flock -w 600 9
 
           # Ensure .env is readable by docker compose
-          if [ -f .env ]; then
-            chmod 644 .env
+          if [ -f .env ] && [ ! -r .env ]; then
+            sudo chmod 644 .env 2>/dev/null || true
           fi
 
           docker_config=$(mktemp -d)
