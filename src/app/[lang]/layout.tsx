@@ -3,6 +3,8 @@ import "../globals.css";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { PostHogPageView } from "../../components/posthog-pageview";
+import { PostHogProvider } from "../../components/posthog-provider";
 import { jetbrainsMono, kanit, spaceGrotesk } from "../../lib/fonts";
 import { hasLocale, locales } from "../../lib/portfolio";
 import { getMetadataBase } from "../../lib/site-url";
@@ -60,7 +62,12 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
       lang={lang}
       className={`${kanit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <PostHogProvider>
+          {children}
+          <PostHogPageView />
+        </PostHogProvider>
+      </body>
     </html>
   );
 }
