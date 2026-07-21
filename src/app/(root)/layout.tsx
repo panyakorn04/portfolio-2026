@@ -1,13 +1,16 @@
 import "../globals.css";
 
+import { connection } from "next/server";
+
 import { jetbrainsMono, kanit, spaceGrotesk } from "../../lib/fonts";
 import { defaultLocale } from "../../lib/portfolio";
 
-export default function RedirectRootLayout({
+export default async function RedirectRootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await connection();
   return (
     <html
       lang={defaultLocale}

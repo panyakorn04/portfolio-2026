@@ -2,6 +2,7 @@ import "../globals.css";
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 
 import { PostHogPageView } from "../../components/posthog-pageview";
 import { PostHogProvider } from "../../components/posthog-provider";
@@ -51,6 +52,7 @@ export async function generateMetadata({
 }
 
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
+  await connection();
   const { lang } = await params;
 
   if (!hasLocale(lang)) {
