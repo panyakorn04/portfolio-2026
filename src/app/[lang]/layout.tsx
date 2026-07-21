@@ -71,7 +71,10 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         >
           Skip to content
         </a>*/}
-        <PostHogProvider>
+        <PostHogProvider
+          posthogKey={process.env.NEXT_PUBLIC_POSTHOG_KEY}
+          posthogHost={process.env.NEXT_PUBLIC_POSTHOG_HOST || "/ingest"}
+        >
           {children}
           <PostHogPageView />
         </PostHogProvider>

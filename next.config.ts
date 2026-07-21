@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
                 source: "/api/:path*",
                 destination: `${apiBaseUrl}/api/:path*`,
             },
+            {
+                source: "/ingest/:path*",
+                destination: "https://us.i.posthog.com/:path*",
+            },
         ];
     },
     images: {
