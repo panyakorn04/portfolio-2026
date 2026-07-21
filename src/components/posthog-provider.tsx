@@ -11,6 +11,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       posthog.init(key, {
         api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://app.posthog.com",
         capture_pageview: false,
+        disable_external_dependency_loading: true,
         loaded: (ph) => {
           if (process.env.NODE_ENV !== "production") {
             ph.opt_out_capturing();
