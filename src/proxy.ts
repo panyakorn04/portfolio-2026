@@ -19,7 +19,7 @@ export function proxy(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://api.panyakorn.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://api.panyakorn.com https://us.i.posthog.com",
+    "connect-src 'self' https://api.panyakorn.com https://us.i.posthog.com https://us-assets.i.posthog.com",
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",
