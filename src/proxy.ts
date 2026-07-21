@@ -15,11 +15,11 @@ export function proxy(request: NextRequest) {
 
   const cspHeader = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""} https://us-assets.i.posthog.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://api.panyakorn.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://api.panyakorn.com",
+    "connect-src 'self' https://api.panyakorn.com https://us.i.posthog.com https://us-assets.i.posthog.com",
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",

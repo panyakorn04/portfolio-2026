@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import { useEffect } from "react";
 import {
   errorLinkClass,
@@ -8,7 +9,6 @@ import {
   glassCardClass,
   pageShellClass,
 } from "@/components/ui/typography";
-import { posthog } from "../../lib/posthog-client";
 
 const panelClass = `mx-auto max-w-2xl ${glassCardClass}`;
 const bodyClass = "text-[0.9rem] leading-[1.85] text-[var(--color-muted)]";
