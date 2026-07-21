@@ -50,10 +50,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function RootLayout({
-  children,
-  params,
-}: LayoutProps<"/[lang]">) {
+export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
   const { lang } = await params;
 
   if (!hasLocale(lang)) {
