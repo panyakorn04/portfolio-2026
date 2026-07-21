@@ -1,7 +1,7 @@
 "use client";
 
-import posthog from "posthog-js";
 import { useEffect } from "react";
+import { posthog } from "../lib/posthog-client";
 
 import "./globals.css";
 import {

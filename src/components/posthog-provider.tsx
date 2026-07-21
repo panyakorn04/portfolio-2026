@@ -1,8 +1,7 @@
 "use client";
 
-import posthog from "posthog-js";
-import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { useEffect } from "react";
+import { posthog } from "../lib/posthog-client";
 
 export function PostHogProvider({
   children,
@@ -16,17 +15,13 @@ export function PostHogProvider({
   useEffect(() => {
     if (typeof window !== "undefined" && !posthog.__loaded && posthogKey) {
       posthog.init(posthogKey, {
-        api_host: posthogHost ?? "/ingest",
-        capture_pageview: false,
-        disable_external_dependency_loading: true,
-        loaded: (ph) => {
-          if (process.env.NODE_ENV !== "production") {
-            ph.opt_out_capturing();
-          }
-        },
+        api_host: posthogHost || "/ingest",
       });
+      if (process.env.NODE_ENV !== "production") {
+        posthog.opt_out_capturing();
+      }
     }
   }, [posthogKey, posthogHost]);
 
-  return <PHProvider client={posthog}>{children}</PHProvider>;
+  return <>{children}</>;
 }
