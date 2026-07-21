@@ -2,90 +2,94 @@
 
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import {
-  startTransition,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
+    startTransition,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
 } from "react";
 
 import type { PortfolioDictionary } from "@/lib/portfolio";
 import {
-  buildFallbackMessages,
-  extractSseData,
-  extractSseFrames,
+    buildFallbackMessages,
+    extractSseData,
+    extractSseFrames,
 } from "./chat-stream-utils";
 
 type ChatCopy = PortfolioDictionary["chat"];
 
 export type ChatMessage = {
-  id: string;
-  role: "assistant" | "user";
-  text: string;
+    id: string;
+    role: "assistant" | "user";
+    text: string;
 };
 
 export type ChatRecentSession = {
-  id: string;
-  title: string;
-  preview: string;
-  updatedAt: string;
+    id: string;
+    title: string;
+    preview: string;
+    updatedAt: string;
 };
 
 type PortfolioAssistantStreamEvent = {
-  type?:
-    | "RUN_STARTED"
-    | "TEXT_MESSAGE_START"
-    | "TEXT_MESSAGE_CONTENT"
-    | "TEXT_MESSAGE_END"
-    | "RUN_FINISHED"
-    | "RUN_ERROR";
-  runId?: string;
-  delta?: string;
-  content?: string;
-  message?: string;
+    type?:
+        | "RUN_STARTED"
+        | "LOOP_STAGE"
+        | "TEXT_MESSAGE_START"
+        | "TEXT_MESSAGE_CONTENT"
+        | "TEXT_MESSAGE_END"
+        | "RUN_FINISHED"
+        | "RUN_ERROR";
+    runId?: string;
+    delta?: string;
+    content?: string;
+    message?: string;
+    label?: string;
+    detail?: string;
+    stage?: string;
 };
 
 type BackendChatSession = {
-  id: string;
-  threadId: string;
-  locale?: string;
-  title?: string | null;
-  updatedAt?: string;
+    id: string;
+    threadId: string;
+    locale?: string;
+    title?: string | null;
+    updatedAt?: string;
 };
 
 type BackendChatMessage = {
-  id: string;
-  role: "assistant" | "user";
-  text: string;
+    id: string;
+    role: "assistant" | "user";
+    text: string;
 };
 
 type BackendChatSessionPayload = {
-  session: BackendChatSession | null;
-  messages?: BackendChatMessage[];
+    session: BackendChatSession | null;
+    messages?: BackendChatMessage[];
 };
 
 type ApiEnvelope<T> = {
-  ok?: boolean;
-  data?: T;
+    ok?: boolean;
+    data?: T;
 };
 
 type StoredChatSession = {
-  id: string;
-  messages: ChatMessage[];
-  sessionId: string | null;
-  threadId: string;
-  title: string;
-  preview: string;
-  updatedAt: string;
+    id: string;
+    messages: ChatMessage[];
+    sessionId: string | null;
+    threadId: string;
+    title: string;
+    preview: string;
+    updatedAt: string;
 };
 
 export type AgentLoopState = {
-  trace: Array<{
-    id: string;
-    label: string;
-    status: "active" | "done" | "error" | "pending";
-  }>;
+    trace: Array<{
+        id: string;
+        label: string;
+        status: "active" | "done" | "error" | "pending";
+    }>;
 };
 
 const closeDurMs = 150;
@@ -96,1006 +100,1127 @@ const maxRecentSessions = 6;
 const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
 
 function apiUrl(path: string) {
-  return `${apiBaseUrl}${path}`;
+    return `${apiBaseUrl}${path}`;
 }
 
 function safeRandomId(prefix: string): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    try {
-      return `${prefix}-${crypto.randomUUID()}`;
-    } catch {
-      // fall through to timestamp fallback
+    if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function"
+    ) {
+        try {
+            return `${prefix}-${crypto.randomUUID()}`;
+        } catch {
+            // fall through to timestamp fallback
+        }
     }
-  }
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
 const CHAT_STREAM_TIMEOUT_MS = 120_000; // 2 minutes for LLM streaming
 
 export function useChatDemo(copy: ChatCopy) {
-  const [draft, setDraft] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-  const [isWaiting, setIsWaiting] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [hasLoadedSession, setHasLoadedSession] = useState(false);
-  const [isLoadingLatest, setIsLoadingLatest] = useState(false);
-  const [threadId, setThreadId] = useState(createChatSessionId);
-  const [recentSessions, setRecentSessions] = useState<ChatRecentSession[]>([]);
-  const [humanRequestState, setHumanRequestState] = useState<
-    "idle" | "pending" | "requested"
-  >("idle");
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const chatLogRef = useRef<HTMLDivElement | null>(null);
-  const chatEndRef = useRef<HTMLDivElement | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const messagesRef = useRef<ChatMessage[]>([]);
-  const sessionIdRef = useRef<string | null>(null);
-  const threadIdRef = useRef(threadId);
-  const [messages, setMessages] = useState<ChatMessage[]>(() =>
-    createStarterMessages(copy),
-  );
+    const [draft, setDraft] = useState("");
+    const [isOpen, setIsOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
+    const [isWaiting, setIsWaiting] = useState(false);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+    const [hasLoadedSession, setHasLoadedSession] = useState(false);
+    const [isLoadingLatest, setIsLoadingLatest] = useState(false);
+    const [threadId, setThreadId] = useState(createChatSessionId);
+    const [recentSessions, setRecentSessions] = useState<ChatRecentSession[]>(
+        [],
+    );
+    const [humanRequestState, setHumanRequestState] = useState<
+        "idle" | "pending" | "requested"
+    >("idle");
+    const [loopTrace, setLoopTrace] = useState<AgentLoopState["trace"]>([]);
+    const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const chatLogRef = useRef<HTMLDivElement | null>(null);
+    const chatEndRef = useRef<HTMLDivElement | null>(null);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const messagesRef = useRef<ChatMessage[]>([]);
+    const sessionIdRef = useRef<string | null>(null);
+    const threadIdRef = useRef(threadId);
+    const [messages, setMessages] = useState<ChatMessage[]>(() =>
+        createStarterMessages(copy),
+    );
 
-  const activeSessionKey = getSessionStorageId(sessionId, threadId);
+    const activeSessionKey = getSessionStorageId(sessionId, threadId);
 
-  const clearCloseTimer = useCallback(() => {
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
+    const clearCloseTimer = useCallback(() => {
+        if (closeTimerRef.current) {
+            clearTimeout(closeTimerRef.current);
+            closeTimerRef.current = null;
+        }
+    }, []);
+
+    const replaceMessages = useCallback((nextMessages: ChatMessage[]) => {
+        messagesRef.current = nextMessages;
+        startTransition(() => {
+            setMessages(nextMessages);
+        });
+    }, []);
+
+    const applyBackendSession = useCallback(
+        (payload: BackendChatSessionPayload) => {
+            if (!payload.session) {
+                return;
+            }
+
+            const backendMessages = (payload.messages ?? [])
+                .filter(isBackendChatMessage)
+                .map((message) => ({
+                    id: message.id,
+                    role: message.role,
+                    text: message.text,
+                }));
+            const nextMessages =
+                backendMessages.length > 0
+                    ? backendMessages
+                    : createStarterMessages(copy);
+
+            setSessionId(payload.session.id);
+            setThreadId(payload.session.threadId);
+            replaceMessages(nextMessages);
+            persistChatSession({
+                copy,
+                messages: nextMessages,
+                sessionId: payload.session.id,
+                threadId: payload.session.threadId,
+                title: payload.session.title ?? undefined,
+                updatedAt: payload.session.updatedAt,
+            });
+        },
+        [copy, replaceMessages],
+    );
+
+    useEffect(() => {
+        messagesRef.current = messages;
+    }, [messages]);
+
+    useEffect(() => {
+        sessionIdRef.current = sessionId;
+    }, [sessionId]);
+
+    useEffect(() => {
+        threadIdRef.current = threadId;
+    }, [threadId]);
+
+    useEffect(() => {
+        setRecentSessions(readStoredRecentSessions());
+    }, []);
+
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        const controller = new AbortController();
+
+        function loadLocalStoredSessionFallback() {
+            const storedSession = readBestStoredChatSession();
+
+            if (storedSession) {
+                setSessionId(storedSession.sessionId);
+                setThreadId(storedSession.threadId);
+                replaceMessages(storedSession.messages);
+            }
+        }
+
+        async function loadBackendSession() {
+            try {
+                const payload = await fetchPortfolioChatSession(
+                    controller.signal,
+                );
+                if (controller.signal.aborted) {
+                    return;
+                }
+
+                if (!payload) {
+                    loadLocalStoredSessionFallback();
+                    return;
+                }
+
+                if (!payload.session) {
+                    return;
+                }
+
+                applyBackendSession(payload);
+                setRecentSessions(readStoredRecentSessions());
+            } catch {
+                loadLocalStoredSessionFallback();
+            } finally {
+                if (!controller.signal.aborted) {
+                    setHasLoadedSession(true);
+                }
+            }
+        }
+
+        void loadBackendSession();
+
+        return () => {
+            controller.abort();
+        };
+    }, [applyBackendSession, isOpen, replaceMessages]);
+
+    useEffect(() => {
+        if (!hasLoadedSession) {
+            return;
+        }
+
+        const hasUserText = messages.some(
+            (m) => m.role === "user" && !m.id.startsWith("starter-"),
+        );
+
+        if (!hasUserText) {
+            return;
+        }
+
+        persistChatSession({
+            copy,
+            messages,
+            sessionId,
+            threadId,
+        });
+        setRecentSessions(readStoredRecentSessions());
+    }, [copy, hasLoadedSession, messages, sessionId, threadId]);
+
+    const startClose = useCallback(() => {
+        clearCloseTimer();
+        setIsOpen(false);
+        setIsClosing(true);
+        closeTimerRef.current = setTimeout(() => {
+            setIsClosing(false);
+            closeTimerRef.current = null;
+        }, closeDurMs);
+    }, [clearCloseTimer]);
+
+    const messageCount = messages.length;
+
+    useLayoutEffect(() => {
+        if (!isOpen || messageCount === 0) {
+            return;
+        }
+
+        const animationFrame = window.requestAnimationFrame(() => {
+            chatEndRef.current?.scrollIntoView({
+                block: "end",
+            });
+        });
+
+        return () => {
+            window.cancelAnimationFrame(animationFrame);
+        };
+    }, [isOpen, messageCount]);
+
+    useEffect(() => {
+        const chatLog = chatLogRef.current;
+
+        if (!chatLog || !isOpen) {
+            return;
+        }
+
+        const resizeObserver = new ResizeObserver(() => {
+            chatEndRef.current?.scrollIntoView({
+                block: "end",
+            });
+        });
+
+        resizeObserver.observe(chatLog);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        textareaRef.current?.focus();
+
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                startClose();
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen, startClose]);
+
+    useEffect(() => {
+        return () => {
+            clearCloseTimer();
+        };
+    }, [clearCloseTimer]);
+
+    function closeChat() {
+        if (!isOpen && !isClosing) return;
+        startClose();
     }
-  }, []);
 
-  const replaceMessages = useCallback((nextMessages: ChatMessage[]) => {
-    messagesRef.current = nextMessages;
-    startTransition(() => {
-      setMessages(nextMessages);
-    });
-  }, []);
-
-  const applyBackendSession = useCallback(
-    (payload: BackendChatSessionPayload) => {
-      if (!payload.session) {
-        return;
-      }
-
-      const backendMessages = (payload.messages ?? [])
-        .filter(isBackendChatMessage)
-        .map((message) => ({
-          id: message.id,
-          role: message.role,
-          text: message.text,
-        }));
-      const nextMessages =
-        backendMessages.length > 0 ? backendMessages : createStarterMessages(copy);
-
-      setSessionId(payload.session.id);
-      setThreadId(payload.session.threadId);
-      replaceMessages(nextMessages);
-      persistChatSession({
-        copy,
-        messages: nextMessages,
-        sessionId: payload.session.id,
-        threadId: payload.session.threadId,
-        title: payload.session.title ?? undefined,
-        updatedAt: payload.session.updatedAt,
-      });
-    },
-    [copy, replaceMessages],
-  );
-
-  useEffect(() => {
-    messagesRef.current = messages;
-  }, [messages]);
-
-  useEffect(() => {
-    sessionIdRef.current = sessionId;
-  }, [sessionId]);
-
-  useEffect(() => {
-    threadIdRef.current = threadId;
-  }, [threadId]);
-
-  useEffect(() => {
-    setRecentSessions(readStoredRecentSessions());
-  }, []);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
+    function toggleChat() {
+        if (isOpen) {
+            startClose();
+        } else {
+            clearCloseTimer();
+            setIsClosing(false);
+            setIsOpen(true);
+        }
     }
 
-    const controller = new AbortController();
+    function handleDraftChange(nextDraft: string) {
+        setDraft(nextDraft);
+    }
 
-    function loadLocalStoredSessionFallback() {
-      const storedSession = readBestStoredChatSession();
+    function handleDraftKeyDown(
+        event: ReactKeyboardEvent<HTMLTextAreaElement>,
+    ) {
+        if (event.key !== "Enter" || event.shiftKey) {
+            return;
+        }
 
-      if (storedSession) {
+        event.preventDefault();
+        void submitPrompt(draft);
+    }
+
+    function updateAssistantMessage(
+        messageId: string,
+        updater: (text: string) => string,
+    ) {
+        startTransition(() => {
+            setMessages((current) => {
+                const nextMessages = current.map((message) =>
+                    message.id === messageId
+                        ? { ...message, text: updater(message.text) }
+                        : message,
+                );
+                messagesRef.current = nextMessages;
+                return nextMessages;
+            });
+        });
+    }
+
+    async function streamAssistantReply(
+        nextMessages: ChatMessage[],
+        assistantMessageId: string,
+        userMessage: ChatMessage,
+    ) {
+        const runId = safeRandomId("run");
+
+        setIsWaiting(true);
+        setLoopTrace([]);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(
+            () => controller.abort(),
+            CHAT_STREAM_TIMEOUT_MS,
+        );
+
+        try {
+            const currentSessionId = sessionIdRef.current;
+            const response = await fetch(
+                apiUrl("/api/portfolio/assistant/chat/stream"),
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    signal: controller.signal,
+                    body: JSON.stringify(
+                        currentSessionId
+                            ? {
+                                  sessionId: currentSessionId,
+                                  runId,
+                                  message: {
+                                      role: userMessage.role,
+                                      content: userMessage.text,
+                                  },
+                              }
+                            : {
+                                  threadId: threadIdRef.current,
+                                  runId,
+                                  messages: nextMessages
+                                      .filter(
+                                          (message) =>
+                                              message.text.trim() !== "",
+                                      )
+                                      .map((message) => ({
+                                          role: message.role,
+                                          content: message.text,
+                                      }))
+                                      .slice(-10),
+                              },
+                    ),
+                },
+            );
+
+            if (!response.ok || !response.body) {
+                throw new Error(`Assistant stream failed (${response.status})`);
+            }
+
+            await readPortfolioAssistantStream(response.body, (event) => {
+                if (event.type === "LOOP_STAGE") {
+                    const stageId = event.stage ?? event.label ?? "stage";
+                    const stageLabel =
+                        event.label ?? event.detail ?? "Working...";
+                    setLoopTrace((prev) => {
+                        const settled = prev.map((step) =>
+                            step.status === "active"
+                                ? { ...step, status: "done" as const }
+                                : step,
+                        );
+                        const existingIndex = settled.findIndex(
+                            (step) => step.id === stageId,
+                        );
+                        if (existingIndex >= 0) {
+                            settled[existingIndex] = {
+                                ...settled[existingIndex],
+                                label: stageLabel,
+                                status: "active",
+                            };
+                            return settled;
+                        }
+                        return [
+                            ...settled,
+                            {
+                                id: stageId,
+                                label: stageLabel,
+                                status: "active",
+                            },
+                        ];
+                    });
+                }
+
+                if (event.type === "TEXT_MESSAGE_START") {
+                    setLoopTrace((prev) =>
+                        prev.map((step) => ({
+                            ...step,
+                            status: "done" as const,
+                        })),
+                    );
+                }
+
+                if (event.type === "TEXT_MESSAGE_CONTENT") {
+                    const delta = event.delta ?? event.content ?? "";
+                    if (delta) {
+                        updateAssistantMessage(
+                            assistantMessageId,
+                            (text) => `${text}${delta}`,
+                        );
+                    }
+                }
+
+                if (event.type === "RUN_ERROR") {
+                    throw new Error(event.message ?? "Assistant stream error");
+                }
+            });
+        } catch (_err) {
+            clearTimeout(timeoutId);
+            const fallbackText = await tryNonStreamFallback(nextMessages);
+            if (fallbackText?.trim()) {
+                updateAssistantMessage(assistantMessageId, () => fallbackText);
+            } else {
+                updateAssistantMessage(
+                    assistantMessageId,
+                    () => copy.streamError,
+                );
+            }
+        } finally {
+            clearTimeout(timeoutId);
+            setIsWaiting(false);
+            setLoopTrace([]);
+        }
+    }
+
+    async function submitPrompt(prompt: string) {
+        const normalizedPrompt = prompt.trim();
+
+        if (!normalizedPrompt || isWaiting) {
+            return;
+        }
+
+        const userMessage: ChatMessage = {
+            id: safeRandomId("user"),
+            role: "user",
+            text: normalizedPrompt,
+        };
+        const assistantMessage: ChatMessage = {
+            id: safeRandomId("assistant"),
+            role: "assistant",
+            text: "",
+        };
+        const nextMessages = [...messagesRef.current, userMessage];
+
+        replaceMessages([...nextMessages, assistantMessage]);
+        setDraft("");
+
+        await streamAssistantReply(
+            nextMessages,
+            assistantMessage.id,
+            userMessage,
+        );
+    }
+
+    async function handleNewChat() {
+        if (isWaiting) {
+            return;
+        }
+
+        const fallbackThreadId = createChatSessionId();
+        setSessionId(null);
+        setThreadId(fallbackThreadId);
+        replaceMessages(createStarterMessages(copy));
+
+        try {
+            const payload = await createPortfolioChatSession(copy.newChatLabel);
+            if (payload.session) {
+                setSessionId(payload.session.id);
+                setThreadId(payload.session.threadId);
+            }
+        } catch {
+            setThreadId(fallbackThreadId);
+        }
+    }
+
+    async function handleSelectLatestChat() {
+        if (isWaiting || isLoadingLatest) {
+            return;
+        }
+
+        setIsLoadingLatest(true);
+
+        try {
+            const payload = await fetchPortfolioChatSession();
+            if (!payload?.session) {
+                return;
+            }
+
+            applyBackendSession(payload);
+            setRecentSessions(readStoredRecentSessions());
+        } finally {
+            setIsLoadingLatest(false);
+        }
+    }
+
+    function handleSelectRecentChat(recentId: string) {
+        if (isWaiting || recentId === activeSessionKey) {
+            return;
+        }
+
+        const storedSession = readStoredChatSession(recentId);
+        if (!storedSession) {
+            removeStoredRecentSession(recentId);
+            setRecentSessions(readStoredRecentSessions());
+            return;
+        }
+
         setSessionId(storedSession.sessionId);
         setThreadId(storedSession.threadId);
         replaceMessages(storedSession.messages);
-      }
     }
 
-    async function loadBackendSession() {
-      try {
-        const payload = await fetchPortfolioChatSession(controller.signal);
-        if (controller.signal.aborted) {
-          return;
-        }
-
-        if (!payload) {
-          loadLocalStoredSessionFallback();
-          return;
-        }
-
-        if (!payload.session) {
-          return;
-        }
-
-        applyBackendSession(payload);
-        setRecentSessions(readStoredRecentSessions());
-      } catch {
-        loadLocalStoredSessionFallback();
-      } finally {
-        if (!controller.signal.aborted) {
-          setHasLoadedSession(true);
-        }
-      }
-    }
-
-    void loadBackendSession();
-
-    return () => {
-      controller.abort();
-    };
-  }, [applyBackendSession, isOpen, replaceMessages]);
-
-  useEffect(() => {
-    if (!hasLoadedSession) {
-      return;
-    }
-
-    const hasUserText = messages.some(
-      (m) => m.role === "user" && !m.id.startsWith("starter-"),
-    );
-
-    if (!hasUserText) {
-      return;
-    }
-
-    persistChatSession({
-      copy,
-      messages,
-      sessionId,
-      threadId,
-    });
-    setRecentSessions(readStoredRecentSessions());
-  }, [copy, hasLoadedSession, messages, sessionId, threadId]);
-
-  const startClose = useCallback(() => {
-    clearCloseTimer();
-    setIsOpen(false);
-    setIsClosing(true);
-    closeTimerRef.current = setTimeout(() => {
-      setIsClosing(false);
-      closeTimerRef.current = null;
-    }, closeDurMs);
-  }, [clearCloseTimer]);
-
-  const messageCount = messages.length;
-
-  useLayoutEffect(() => {
-    if (!isOpen || messageCount === 0) {
-      return;
-    }
-
-    const animationFrame = window.requestAnimationFrame(() => {
-      chatEndRef.current?.scrollIntoView({
-        block: "end",
-      });
-    });
-
-    return () => {
-      window.cancelAnimationFrame(animationFrame);
-    };
-  }, [isOpen, messageCount]);
-
-  useEffect(() => {
-    const chatLog = chatLogRef.current;
-
-    if (!chatLog || !isOpen) {
-      return;
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-      chatEndRef.current?.scrollIntoView({
-        block: "end",
-      });
-    });
-
-    resizeObserver.observe(chatLog);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    textareaRef.current?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        startClose();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, startClose]);
-
-  useEffect(() => {
-    return () => {
-      clearCloseTimer();
-    };
-  }, [clearCloseTimer]);
-
-  function closeChat() {
-    if (!isOpen && !isClosing) return;
-    startClose();
-  }
-
-  function toggleChat() {
-    if (isOpen) {
-      startClose();
-    } else {
-      clearCloseTimer();
-      setIsClosing(false);
-      setIsOpen(true);
-    }
-  }
-
-  function handleDraftChange(nextDraft: string) {
-    setDraft(nextDraft);
-  }
-
-  function handleDraftKeyDown(event: ReactKeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key !== "Enter" || event.shiftKey) {
-      return;
-    }
-
-    event.preventDefault();
-    void submitPrompt(draft);
-  }
-
-  function updateAssistantMessage(messageId: string, updater: (text: string) => string) {
-    startTransition(() => {
-      setMessages((current) => {
-        const nextMessages = current.map((message) =>
-          message.id === messageId
-            ? { ...message, text: updater(message.text) }
-            : message,
-        );
-        messagesRef.current = nextMessages;
-        return nextMessages;
-      });
-    });
-  }
-
-  async function streamAssistantReply(
-    nextMessages: ChatMessage[],
-    assistantMessageId: string,
-    userMessage: ChatMessage,
-  ) {
-    const runId = safeRandomId("run");
-
-    setIsWaiting(true);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), CHAT_STREAM_TIMEOUT_MS);
-
-    try {
-      const currentSessionId = sessionIdRef.current;
-      const response = await fetch(apiUrl("/api/portfolio/assistant/chat/stream"), {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify(
-          currentSessionId
-            ? {
-                sessionId: currentSessionId,
-                runId,
-                message: {
-                  role: userMessage.role,
-                  content: userMessage.text,
+    async function handleRequestHuman() {
+        if (isWaiting || !sessionId) return;
+        setHumanRequestState("pending");
+        try {
+            const res = await fetch(
+                `/api/portfolio/assistant/sessions/${sessionId}/request-human`,
+                {
+                    method: "POST",
                 },
-              }
-            : {
-                threadId: threadIdRef.current,
-                runId,
-                messages: nextMessages
-                  .filter((message) => message.text.trim() !== "")
-                  .map((message) => ({
-                    role: message.role,
-                    content: message.text,
-                  }))
-                  .slice(-10),
-              },
-        ),
-      });
+            );
+            if (res.ok) {
+                setHumanRequestState("requested");
+            }
+        } catch {
+            setHumanRequestState("idle");
+        }
+    }
 
-      if (!response.ok || !response.body) {
-        throw new Error(`Assistant stream failed (${response.status})`);
-      }
-
-      await readPortfolioAssistantStream(response.body, (event) => {
-        if (event.type === "TEXT_MESSAGE_CONTENT") {
-          const delta = event.delta ?? event.content ?? "";
-          if (delta) {
-            updateAssistantMessage(assistantMessageId, (text) => `${text}${delta}`);
-          }
+    async function handleDeleteRecentChat(recentId: string) {
+        if (isWaiting) {
+            return;
         }
 
-        if (event.type === "RUN_ERROR") {
-          throw new Error(event.message ?? "Assistant stream error");
+        const storedSession = readStoredChatSession(recentId);
+
+        try {
+            if (storedSession?.sessionId) {
+                await deletePortfolioChatSession(storedSession.sessionId);
+            }
+        } catch {
+            return;
         }
-      });
-    } catch (_err) {
-      clearTimeout(timeoutId);
-      const fallbackText = await tryNonStreamFallback(nextMessages);
-      if (fallbackText?.trim()) {
-        updateAssistantMessage(assistantMessageId, () => fallbackText);
-      } else {
-        updateAssistantMessage(assistantMessageId, () => copy.streamError);
-      }
-    } finally {
-      clearTimeout(timeoutId);
-      setIsWaiting(false);
-    }
-  }
 
-  async function submitPrompt(prompt: string) {
-    const normalizedPrompt = prompt.trim();
+        removeStoredRecentSession(recentId);
+        setRecentSessions(readStoredRecentSessions());
 
-    if (!normalizedPrompt || isWaiting) {
-      return;
+        if (recentId === activeSessionKey) {
+            const fallbackThreadId = createChatSessionId();
+            setSessionId(null);
+            setThreadId(fallbackThreadId);
+            replaceMessages(createStarterMessages(copy));
+        }
     }
 
-    const userMessage: ChatMessage = {
-      id: safeRandomId("user"),
-      role: "user",
-      text: normalizedPrompt,
+    function handleSubmit() {
+        void submitPrompt(draft);
+    }
+
+    function handleQuickPrompt(prompt: string) {
+        void submitPrompt(prompt);
+    }
+
+    const agentLoopState: AgentLoopState = { trace: loopTrace };
+
+    return {
+        activeSessionKey,
+        chatEndRef,
+        chatLogRef,
+        closeChat,
+        draft,
+        handleDeleteRecentChat,
+        handleDraftChange,
+        handleDraftKeyDown,
+        handleNewChat,
+        handleQuickPrompt,
+        handleRequestHuman,
+        handleSelectLatestChat,
+        handleSelectRecentChat,
+        handleSubmit,
+        humanRequestState,
+        isClosing,
+        isLoadingLatest,
+        isOpen,
+        isWaiting,
+        messages,
+        recentSessions,
+        textareaRef,
+        toggleChat,
+        agentLoopState,
     };
-    const assistantMessage: ChatMessage = {
-      id: safeRandomId("assistant"),
-      role: "assistant",
-      text: "",
-    };
-    const nextMessages = [...messagesRef.current, userMessage];
-
-    replaceMessages([...nextMessages, assistantMessage]);
-    setDraft("");
-
-    await streamAssistantReply(nextMessages, assistantMessage.id, userMessage);
-  }
-
-  async function handleNewChat() {
-    if (isWaiting) {
-      return;
-    }
-
-    const fallbackThreadId = createChatSessionId();
-    setSessionId(null);
-    setThreadId(fallbackThreadId);
-    replaceMessages(createStarterMessages(copy));
-
-    try {
-      const payload = await createPortfolioChatSession(copy.newChatLabel);
-      if (payload.session) {
-        setSessionId(payload.session.id);
-        setThreadId(payload.session.threadId);
-      }
-    } catch {
-      setThreadId(fallbackThreadId);
-    }
-  }
-
-  async function handleSelectLatestChat() {
-    if (isWaiting || isLoadingLatest) {
-      return;
-    }
-
-    setIsLoadingLatest(true);
-
-    try {
-      const payload = await fetchPortfolioChatSession();
-      if (!payload?.session) {
-        return;
-      }
-
-      applyBackendSession(payload);
-      setRecentSessions(readStoredRecentSessions());
-    } finally {
-      setIsLoadingLatest(false);
-    }
-  }
-
-  function handleSelectRecentChat(recentId: string) {
-    if (isWaiting || recentId === activeSessionKey) {
-      return;
-    }
-
-    const storedSession = readStoredChatSession(recentId);
-    if (!storedSession) {
-      removeStoredRecentSession(recentId);
-      setRecentSessions(readStoredRecentSessions());
-      return;
-    }
-
-    setSessionId(storedSession.sessionId);
-    setThreadId(storedSession.threadId);
-    replaceMessages(storedSession.messages);
-  }
-
-  async function handleRequestHuman() {
-    if (isWaiting || !sessionId) return;
-    setHumanRequestState("pending");
-    try {
-      const res = await fetch(
-        `/api/portfolio/assistant/sessions/${sessionId}/request-human`,
-        {
-          method: "POST",
-        },
-      );
-      if (res.ok) {
-        setHumanRequestState("requested");
-      }
-    } catch {
-      setHumanRequestState("idle");
-    }
-  }
-
-  async function handleDeleteRecentChat(recentId: string) {
-    if (isWaiting) {
-      return;
-    }
-
-    const storedSession = readStoredChatSession(recentId);
-
-    try {
-      if (storedSession?.sessionId) {
-        await deletePortfolioChatSession(storedSession.sessionId);
-      }
-    } catch {
-      return;
-    }
-
-    removeStoredRecentSession(recentId);
-    setRecentSessions(readStoredRecentSessions());
-
-    if (recentId === activeSessionKey) {
-      const fallbackThreadId = createChatSessionId();
-      setSessionId(null);
-      setThreadId(fallbackThreadId);
-      replaceMessages(createStarterMessages(copy));
-    }
-  }
-
-  function handleSubmit() {
-    void submitPrompt(draft);
-  }
-
-  function handleQuickPrompt(prompt: string) {
-    void submitPrompt(prompt);
-  }
-
-  const agentLoopState: AgentLoopState = { trace: [] };
-
-  return {
-    activeSessionKey,
-    chatEndRef,
-    chatLogRef,
-    closeChat,
-    draft,
-    handleDeleteRecentChat,
-    handleDraftChange,
-    handleDraftKeyDown,
-    handleNewChat,
-    handleQuickPrompt,
-    handleRequestHuman,
-    handleSelectLatestChat,
-    handleSelectRecentChat,
-    handleSubmit,
-    humanRequestState,
-    isClosing,
-    isLoadingLatest,
-    isOpen,
-    isWaiting,
-    messages,
-    recentSessions,
-    textareaRef,
-    toggleChat,
-    agentLoopState,
-  };
 }
 
 function createStarterMessages(copy: ChatCopy): ChatMessage[] {
-  return copy.starterConversation.map((message, index) => ({
-    id: `starter-${index}`,
-    role: message.role,
-    text: message.text,
-  }));
+    return copy.starterConversation.map((message, index) => ({
+        id: `starter-${index}`,
+        role: message.role,
+        text: message.text,
+    }));
 }
 
 function createChatSessionId() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `portfolio-widget-${crypto.randomUUID()}`;
-  }
+    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+        return `portfolio-widget-${crypto.randomUUID()}`;
+    }
 
-  return `portfolio-widget-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return `portfolio-widget-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 async function fetchPortfolioChatSession(signal?: AbortSignal) {
-  const response = await fetch(
-    apiUrl(`/api/portfolio/assistant/sessions/latest?locale=${currentLocale()}`),
-    {
-      credentials: "include",
-      signal,
-    },
-  );
+    const response = await fetch(
+        apiUrl(
+            `/api/portfolio/assistant/sessions/latest?locale=${currentLocale()}`,
+        ),
+        {
+            credentials: "include",
+            signal,
+        },
+    );
 
-  if (!response.ok) {
-    return null;
-  }
+    if (!response.ok) {
+        return null;
+    }
 
-  const envelope = (await response.json()) as ApiEnvelope<BackendChatSessionPayload>;
+    const envelope =
+        (await response.json()) as ApiEnvelope<BackendChatSessionPayload>;
 
-  if (!envelope.ok || !envelope.data) {
-    return null;
-  }
+    if (!envelope.ok || !envelope.data) {
+        return null;
+    }
 
-  if (envelope.data.session === null) {
+    if (envelope.data.session === null) {
+        return envelope.data;
+    }
+
+    if (!envelope.data.session.id || !envelope.data.session.threadId) {
+        return null;
+    }
+
     return envelope.data;
-  }
-
-  if (!envelope.data.session.id || !envelope.data.session.threadId) {
-    return null;
-  }
-
-  return envelope.data;
 }
 
 async function createPortfolioChatSession(title: string) {
-  const response = await fetch(apiUrl("/api/portfolio/assistant/sessions"), {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      locale: currentLocale(),
-      title,
-    }),
-  });
+    const response = await fetch(apiUrl("/api/portfolio/assistant/sessions"), {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            locale: currentLocale(),
+            title,
+        }),
+    });
 
-  if (!response.ok) {
-    throw new Error(`Create chat session failed (${response.status})`);
-  }
+    if (!response.ok) {
+        throw new Error(`Create chat session failed (${response.status})`);
+    }
 
-  const envelope = (await response.json()) as ApiEnvelope<BackendChatSessionPayload>;
+    const envelope =
+        (await response.json()) as ApiEnvelope<BackendChatSessionPayload>;
 
-  if (!envelope.ok || !envelope.data?.session?.id || !envelope.data.session.threadId) {
-    throw new Error("Create chat session returned an invalid payload");
-  }
+    if (
+        !envelope.ok ||
+        !envelope.data?.session?.id ||
+        !envelope.data.session.threadId
+    ) {
+        throw new Error("Create chat session returned an invalid payload");
+    }
 
-  return envelope.data;
+    return envelope.data;
 }
 
 async function deletePortfolioChatSession(sessionId: string) {
-  const response = await fetch(
-    apiUrl(`/api/portfolio/assistant/sessions/${encodeURIComponent(sessionId)}`),
-    {
-      method: "DELETE",
-      credentials: "include",
-    },
-  );
+    const response = await fetch(
+        apiUrl(
+            `/api/portfolio/assistant/sessions/${encodeURIComponent(sessionId)}`,
+        ),
+        {
+            method: "DELETE",
+            credentials: "include",
+        },
+    );
 
-  if (!response.ok) {
-    throw new Error(`Delete chat session failed (${response.status})`);
-  }
+    if (!response.ok) {
+        throw new Error(`Delete chat session failed (${response.status})`);
+    }
 }
 
-async function tryNonStreamFallback(nextMessages: ChatMessage[]): Promise<string | null> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60_000);
+async function tryNonStreamFallback(
+    nextMessages: ChatMessage[],
+): Promise<string | null> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60_000);
 
-  try {
-    const messagesForApi = buildFallbackMessages(nextMessages);
+    try {
+        const messagesForApi = buildFallbackMessages(nextMessages);
 
-    const res = await fetch(apiUrl("/api/portfolio/assistant/chat"), {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      signal: controller.signal,
-      body: JSON.stringify({ messages: messagesForApi }),
-    });
+        const res = await fetch(apiUrl("/api/portfolio/assistant/chat"), {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify({ messages: messagesForApi }),
+        });
 
-    if (!res.ok) return null;
-    const env = (await res.json()) as {
-      data?: {
-        message?: { content?: unknown };
-        content?: unknown;
-        text?: unknown;
-      };
-    };
-    const content = env?.data?.message?.content ?? env?.data?.content ?? env?.data?.text;
-    return typeof content === "string" ? content : null;
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timeoutId);
-  }
+        if (!res.ok) return null;
+        const env = (await res.json()) as {
+            data?: {
+                message?: { content?: unknown };
+                content?: unknown;
+                text?: unknown;
+            };
+        };
+        const content =
+            env?.data?.message?.content ??
+            env?.data?.content ??
+            env?.data?.text;
+        return typeof content === "string" ? content : null;
+    } catch {
+        return null;
+    } finally {
+        clearTimeout(timeoutId);
+    }
 }
 
 function currentLocale() {
-  if (typeof window === "undefined") {
-    return "en";
-  }
+    if (typeof window === "undefined") {
+        return "en";
+    }
 
-  return window.location.pathname.startsWith("/th") ? "th" : "en";
+    return window.location.pathname.startsWith("/th") ? "th" : "en";
 }
 
 function isBackendChatMessage(message: unknown): message is BackendChatMessage {
-  if (!message || typeof message !== "object") {
-    return false;
-  }
+    if (!message || typeof message !== "object") {
+        return false;
+    }
 
-  const candidate = message as Partial<BackendChatMessage>;
+    const candidate = message as Partial<BackendChatMessage>;
 
-  return (
-    typeof candidate.id === "string" &&
-    (candidate.role === "assistant" || candidate.role === "user") &&
-    typeof candidate.text === "string"
-  );
+    return (
+        typeof candidate.id === "string" &&
+        (candidate.role === "assistant" || candidate.role === "user") &&
+        typeof candidate.text === "string"
+    );
 }
 
 function getSessionStorageId(sessionId: string | null, threadId: string) {
-  return sessionId ?? threadId;
+    return sessionId ?? threadId;
 }
 
 function chatSessionStorageKey(sessionKey: string) {
-  return `${chatSessionStoragePrefix}${sessionKey}`;
+    return `${chatSessionStoragePrefix}${sessionKey}`;
 }
 
 function persistChatSession({
-  copy,
-  messages,
-  sessionId,
-  threadId,
-  title,
-  updatedAt,
-}: {
-  copy: ChatCopy;
-  messages: ChatMessage[];
-  sessionId: string | null;
-  threadId: string;
-  title?: string;
-  updatedAt?: string;
-}) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const id = getSessionStorageId(sessionId, threadId);
-  const storedSession: StoredChatSession = {
-    id,
+    copy,
     messages,
     sessionId,
     threadId,
-    title: title?.trim() || deriveSessionTitle(messages, copy),
-    preview: deriveSessionPreview(messages, copy),
-    updatedAt: updatedAt ?? new Date().toISOString(),
-  };
+    title,
+    updatedAt,
+}: {
+    copy: ChatCopy;
+    messages: ChatMessage[];
+    sessionId: string | null;
+    threadId: string;
+    title?: string;
+    updatedAt?: string;
+}) {
+    if (typeof window === "undefined") {
+        return;
+    }
 
-  try {
-    window.localStorage.setItem(chatSessionStorageKey(id), JSON.stringify(storedSession));
-    upsertStoredRecentSession(storedSession);
-  } catch {
-    // Ignore storage failures so the chat still works in private or constrained browsers.
-  }
+    const id = getSessionStorageId(sessionId, threadId);
+    const storedSession: StoredChatSession = {
+        id,
+        messages,
+        sessionId,
+        threadId,
+        title: title?.trim() || deriveSessionTitle(messages, copy),
+        preview: deriveSessionPreview(messages, copy),
+        updatedAt: updatedAt ?? new Date().toISOString(),
+    };
+
+    try {
+        window.localStorage.setItem(
+            chatSessionStorageKey(id),
+            JSON.stringify(storedSession),
+        );
+        upsertStoredRecentSession(storedSession);
+    } catch {
+        // Ignore storage failures so the chat still works in private or constrained browsers.
+    }
 }
 
 function readBestStoredChatSession(): StoredChatSession | null {
-  const recents = readStoredRecentSessions();
-  for (const recent of recents) {
-    const session = readStoredChatSession(recent.id);
-    if (session) {
-      return session;
+    const recents = readStoredRecentSessions();
+    for (const recent of recents) {
+        const session = readStoredChatSession(recent.id);
+        if (session) {
+            return session;
+        }
     }
-  }
 
-  return readLegacyStoredChatSession();
+    return readLegacyStoredChatSession();
 }
 
 function readStoredChatSession(sessionKey: string): StoredChatSession | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    const rawSession = window.localStorage.getItem(chatSessionStorageKey(sessionKey));
-
-    if (!rawSession) {
-      return null;
+    if (typeof window === "undefined") {
+        return null;
     }
 
-    const parsedSession = JSON.parse(rawSession) as Partial<StoredChatSession>;
+    try {
+        const rawSession = window.localStorage.getItem(
+            chatSessionStorageKey(sessionKey),
+        );
 
-    if (
-      typeof parsedSession.id !== "string" ||
-      parsedSession.id.trim() === "" ||
-      typeof parsedSession.threadId !== "string" ||
-      parsedSession.threadId.trim() === "" ||
-      !Array.isArray(parsedSession.messages)
-    ) {
-      window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
-      return null;
+        if (!rawSession) {
+            return null;
+        }
+
+        const parsedSession = JSON.parse(
+            rawSession,
+        ) as Partial<StoredChatSession>;
+
+        if (
+            typeof parsedSession.id !== "string" ||
+            parsedSession.id.trim() === "" ||
+            typeof parsedSession.threadId !== "string" ||
+            parsedSession.threadId.trim() === "" ||
+            !Array.isArray(parsedSession.messages)
+        ) {
+            window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
+            return null;
+        }
+
+        const messages = parsedSession.messages
+            .filter(isStoredChatMessage)
+            .map((message) => ({
+                id: message.id,
+                role: message.role,
+                text: message.text,
+            }));
+
+        if (messages.length === 0) {
+            window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
+            return null;
+        }
+
+        return {
+            id: parsedSession.id,
+            messages,
+            sessionId:
+                typeof parsedSession.sessionId === "string" &&
+                parsedSession.sessionId.trim() !== ""
+                    ? parsedSession.sessionId
+                    : null,
+            threadId: parsedSession.threadId,
+            title:
+                typeof parsedSession.title === "string" &&
+                parsedSession.title.trim() !== ""
+                    ? parsedSession.title
+                    : "Chat",
+            preview:
+                typeof parsedSession.preview === "string" &&
+                parsedSession.preview.trim() !== ""
+                    ? parsedSession.preview
+                    : (messages.at(-1)?.text ?? ""),
+            updatedAt:
+                typeof parsedSession.updatedAt === "string"
+                    ? parsedSession.updatedAt
+                    : new Date().toISOString(),
+        };
+    } catch {
+        window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
+        return null;
     }
-
-    const messages = parsedSession.messages
-      .filter(isStoredChatMessage)
-      .map((message) => ({
-        id: message.id,
-        role: message.role,
-        text: message.text,
-      }));
-
-    if (messages.length === 0) {
-      window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
-      return null;
-    }
-
-    return {
-      id: parsedSession.id,
-      messages,
-      sessionId:
-        typeof parsedSession.sessionId === "string" &&
-        parsedSession.sessionId.trim() !== ""
-          ? parsedSession.sessionId
-          : null,
-      threadId: parsedSession.threadId,
-      title:
-        typeof parsedSession.title === "string" && parsedSession.title.trim() !== ""
-          ? parsedSession.title
-          : "Chat",
-      preview:
-        typeof parsedSession.preview === "string" && parsedSession.preview.trim() !== ""
-          ? parsedSession.preview
-          : (messages.at(-1)?.text ?? ""),
-      updatedAt:
-        typeof parsedSession.updatedAt === "string"
-          ? parsedSession.updatedAt
-          : new Date().toISOString(),
-    };
-  } catch {
-    window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
-    return null;
-  }
 }
 
 function readLegacyStoredChatSession(): StoredChatSession | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    const rawSession = window.localStorage.getItem(legacyChatSessionStorageKey);
-
-    if (!rawSession) {
-      return null;
+    if (typeof window === "undefined") {
+        return null;
     }
 
-    const parsedSession = JSON.parse(rawSession) as Partial<StoredChatSession>;
+    try {
+        const rawSession = window.localStorage.getItem(
+            legacyChatSessionStorageKey,
+        );
 
-    if (
-      typeof parsedSession.threadId !== "string" ||
-      parsedSession.threadId.trim() === "" ||
-      !Array.isArray(parsedSession.messages)
-    ) {
-      window.localStorage.removeItem(legacyChatSessionStorageKey);
-      return null;
+        if (!rawSession) {
+            return null;
+        }
+
+        const parsedSession = JSON.parse(
+            rawSession,
+        ) as Partial<StoredChatSession>;
+
+        if (
+            typeof parsedSession.threadId !== "string" ||
+            parsedSession.threadId.trim() === "" ||
+            !Array.isArray(parsedSession.messages)
+        ) {
+            window.localStorage.removeItem(legacyChatSessionStorageKey);
+            return null;
+        }
+
+        const messages = parsedSession.messages.filter(isStoredChatMessage);
+
+        if (messages.length === 0) {
+            window.localStorage.removeItem(legacyChatSessionStorageKey);
+            return null;
+        }
+
+        return {
+            id: parsedSession.threadId,
+            messages,
+            sessionId: null,
+            threadId: parsedSession.threadId,
+            title:
+                messages.find((message) => message.role === "user")?.text ??
+                "Chat",
+            preview: messages.at(-1)?.text ?? "",
+            updatedAt:
+                typeof parsedSession.updatedAt === "string"
+                    ? parsedSession.updatedAt
+                    : new Date().toISOString(),
+        };
+    } catch {
+        window.localStorage.removeItem(legacyChatSessionStorageKey);
+        return null;
     }
-
-    const messages = parsedSession.messages.filter(isStoredChatMessage);
-
-    if (messages.length === 0) {
-      window.localStorage.removeItem(legacyChatSessionStorageKey);
-      return null;
-    }
-
-    return {
-      id: parsedSession.threadId,
-      messages,
-      sessionId: null,
-      threadId: parsedSession.threadId,
-      title: messages.find((message) => message.role === "user")?.text ?? "Chat",
-      preview: messages.at(-1)?.text ?? "",
-      updatedAt:
-        typeof parsedSession.updatedAt === "string"
-          ? parsedSession.updatedAt
-          : new Date().toISOString(),
-    };
-  } catch {
-    window.localStorage.removeItem(legacyChatSessionStorageKey);
-    return null;
-  }
 }
 
 function readStoredRecentSessions(): ChatRecentSession[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  try {
-    const rawRecents = window.localStorage.getItem(chatRecentsStorageKey);
-    if (!rawRecents) {
-      return [];
+    if (typeof window === "undefined") {
+        return [];
     }
 
-    const parsedRecents = JSON.parse(rawRecents) as Partial<ChatRecentSession>[];
-    return parsedRecents
-      .filter(isStoredRecentSession)
-      .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
-      .slice(0, maxRecentSessions);
-  } catch {
-    window.localStorage.removeItem(chatRecentsStorageKey);
-    return [];
-  }
+    try {
+        const rawRecents = window.localStorage.getItem(chatRecentsStorageKey);
+        if (!rawRecents) {
+            return [];
+        }
+
+        const parsedRecents = JSON.parse(
+            rawRecents,
+        ) as Partial<ChatRecentSession>[];
+        return parsedRecents
+            .filter(isStoredRecentSession)
+            .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+            .slice(0, maxRecentSessions);
+    } catch {
+        window.localStorage.removeItem(chatRecentsStorageKey);
+        return [];
+    }
 }
 
 function upsertStoredRecentSession(session: StoredChatSession) {
-  if (typeof window === "undefined") {
-    return;
-  }
+    if (typeof window === "undefined") {
+        return;
+    }
 
-  const recents = readStoredRecentSessions();
-  const sessionIndex = recents.findIndex((recent) => recent.id === session.id);
-  const nextRecents =
-    sessionIndex !== -1
-      ? recents.map((recent, index) =>
-          index === sessionIndex
-            ? {
-                id: session.id,
-                title: session.title,
-                preview: session.preview,
-                updatedAt: session.updatedAt,
-              }
-            : recent,
-        )
-      : [
-          {
-            id: session.id,
-            title: session.title,
-            preview: session.preview,
-            updatedAt: session.updatedAt,
-          },
-          ...recents,
-        ].slice(0, maxRecentSessions);
+    const recents = readStoredRecentSessions();
+    const sessionIndex = recents.findIndex(
+        (recent) => recent.id === session.id,
+    );
+    const nextRecents =
+        sessionIndex !== -1
+            ? recents.map((recent, index) =>
+                  index === sessionIndex
+                      ? {
+                            id: session.id,
+                            title: session.title,
+                            preview: session.preview,
+                            updatedAt: session.updatedAt,
+                        }
+                      : recent,
+              )
+            : [
+                  {
+                      id: session.id,
+                      title: session.title,
+                      preview: session.preview,
+                      updatedAt: session.updatedAt,
+                  },
+                  ...recents,
+              ].slice(0, maxRecentSessions);
 
-  window.localStorage.setItem(chatRecentsStorageKey, JSON.stringify(nextRecents));
+    window.localStorage.setItem(
+        chatRecentsStorageKey,
+        JSON.stringify(nextRecents),
+    );
 }
 
 function removeStoredRecentSession(sessionKey: string) {
-  if (typeof window === "undefined") {
-    return;
-  }
+    if (typeof window === "undefined") {
+        return;
+    }
 
-  try {
-    const recents = readStoredRecentSessions().filter(
-      (recent) => recent.id !== sessionKey,
-    );
-    window.localStorage.setItem(chatRecentsStorageKey, JSON.stringify(recents));
-    window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
-  } catch {
-    // Ignore storage cleanup failures.
-  }
+    try {
+        const recents = readStoredRecentSessions().filter(
+            (recent) => recent.id !== sessionKey,
+        );
+        window.localStorage.setItem(
+            chatRecentsStorageKey,
+            JSON.stringify(recents),
+        );
+        window.localStorage.removeItem(chatSessionStorageKey(sessionKey));
+    } catch {
+        // Ignore storage cleanup failures.
+    }
 }
 
 function deriveSessionTitle(messages: ChatMessage[], copy: ChatCopy) {
-  const firstUserMessage = messages.find((message) => message.role === "user");
-  return truncateText(firstUserMessage?.text ?? copy.newChatLabel, 42);
+    const firstUserMessage = messages.find(
+        (message) => message.role === "user",
+    );
+    return truncateText(firstUserMessage?.text ?? copy.newChatLabel, 42);
 }
 
 function deriveSessionPreview(messages: ChatMessage[], copy: ChatCopy) {
-  const lastMessage = messages.findLast((message) => message.text.trim() !== "");
-  return truncateText(lastMessage?.text ?? copy.emptyState, 72);
+    const lastMessage = messages.findLast(
+        (message) => message.text.trim() !== "",
+    );
+    return truncateText(lastMessage?.text ?? copy.emptyState, 72);
 }
 
 function truncateText(value: string, maxLength: number) {
-  const normalized = value.replace(/\s+/g, " ").trim();
-  if (normalized.length <= maxLength) {
-    return normalized;
-  }
+    const normalized = value.replace(/\s+/g, " ").trim();
+    if (normalized.length <= maxLength) {
+        return normalized;
+    }
 
-  return `${normalized.slice(0, maxLength - 1).trim()}…`;
+    return `${normalized.slice(0, maxLength - 1).trim()}…`;
 }
 
 function isStoredChatMessage(message: unknown): message is ChatMessage {
-  if (!message || typeof message !== "object") {
-    return false;
-  }
+    if (!message || typeof message !== "object") {
+        return false;
+    }
 
-  const candidate = message as Partial<ChatMessage>;
+    const candidate = message as Partial<ChatMessage>;
 
-  return (
-    typeof candidate.id === "string" &&
-    (candidate.role === "assistant" || candidate.role === "user") &&
-    typeof candidate.text === "string"
-  );
+    return (
+        typeof candidate.id === "string" &&
+        (candidate.role === "assistant" || candidate.role === "user") &&
+        typeof candidate.text === "string"
+    );
 }
 
 function isStoredRecentSession(value: unknown): value is ChatRecentSession {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
+    if (!value || typeof value !== "object") {
+        return false;
+    }
 
-  const candidate = value as Partial<ChatRecentSession>;
-  return (
-    typeof candidate.id === "string" &&
-    candidate.id.trim() !== "" &&
-    typeof candidate.title === "string" &&
-    typeof candidate.preview === "string" &&
-    typeof candidate.updatedAt === "string"
-  );
+    const candidate = value as Partial<ChatRecentSession>;
+    return (
+        typeof candidate.id === "string" &&
+        candidate.id.trim() !== "" &&
+        typeof candidate.title === "string" &&
+        typeof candidate.preview === "string" &&
+        typeof candidate.updatedAt === "string"
+    );
 }
 
 async function readPortfolioAssistantStream(
-  body: ReadableStream<Uint8Array>,
-  onEvent: (event: PortfolioAssistantStreamEvent) => void,
+    body: ReadableStream<Uint8Array>,
+    onEvent: (event: PortfolioAssistantStreamEvent) => void,
 ) {
-  const reader = body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
+    const reader = body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+            break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const { frames, remainder } = extractSseFrames(buffer);
+        buffer = remainder;
+
+        for (const part of frames) {
+            dispatchPortfolioAssistantStreamEvent(part, onEvent);
+        }
     }
 
-    buffer += decoder.decode(value, { stream: true });
-    const { frames, remainder } = extractSseFrames(buffer);
-    buffer = remainder;
-
-    for (const part of frames) {
-      dispatchPortfolioAssistantStreamEvent(part, onEvent);
+    buffer += decoder.decode();
+    if (buffer.trim() !== "") {
+        dispatchPortfolioAssistantStreamEvent(buffer, onEvent);
     }
-  }
-
-  buffer += decoder.decode();
-  if (buffer.trim() !== "") {
-    dispatchPortfolioAssistantStreamEvent(buffer, onEvent);
-  }
 }
 
 function dispatchPortfolioAssistantStreamEvent(
-  rawEvent: string,
-  onEvent: (event: PortfolioAssistantStreamEvent) => void,
+    rawEvent: string,
+    onEvent: (event: PortfolioAssistantStreamEvent) => void,
 ) {
-  const data = extractSseData(rawEvent);
+    const data = extractSseData(rawEvent);
 
-  if (!data) {
-    return;
-  }
+    if (!data) {
+        return;
+    }
 
-  try {
-    onEvent(JSON.parse(data) as PortfolioAssistantStreamEvent);
-  } catch {
-    // Ignore malformed event frames so one bad chunk does not kill the whole reply
-  }
+    try {
+        onEvent(JSON.parse(data) as PortfolioAssistantStreamEvent);
+    } catch {
+        // Ignore malformed event frames so one bad chunk does not kill the whole reply
+    }
 }
